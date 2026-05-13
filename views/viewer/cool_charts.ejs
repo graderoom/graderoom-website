@@ -7,38 +7,32 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
     <% let theme; %>
-    <% let date = new Date(); %>
-    <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
-    <% zeroTime = zeroTime.getTime(); %>
-    <% if (_appearance.theme === "dark") { %>
-        <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (_appearance.theme === "light") { %>
-        <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
-    <% } else if (_appearance.theme === "auto" && (((_appearance.darkModeStart < _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) && (zeroTime < _appearance.darkModeFinish))) || ((_appearance.darkModeStart > _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) || (zeroTime < _appearance.darkModeFinish))))) { %>
-        <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (_appearance.theme === "system") { %>
-        <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (_appearance.theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
-        <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
+    <% if (page === "charts") { %>
+        <% const darkThemeNames = _themeConstants.names.dark; %>
+        <% const lightThemeNames = _themeConstants.names.light; %>
+        <% const selectedLightTheme = _appearance.lightTheme; %>
+        <% const selectedDarkTheme = _appearance.darkTheme; %>
+        <% let date = new Date(); %>
+        <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
+        <% zeroTime = zeroTime.getTime(); %>
+        <% const autoUsesDark = _appearance.mode === "auto" && (((_appearance.darkModeStart < _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) && (zeroTime < _appearance.darkModeFinish))) || ((_appearance.darkModeStart > _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) || (zeroTime < _appearance.darkModeFinish)))); %>
+        <% const activeThemeName = _appearance.mode === "light" ? selectedLightTheme : _appearance.mode === "dark" ? selectedDarkTheme : autoUsesDark || _appearance.mode === "system" ? selectedDarkTheme : selectedLightTheme; %>
+        <% theme = darkThemeNames.includes(activeThemeName); %>
+        <link id="pageStyle" rel="stylesheet" type="text/css" href="<%= _themeConstants.css[activeThemeName] %>">
     <% } else { %>
         <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
+        <script>(function(){var d=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;window.__dark=d;document.write('<link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/themes/'+(d?'dark':'light')+'/index.css">')})()</script>
+        <noscript><link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/themes/light/index.css"></noscript>
     <% } %>
-    <link rel="stylesheet" type="text/css" href="/public/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/base.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/nav.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/components.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/responsive.css">
     <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
-    <link id="blur_overrides" rel="stylesheet" type="text/css"
-    <% if (theme === true) { %>
-          href="/public/css/dark_blur.css"
-    <% } else if (theme === false) { %> href="/public/css/light_blur.css"
-            <% } %>
+    <link id="blur_responsive" rel="stylesheet" type="text/css" href="/public/css/responsive_blur.css"
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
@@ -176,37 +170,65 @@
         "ndsj": "rgb(153, 102, 255)",
     };
 
-    let checkingTheme;
-    let theme = appearance.theme;
-    let darkModeStart = appearance.darkModeStart ?? null;
-    let darkModeFinish = appearance.darkModeFinish ?? null;
-    let sunrise = <%= sunrise.getTime(); %>;
-    let sunset = <%= sunset.getTime(); %>;
     let SchoolAbbr = <%- JSON.stringify(_SchoolAbbr); %>;
     let PrettySchools = <%- JSON.stringify(_PrettySchools); %>;
 
-    if (theme === "auto" || theme === "sun") {
+    const THEME_CSS = <%- JSON.stringify(_themeConstants.css) %>;
+    const LIGHT_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.light) %>;
+
+    function themeStylesheetFor(themeName) {
+        return THEME_CSS[themeName] ?? THEME_CSS.dark;
+    }
+
+    function isDarkThemeName(themeName) {
+        return !LIGHT_THEME_NAMES.includes(themeName);
+    }
+
+    function isDarkThemeStylesheet() {
+        return !LIGHT_THEME_NAMES.some(themeName => document.getElementById("pageStyle").getAttribute("href") === THEME_CSS[themeName]);
+    }
+
+    <% if (page !== "charts") { %>
+    let darkMode = window.__dark;
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+            darkMode = e.matches;
+            document.getElementById("fade").disabled = false;
+            document.getElementById("pageStyle").setAttribute("href", darkMode ? THEME_CSS.dark : THEME_CSS.light);
+            applyThemeBackground(darkMode);
+            setTimeout(function() { document.getElementById("fade").disabled = true; }, 500);
+            setupAllCharts();
+        });
+    }
+    <% } else { %>
+    let checkingTheme;
+    let mode = appearance.mode;
+    let lightTheme = appearance.lightTheme || "light";
+    let darkTheme = appearance.darkTheme || "dark";
+    let darkModeStart = appearance.darkModeStart ?? null;
+    let darkModeFinish = appearance.darkModeFinish ?? null;
+
+    if (mode === "auto" || mode === "system") {
         checkTime();
     }
 
     function setAutoTheme() {
         let date = new Date();
         let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
-        if (theme !== "auto" && theme !== "sun" && theme !== "system") {
+        if (mode !== "auto" && mode !== "system") {
             if (checkingTheme) {
                 clearInterval(checkingTheme);
             }
             return;
         }
 
-        if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
+        if ((mode === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (mode === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
+            let oldDarkMode = isDarkThemeStylesheet();
             darkMode = true;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
-                document.getElementById("pageStyle").setAttribute("href", "/public/css/dark_mode.css");
+                document.getElementById("pageStyle").setAttribute("href", themeStylesheetFor(darkTheme));
                 if (appearance.blurEffects) {
-                    document.getElementById("blur_overrides").setAttribute("href", "/public/css/dark_blur.css");
                 }
                 $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                 $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
@@ -216,21 +238,20 @@
                 if (appearance.seasonalEffects) {
                     init = performance.now();
                     if (darkMode === false) {
-                        $("#light_snowfall").attr("media", "");
+                        applyThemeBackground(false);
                     } else if (darkMode) {
-                        $("#light_snowfall").attr("media", "not all");
+                        applyThemeBackground(true);
                     }
                 }
                 setupAllCharts();
             }
         } else {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
+            let oldDarkMode = isDarkThemeStylesheet();
             darkMode = false;
             if (darkMode !== oldDarkMode) {
                 document.getElementById("fade").disabled = false;
-                document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
+                document.getElementById("pageStyle").setAttribute("href", themeStylesheetFor(lightTheme));
                 if (appearance.blurEffects) {
-                    document.getElementById("blur_overrides").setAttribute("href", "/public/css/light_blur.css");
                 }
                 $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                 $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
@@ -240,9 +261,9 @@
                 if (appearance.seasonalEffects) {
                     init = performance.now();
                     if (darkMode === false) {
-                        $("#light_snowfall").attr("media", "");
+                        applyThemeBackground(false);
                     } else if (darkMode) {
-                        $("#light_snowfall").attr("media", "not all");
+                        applyThemeBackground(true);
                     }
                 }
                 setupAllCharts();
@@ -259,6 +280,7 @@
             setAutoTheme();
         }, 100);
     }
+    <% } %>
 
     let loginData = <%- JSON.stringify(_loginData); %>;
     let uniqueLoginData = <%- JSON.stringify(_uniqueLoginData); %>;
@@ -408,21 +430,21 @@
                         type: "time", time: {
                             unit: "month"
                         }, ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             fontSize: "13"
                         }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         },
                         max: now,
                         min: now - 183 * dayLength,
                     }, yAxis: {
                         ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             fontSize: "12"
                         }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC"),
+                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC"),
                             drawBorder: false
                         }
                     }
@@ -433,7 +455,7 @@
                     legend: {
                         display: true, position: "top", labels: {
                             usePointStyle: true,
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             boxWidth: 20,
                             fontSize: 13,
@@ -523,22 +545,22 @@
                         type: "time", time: {
                             unit: "month"
                         }, ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             fontSize: "13"
                         }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         },
                         max: now,
                         min: now - 732 * dayLength,
                     }, yAxis: {
                         stacked: true,
                         ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             fontSize: "12"
                         }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC"),
+                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC"),
                             drawBorder: false
                         }
                     }
@@ -549,7 +571,7 @@
                     legend: {
                         display: true, position: "top", labels: {
                             usePointStyle: true,
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             boxWidth: 20,
                             fontSize: 13,
@@ -701,25 +723,25 @@
                 scales: {
                     y: {
                         beginAtZero: true, ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             fontSize: "13"
                         }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         }
                     }, x: {
                         ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             fontSize: "12"
                         }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         }
                     }
                 }, plugins: {
                     legend: {
                         display: true, position: "top", labels: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             boxWidth: 20,
                             fontSize: 13,
@@ -753,25 +775,25 @@
                 indexAxis: "y", scales: {
                     y: {
                         beginAtZero: true, ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             fontSize: "13"
                         }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         }
                     }, x: {
                         ticks: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             fontSize: "12"
                         }, grid: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "#555555" : "#CCCCCC")
+                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         }
                     }
                 }, plugins: {
                     legend: {
                         display: true, position: "left", labels: {
-                            color: (document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css" ? "white" : "black"),
+                            color: (isDarkThemeStylesheet() ? "white" : "black"),
                             fontFamily: "Verdana",
                             boxWidth: 20,
                             fontSize: 13,

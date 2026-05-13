@@ -1,0 +1,499 @@
+/* Mobile media query */
+
+@media only screen and (max-width: 991px) {
+    #pinned-notifications {
+        transform: none;
+        opacity: 0;
+    }
+
+    #notificationPanel.active #pinned-notifications {
+        opacity: 1;
+    }
+
+    .assignment-colspan-1 {
+        display: table-cell;
+    }
+
+    .toolTab {
+        display: none;
+    }
+
+    #color-scheme-picker button {
+        font-size: 0.7rem;
+        width: 70%;
+    }
+
+    #classColors label {
+        font-size: 0.5rem;
+    }
+
+    .nav-popups {
+        display: none !important;
+    }
+
+    .nav-item, .nav-item btn {
+        width: 100% !important;
+    }
+
+    .dropdown-toggle {
+        display: none;
+    }
+
+    .dropdown-divider {
+        display: none;
+    }
+
+    .dropdown-menu {
+        display: block;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+    }
+
+    #mobile-overview-grid {
+        display: grid;
+    }
+
+    #mobile-overview-grid th, #mobile-overview-grid td {
+        cursor: pointer;
+    }
+
+    html.no-scroll {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    body.no-scroll {
+        overflow: hidden;
+    }
+
+    .no-scroll {
+        padding: 0;
+    }
+
+    th.compact, td.compact {
+        display: none;
+    }
+
+    #fps {
+        display: none !important;
+    }
+
+    td, table:not(.block table, .weights) th {
+        font-size: 0.6rem;
+    }
+
+    .table:not(.weights) td, .table:not(.weights) th {
+        padding: 0.5rem !important;
+    }
+
+    .excludeToggle {
+        justify-content: flex-start;
+    }
+
+    .excludeToggle div:nth-child(2) {
+        display: none;
+    }
+
+    td *, td *::after, td *::before, table:not(.weights) th *, table:not(.weights) th *::after, table:not(.weights) th *::before {
+        font-size: 0.6rem;
+    }
+
+    td {
+        overflow: hidden;
+        max-width: 3rem;
+    }
+
+    .table input, .popup > span:not(.timestamp), .popup > span:not(.timestamp) *, .table td {
+        font-size: 0.6rem;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .popup > span:not(.timestamp) {
+        min-width: 5rem !important;
+        max-width: 10rem !important;
+    }
+
+    i {
+        font-size: initial;
+    }
+
+    .chartAndWeights {
+        display: block;
+        max-height: unset;
+    }
+
+    .form-weights > :not(.weights) input:not([type=checkbox]) {
+        font-size: 0.6rem;
+    }
+
+    .form-weights > .weights input:not([type=checkbox]) {
+        font-size: 0.8rem;
+    }
+
+    .weights {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .weights-container {
+        width: fit-content;
+        width: -moz-fit-content;
+        margin: 1rem auto 0 auto;
+    }
+
+    .table-container {
+        display: flex;
+        overflow: hidden;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border-radius: 0.5rem;
+    }
+
+    .brand-label {
+        display: none;
+    }
+
+    .card .tab {
+        transition: all 400ms ease;
+    }
+
+    #settingsCard:focus-within > .card-body, #settingsCard:not(.non-responsive):focus-within .tab {
+        position: absolute;
+        height: 0 !important;
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    .card-body {
+        overflow: hidden;
+    }
+
+    #shortcutsDisplay .card-body .card-body {
+        max-height: 50vh;
+    }
+
+    .card-title {
+        font-size: 2rem;
+    }
+
+    h3 {
+        font-size: 1rem;
+    }
+
+    h4 {
+        font-size: 0.8rem;
+    }
+
+    p, li {
+        font-size: 0.7rem;
+    }
+
+    .tab {
+        align-items: center;
+        height: fit-content;
+        min-height: 3rem;
+    }
+
+    body::-webkit-scrollbar {
+        display: none;
+    }
+
+    .card-signin .card-body {
+        padding: 1.5rem;
+    }
+
+    .tab btn {
+        height: fit-content;
+    }
+
+    .overallGrade {
+        font-size: 200%;
+    }
+
+    .overallLetter {
+        font-size: 600%;
+    }
+
+    .delta {
+        font-size: 0.4rem;
+    }
+
+    .table td.overall {
+        padding: 0.1rem;
+    }
+
+    .overview > div {
+        display: flex !important;
+        align-items: center;
+        flex-flow: column-reverse;
+        justify-content: center;
+    }
+
+    td.overview {
+        padding: 0 0 1rem 0 !important;
+    }
+
+    .backToHome {
+        position: fixed;
+        z-index: 1;
+        bottom: 1rem;
+        left: 1rem;
+        display: flex;
+        align-items: center;
+        flex-flow: row;
+        justify-content: center;
+        width: fit-content;
+        width: -moz-fit-content;
+        min-width: 3rem;
+        height: 3rem;
+        cursor: pointer;
+        pointer-events: none;
+        opacity: 0.5;
+        border-radius: 1.5rem;
+        background-color: var(--clr-surface);
+        box-shadow: 0 0 10px 2px var(--clr-shadow-soft);
+    }
+
+    body:focus-within .backToHome {
+        visibility: hidden;
+    }
+
+    .backToHome i {
+        align-self: center;
+        -moz-transition: all 250ms linear;
+        -o-transition: all 250ms linear;
+        -webkit-transition: all 250ms linear;
+        transition: all 250ms linear;
+    }
+
+    .backToHome span {
+        line-height: 0;
+        width: 0;
+        height: 0;
+        -moz-transition: all 250ms linear;
+        -o-transition: all 250ms linear;
+        -webkit-transition: all 250ms linear;
+        transition: all 250ms linear;
+        text-align: center;
+        opacity: 0;
+    }
+
+    .backToHome span:before {
+        content: "Home";
+    }
+
+    .backToHome.showDetails {
+        pointer-events: all;
+        opacity: 1;
+    }
+
+    .backToHome:hover, .backToHome:active, .backToHome.showDetails {
+        background-color: var(--clr-surface-alt);
+        color: var(--clr-text-3);
+    }
+
+    .backToHome.showDetails span {
+        font-weight: 500;
+        width: 5rem;
+        margin-right: 0.5rem;
+        opacity: 1;
+    }
+
+    .backToHome.showDetails i {
+        margin-left: 1.5rem;
+    }
+
+    .block {
+        background-color: var(--clr-surface-deep);
+    }
+
+    .sessionTimeout h4 {
+        font-size: 0.5rem !important;
+    }
+
+    .navbar-brand-holder {
+        display: flex;
+        width: 100%;
+    }
+
+    .nav-username {
+        display: flex;
+        flex-flow: column;
+        width: fit-content;
+        margin: 0 auto;
+        cursor: pointer;
+        transform: none;
+    }
+
+    .weightOverall {
+        font-size: 1rem;
+    }
+
+    #privacyCard .card-footer, #termsCard .card-footer {
+        overflow-y: scroll;
+        max-height: 30vh;
+    }
+
+    .navbar .nav-item .dropdown-menu {
+        transform: none;
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    #clickBarrier {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 19;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        background-color: transparent;
+        transition: all 250ms ease;
+    }
+
+    #clickBarrier.blocking {
+        pointer-events: all;
+        background-color: var(--clr-overlay);
+    }
+
+    #GPA-container {
+        z-index: 20;
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 14rem;
+        height: 30rem;
+        padding: 2rem;
+        left: -15rem;
+        transition: 250ms all 150ms ease;
+        border-radius: 0 1rem 1rem 0;
+        background-color: var(--clr-surface-deep);
+        border: 1px solid var(--clr-border);
+        box-shadow: 0 0 10px 2px var(--clr-shadow-soft);
+    }
+
+    #GPA-container:hover {
+        left: 0;
+    }
+
+    #GPA-container::before, #GPA-container::after {
+        content: "GPA";
+        font-weight: bold;
+        position: absolute;
+        width: 16rem;
+        height: 4rem;
+        padding: 0.5rem;
+        left: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        vertical-align: middle;
+        transition: all 500ms ease;
+        border-radius: 0 1rem 1rem 0;
+        background-color: inherit;
+    }
+
+    #GPA-container::after {
+        opacity: 0;
+        transition: 0ms all 500ms ease;
+    }
+
+    #GPA-container:hover::before, #GPA-container:hover::after {
+        left: -16.5rem;
+        height: 100%;
+    }
+
+    #gpaDetailsBtn {
+        display: none;
+    }
+
+    #notificationPanel::before {
+        top: -3rem;
+    }
+
+    #notificationPanel::after {
+        top: 8.5rem;
+    }
+
+    .changelog-parent {
+        flex-direction: column-reverse;
+    }
+
+    .changelog {
+        max-height: 40vh;
+        border-radius: 1rem;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .changelog-legend-column {
+        max-width: 100%;
+        max-height: 20vh;
+        padding: 0 1rem;
+        border-radius: 0.5rem;
+        background-color: var(--clr-surface-alt);
+        border: 1px solid var(--clr-border);
+    }
+
+    #termSwitcher {
+        left: unset;
+        right: -8rem;
+        padding: 0.5rem 0.5rem 0.5rem 2.5rem;
+        border-radius: 1rem 0 0 1rem;
+    }
+
+    #termSwitcher::before, #termSwitcher::after {
+        left: unset;
+        right: 5rem;
+        border-radius: 1rem 0 0 1rem;
+        writing-mode: vertical-lr;
+    }
+
+    #termSwitcher:hover, #termSwitcher.hover {
+        padding-left: 0.5rem;
+        left: unset;
+        right: 0;
+    }
+
+    #termSwitcher:hover::before, #termSwitcher.hover::before,
+    #termSwitcher:hover::after, #termSwitcher.hover::after {
+        left: unset;
+        right: -6rem;
+    }
+
+    .assignment-colspan-1 {
+        display: table-cell;
+    }
+
+    .chart-container, #classLinks {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .recaptcha-wrapper {
+        height: 66px;
+    }
+
+    .recaptcha-wrapper .g-recaptcha {
+        transform: scale(0.85);
+        transform-origin: 50% 0;
+    }
+}
+
+@media only screen and (max-height: 730px) {
+    #login-container, #signup-container {
+        position: static;
+        transform: none;
+    }
+}

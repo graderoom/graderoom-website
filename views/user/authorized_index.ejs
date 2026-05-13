@@ -13,38 +13,30 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap"
           rel="stylesheet">
     <% let theme; %>
+    <% const darkThemeNames = _themeConstants.names.dark; %>
+    <% const lightThemeNames = _themeConstants.names.light; %>
+    <% const selectedLightTheme = _appearance.lightTheme; %>
+    <% const selectedDarkTheme = _appearance.darkTheme; %>
     <% let date = new Date(); %>
     <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
     <% zeroTime = zeroTime.getTime(); %>
-    <% if (_appearance.theme === "dark") { %>
-        <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (_appearance.theme === "light") { %>
-        <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
-    <% } else if (_appearance.theme === "auto" && (((_appearance.darkModeStart < _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) && (zeroTime < _appearance.darkModeFinish))) || ((_appearance.darkModeStart > _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) || (zeroTime < _appearance.darkModeFinish))))) { %>
-        <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (_appearance.theme === "system") { %>
-        <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else if (_appearance.theme === "sun" && ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime()))) { %>
-        <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else { %>
-        <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
-    <% } %>
-    <link rel="stylesheet" type="text/css" href="/public/css/main.css">
+    <% const autoUsesDark = _appearance.mode === "auto" && (((_appearance.darkModeStart < _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) && (zeroTime < _appearance.darkModeFinish))) || ((_appearance.darkModeStart > _appearance.darkModeFinish) && ((zeroTime >= _appearance.darkModeStart) || (zeroTime < _appearance.darkModeFinish)))); %>
+    <% const activeThemeName = _appearance.mode === "light" ? selectedLightTheme : _appearance.mode === "dark" ? selectedDarkTheme : autoUsesDark || _appearance.mode === "system" ? selectedDarkTheme : selectedLightTheme; %>
+    <% theme = darkThemeNames.includes(activeThemeName); %>
+    <link id="pageStyle" rel="stylesheet" type="text/css" href="<%= _themeConstants.css[activeThemeName] %>">
+    <link rel="stylesheet" type="text/css" href="/public/css/base.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/nav.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/forms.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/tables.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/notifications.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/components.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/responsive.css">
     <link id="blur_base" rel="stylesheet" type="text/css" href="/public/css/blur.css"
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
-    <link id="blur_overrides" rel="stylesheet" type="text/css"
-    <% if (theme === true) { %>
-          href="/public/css/dark_blur.css"
-    <% } else if (theme === false) { %> href="/public/css/light_blur.css"
-            <% } %>
+    <link id="blur_responsive" rel="stylesheet" type="text/css" href="/public/css/responsive_blur.css"
           <% if (!_appearance.blurEffects) { %>disabled
             <% } %>
     >
@@ -859,60 +851,69 @@
                                 appearance.showFps = settings[key];
                                 $("#showFps").prop("checked", appearance.showFps);
                                 break;
-                            case "theme":
-                                let oldDarkMode;
-                                switch (settings[key]) {
-                                    case "dark":
-                                        oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
-                                        darkMode = true;
-                                        theme = settings[key];
-                                        if (darkMode !== oldDarkMode) {
-                                            document.getElementById("fade").disabled = false;
-                                            document.getElementById("pageStyle").setAttribute("href", "/public/css/dark_mode.css");
-                                            document.getElementById("blur_overrides").setAttribute("href", "/public/css/dark_blur.css");
-                                            renderAllCharts();
-                                            $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
-                                            $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
-                                            setupDiscord();
-                                            setupClassTables(undefined, true);
-                                            setTimeout(() => {
-                                                document.getElementById("fade").disabled = true;
-                                            }, 200);
-                                            $(`input[name=theme]`).prop("checked", false);
-                                            $(`input[name=theme][value=${settings[key]}]`).prop("checked", true);
-                                        }
-                                        break;
-                                    case "light":
-                                        let autoLimitsContainer = $("#auto-limits-container");
-                                        autoLimitsContainer.hide();
-                                        document.getElementsByName("theme")[0].setAttribute("checked", "checked");
-                                        oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
-                                        darkMode = false;
-                                        theme = settings[key];
-                                        if (darkMode !== oldDarkMode) {
-                                            document.getElementById("fade").disabled = false;
-                                            document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
-                                            document.getElementById("blur_overrides").setAttribute("href", "/public/css/light_blur.css");
-                                            renderAllCharts();
-                                            $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
-                                            $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
-                                            setupDiscord();
-                                            setupClassTables(undefined, true);
-                                            setTimeout(() => {
-                                                document.getElementById("fade").disabled = true;
-                                            }, 200);
-                                        }
-                                        $(`input[name=theme]`).prop("checked", false);
-                                        $(`input[name=theme][value=${settings[key]}]`).prop("checked", true);
-                                        break;
-                                    case "sun":
-                                    case "system":
-                                    case "auto":
-                                        theme = settings[key];
-                                        $(`input[name=theme]`).prop("checked", false);
-                                        $(`input[name=theme][value=${settings[key]}]`).prop("checked", true);
-                                        checkTime();
-                                        break;
+                            case "mode":
+                                mode = settings[key];
+                                appearance.mode = settings[key];
+                                $(`input[name=theme]`).prop("checked", false);
+                                $(`input[name=theme][value=${mode === "auto" || mode === "system" ? "auto-mode" : mode}]`).prop("checked", true);
+                                $(`input[name=automaticTheme]`).prop("checked", false);
+                                if (mode === "auto" || mode === "system") {
+                                    $(`input[name=automaticTheme][value=${mode}]`).prop("checked", true);
+                                }
+                                if (mode === "auto" || mode === "system") {
+                                    $("#light-theme-options, #dark-theme-options, #automatic-theme-options").show();
+                                    if (mode === "auto") {
+                                        $("#auto-limits-container").show().css("display", "flex");
+                                        $("#prefers-color-scheme").hide();
+                                    } else {
+                                        $("#auto-limits-container").hide();
+                                        $("#prefers-color-scheme").show();
+                                    }
+                                    checkTime();
+                                } else {
+                                    if (checkingTheme) {
+                                        clearInterval(checkingTheme);
+                                    }
+                                    $("#automatic-theme-options, #auto-limits-container").hide();
+                                    $("#prefers-color-scheme").hide();
+                                    if (mode === "light") {
+                                        $("#light-theme-options").show();
+                                        $("#dark-theme-options").hide();
+                                    } else {
+                                        $("#dark-theme-options").show();
+                                        $("#light-theme-options").hide();
+                                    }
+                                    document.getElementById("fade").disabled = false;
+                                    applyActiveTheme();
+                                    setTimeout(() => {
+                                        document.getElementById("fade").disabled = true;
+                                    }, 200);
+                                }
+                                break;
+                            case "lightTheme":
+                                lightTheme = settings[key];
+                                appearance.lightTheme = settings[key];
+                                $("#lightThemePreset").val(settings[key]);
+                                updateThemeBadge("lightThemeBadge", settings[key]);
+                                if (mode === "light" || ((mode === "auto" || mode === "system") && !darkMode)) {
+                                    document.getElementById("fade").disabled = false;
+                                    applyActiveTheme();
+                                    setTimeout(() => {
+                                        document.getElementById("fade").disabled = true;
+                                    }, 200);
+                                }
+                                break;
+                            case "darkTheme":
+                                darkTheme = settings[key];
+                                appearance.darkTheme = settings[key];
+                                $("#darkThemePreset").val(settings[key]);
+                                updateThemeBadge("darkThemeBadge", settings[key]);
+                                if (mode === "dark" || ((mode === "auto" || mode === "system") && darkMode)) {
+                                    document.getElementById("fade").disabled = false;
+                                    applyActiveTheme();
+                                    setTimeout(() => {
+                                        document.getElementById("fade").disabled = true;
+                                    }, 200);
                                 }
                                 break;
                             case "darkModeStart":
@@ -934,15 +935,19 @@
                                     disableSnow();
                                 }
                                 break;
+                            case "background":
+                                appearance.background = settings[key];
+                                $("#backgroundPreset").val(settings[key]);
+                                updateBackgroundBadge("backgroundBadge", settings[key]);
+                                applyThemeBackground();
+                                break;
                             case "blurEffects":
                                 $("#blurEffectsToggle").prop("checked", settings[key]);
                                 appearance.blurEffects = settings[key];
                                 if (!appearance.blurEffects) {
-                                    $("#blur_base").prop("disabled", true);
-                                    $("#blur_overrides").prop("disabled", true);
+                                    $("#blur_base, #blur_responsive").prop("disabled", true);
                                 } else {
-                                    $("#blur_base").prop("disabled", false);
-                                    $("#blur_overrides").prop("disabled", false);
+                                    $("#blur_base, #blur_responsive").prop("disabled", false);
                                 }
                                 break;
                             case "regularizeClassGraphs":
@@ -966,15 +971,11 @@
                                 break;
                         }
                         if (appearance.seasonalEffects) {
-                            $("#snow-fall-bg").show();
                             $(".lightrope").show();
-                            if (darkMode === false) {
-                                $("#light_snowfall").attr("media", "");
-                            } else if (darkMode) {
-                                $("#light_snowfall").attr("media", "not all");
-                            }
+                            applyThemeBackground();
                         } else {
                             disableSnow();
+                            applyThemeBackground();
                         }
                         if (data.message) {
                             $("#themeMessage").removeClass("alert-danger").addClass("alert-success").show().text(data.message);
@@ -1011,6 +1012,10 @@
                             setupIncorrectGradeMessages();
                             break;
                         case "Waiting for local scrape...":
+                            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                                messageDiv.css("display", "none");
+                                break;
+                            }
                             checkExtensionInstalled().then(installed => {
                                 if (!installed) {
                                     showCard('#localScrapeCardDisplay');
@@ -1284,6 +1289,71 @@
             renderAllCharts();
         }
 
+        let cssColorCache = {};
+        let cssRgbColorCache = {};
+
+        function resolveCssColor(variableName) {
+            let probe = document.createElement("div");
+            probe.style.display = "none";
+            probe.style.color = `var(${variableName})`;
+            document.body.appendChild(probe);
+
+            let color = getComputedStyle(probe).color;
+            probe.remove();
+
+            return color;
+        }
+
+        function getCssColor(variableName) {
+            if (!variableName.startsWith("--")) {
+                variableName = "--" + variableName;
+            }
+
+            if (!cssColorCache[variableName]) {
+                cssColorCache[variableName] = resolveCssColor(variableName);
+            }
+
+            return cssColorCache[variableName];
+        }
+
+        function parseRgbColor(color) {
+            let match = color.match(/^rgba?\(\s*([\d.]+)(?:,\s*|\s+)([\d.]+)(?:,\s*|\s+)([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?/);
+            if (!match) {
+                return null;
+            }
+
+            let alpha = match[4] ?? "1";
+            if (alpha.endsWith("%")) {
+                alpha = Number(alpha.slice(0, -1)) / 100;
+            } else {
+                alpha = Number(alpha);
+            }
+
+            return {
+                r: Math.round(Number(match[1])),
+                g: Math.round(Number(match[2])),
+                b: Math.round(Number(match[3])),
+                a: alpha
+            };
+        }
+
+        function getCssRgbColor(variableName) {
+            if (!variableName.startsWith("--")) {
+                variableName = "--" + variableName;
+            }
+
+            if (!cssRgbColorCache[variableName]) {
+                cssRgbColorCache[variableName] = parseRgbColor(getCssColor(variableName));
+            }
+
+            return cssRgbColorCache[variableName];
+        }
+
+        function clearCssColorCache() {
+            cssColorCache = {};
+            cssRgbColorCache = {};
+        }
+
         function deltaColorFunction(delta, improve) {
             // Calculate alpha
             let abs = Math.abs(delta);
@@ -1294,12 +1364,9 @@
 
             // Get initial improve/deprove color
             let initColor = (improve ? {r: 0, g: 255, b: 0, a: alpha} : {r: 255, g: 0, b: 0, a: alpha});
-            if (darkMode) {
-                return "rgba(" + initColor.r + ", " + initColor.g + ", " + initColor.b + ", " + initColor.a + ")";
-            }
 
             // Get background color
-            let bgColor = {r: 255, g: 255, b: 255};
+            let bgColor = getCssRgbColor("clr-surface-deep") || {r: 255, g: 255, b: 255};
 
             // Calculate final color
             let finalColor = {r: 0, g: 0, b: 0};
@@ -1343,8 +1410,6 @@
             }
         }
 
-        let sunrise = <%= sunrise.getTime() %>;
-        let sunset = <%= sunset.getTime() %>;
         let alerts = <%- JSON.stringify(_alerts); %>;
         let updatedGradeHistory = <%- JSON.stringify(_updatedGradeHistory); %>;
         let personalInfo = <%- JSON.stringify(_personalInfo); %>;
@@ -1433,7 +1498,76 @@
         }
 
         let changeTransition;
-        let theme = appearance.theme;
+        let mode = appearance.mode;
+        let lightTheme = appearance.lightTheme || "light";
+        let darkTheme = appearance.darkTheme || "dark";
+
+    const THEME_CSS = <%- JSON.stringify(_themeConstants.css) %>;
+    const LIGHT_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.light) %>;
+    const PLUS_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.plus) %>;
+    const PREMIUM_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.premium) %>;
+    const PLUS_BACKGROUND_NAMES = <%- JSON.stringify(_themeConstants.backgrounds.names.plus) %>;
+    const PREMIUM_BACKGROUND_NAMES = <%- JSON.stringify(_themeConstants.backgrounds.names.premium) %>;
+
+    function updateEntitlementBadge(badgeId, value, plusNames, premiumNames) {
+        const el = document.getElementById(badgeId);
+        if (!el) return;
+        if (premiumNames.includes(value)) {
+            el.innerHTML = '<span class="premium label-background"><span class="premium-label">PREMIUM</span></span>';
+        } else if (plusNames.includes(value)) {
+            el.innerHTML = '<span class="plus label-background"><span class="plus-label">PLUS</span></span>';
+        } else {
+            el.innerHTML = '';
+        }
+    }
+    
+    function updateThemeBadge(badgeId, themeName) {
+        updateEntitlementBadge(badgeId, themeName, PLUS_THEME_NAMES, PREMIUM_THEME_NAMES);
+    }
+    
+    function updateBackgroundBadge(badgeId, backgroundName) {
+        updateEntitlementBadge(badgeId, backgroundName, PLUS_BACKGROUND_NAMES, PREMIUM_BACKGROUND_NAMES);
+    }
+
+    function themeStylesheetFor(themeName) {
+        return THEME_CSS[themeName] ?? THEME_CSS.dark;
+    }
+
+    function isDarkThemeName(themeName) {
+        return !LIGHT_THEME_NAMES.includes(themeName);
+    }
+
+    function isDarkThemeStylesheet() {
+        return !LIGHT_THEME_NAMES.some(themeName => document.getElementById("pageStyle").getAttribute("href") === THEME_CSS[themeName]);
+    }
+
+    function activeThemeNameForMode() {
+        if (mode === "light") {
+            return lightTheme;
+        }
+        if (mode === "dark") {
+            return darkTheme;
+        }
+        return darkMode ? darkTheme : lightTheme;
+    }
+
+    function applyActiveTheme() {
+        const activeThemeName = activeThemeNameForMode();
+        const nextDarkMode = isDarkThemeName(activeThemeName);
+        const oldDarkMode = isDarkThemeStylesheet();
+        darkMode = nextDarkMode;
+        document.getElementById("pageStyle").setAttribute("href", themeStylesheetFor(activeThemeName));
+        renderAllCharts();
+        $(".navbar-brand img").attr("src", `/public/resources/${darkMode ? "dark" : "light"}_mode/logo.png`);
+        $(".navbar").toggleClass("navbar-dark", darkMode).toggleClass("navbar-light", !darkMode);
+        setupDiscord();
+        setupClassTables(undefined, true);
+        if (appearance.seasonalEffects) {
+            applyThemeBackground(darkMode);
+        }
+        return oldDarkMode !== nextDarkMode;
+    }
+
         let checkingTheme;
 
         let showMaxGPA = appearance.showMaxGPA;
@@ -1443,11 +1577,20 @@
 
         // This should only happen once
         let {dateSort, categorySort} = <%- JSON.stringify(_sortingData); %>;
-        if (theme === "auto" || theme === "sun" || theme === "system") {
+        if (mode === "auto" || mode === "system") {
             checkTime();
         } else {
-            darkMode = theme === "dark";
+            darkMode = isDarkThemeName(activeThemeNameForMode());
         }
+
+        let pageStyle = document.getElementById("pageStyle");
+        if (pageStyle) {
+            pageStyle.addEventListener("load", () => {
+                clearCssColorCache();
+                setupClassTables(undefined, true);
+            });
+        }
+        clearCssColorCache();
 
         setupDonos();
         setupNotificationPanel();
@@ -1501,14 +1644,14 @@
             let date = new Date();
             let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
             zeroTime = zeroTime.getTime();
-            if (theme !== "auto" && theme !== "sun" && theme !== "system") {
+            if (mode !== "auto" && mode !== "system") {
                 if (checkingTheme) {
                     clearInterval(checkingTheme);
                 }
                 return;
             }
 
-            if (theme === "system") {
+            if (mode === "system") {
                 if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
                     $("#prefers-color-scheme").text("Current browser theme: dark");
                 } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
@@ -1518,13 +1661,12 @@
                 }
             }
 
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
-            let oldDarkBlur = document.getElementById("blur_overrides").getAttribute("href") === "/public/css/dark_blur.css";
-            if ((theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (theme === "sun" && (zeroTime >= sunset || zeroTime <= sunrise)) || (theme === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
+            let oldDarkMode = isDarkThemeStylesheet();
+            if ((mode === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (mode === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
                 darkMode = true;
                 if (darkMode !== oldDarkMode) {
                     document.getElementById("fade").disabled = false;
-                    document.getElementById("pageStyle").setAttribute("href", "/public/css/dark_mode.css");
+                    document.getElementById("pageStyle").setAttribute("href", themeStylesheetFor(darkTheme));
                     renderAllCharts();
                     $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
                     $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
@@ -1536,20 +1678,17 @@
                     if (appearance.seasonalEffects) {
                         init = performance.now();
                         if (darkMode === false) {
-                            $("#light_snowfall").attr("media", "");
+                            applyThemeBackground(false);
                         } else if (darkMode) {
-                            $("#light_snowfall").attr("media", "not all");
+                            applyThemeBackground(true);
                         }
                     }
-                }
-                if (appearance.blurEffects && !oldDarkBlur) {
-                    document.getElementById("blur_overrides").setAttribute("href", "/public/css/dark_blur.css");
                 }
             } else {
                 darkMode = false;
                 if (darkMode !== oldDarkMode) {
                     document.getElementById("fade").disabled = false;
-                    document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
+                    document.getElementById("pageStyle").setAttribute("href", themeStylesheetFor(lightTheme));
                     renderAllCharts();
                     $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
                     $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
@@ -1561,14 +1700,11 @@
                     if (appearance.seasonalEffects) {
                         init = performance.now();
                         if (darkMode === false) {
-                            $("#light_snowfall").attr("media", "");
+                            applyThemeBackground(false);
                         } else if (darkMode) {
-                            $("#light_snowfall").attr("media", "not all");
+                            applyThemeBackground(true);
                         }
                     }
-                }
-                if (appearance.blurEffects && oldDarkBlur) {
-                    document.getElementById("blur_overrides").setAttribute("href", "/public/css/light_blur.css");
                 }
             }
         }

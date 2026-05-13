@@ -43,12 +43,76 @@ module.exports.SchoolAbbr = {
 
 const _noGpaLetters = ["NC", "CR", "P", "W", false];
 const _noGpaLetterStrings = _noGpaLetters.filter(l => typeof l === "string");
+const _themeNames = {
+    dark: ["dark", "oled-dark", "midnight-blue", "forest", "terminal", "nord", "dracula", "monokai", "gruvbox", "cyberpunk"],
+    light: ["light", "rose", "solarized-light", "catppuccin-latte", "sunset", "one-light", "github-light", "ayu-light"],
+    plus: ["midnight-blue", "forest", "rose", "solarized-light", "terminal"],
+    premium: ["nord", "dracula", "monokai", "gruvbox", "cyberpunk", "catppuccin-latte", "sunset", "one-light", "github-light", "ayu-light"]
+};
+const _themeCss = Object.fromEntries([..._themeNames.dark, ..._themeNames.light].map(theme => [theme, `/public/css/themes/${theme}/index.css`]));
+const _themeLabels = {
+    "light": "Graderoom Light",
+    "dark": "Graderoom Dark",
+    "oled-dark": "OLED Dark",
+    "midnight-blue": "Midnight Blue",
+    "forest": "Forest",
+    "rose": "Rose",
+    "solarized-light": "Solarized Light",
+    "terminal": "Terminal",
+    "nord": "Nord",
+    "dracula": "Dracula",
+    "monokai": "Monokai",
+    "gruvbox": "Gruvbox",
+    "cyberpunk": "Cyberpunk",
+    "catppuccin-latte": "Catppuccin Latte",
+    "sunset": "Sunset",
+    "one-light": "One Light",
+    "github-light": "GitHub Light",
+    "ayu-light": "Ayu Light"
+};
+const _backgroundNames = {
+    free: ["default", "winter-logo"],
+    plus: ["aurora", "blueprint"],
+    premium: ["nebula", "hologlass"]
+};
+const _backgroundLabels = {
+    "default": "Default Background",
+    "winter-logo": "Winter Logo Gradient",
+    "aurora": "Aurora",
+    "blueprint": "Blueprint",
+    "nebula": "Nebula",
+    "hologlass": "Hologlass"
+};
 
 module.exports.Constants = {
     classTypes: ["non-academic", "none", "ap", "honors"],
     uc_csuClassTypes: ["not_uc", "uc", "uc_ap", "uc_hon"],
     donoPlatforms: ["paypal", "venmo", "zelle", "cash", "gift"],
     noGpaLetters: _noGpaLetters,
+    themes: {
+        names: {
+            dark: _themeNames.dark,
+            light: _themeNames.light,
+            plus: _themeNames.plus,
+            premium: _themeNames.premium,
+            paid: [..._themeNames.plus, ..._themeNames.premium],
+            fixed: [..._themeNames.dark, ..._themeNames.light],
+            modes: ["light", "dark", "auto", "system"],
+            all: ["auto", "system", ..._themeNames.dark, ..._themeNames.light]
+        },
+        css: _themeCss,
+        labels: _themeLabels,
+        backgrounds: {
+            names: {
+                free: _backgroundNames.free,
+                plus: _backgroundNames.plus,
+                premium: _backgroundNames.premium,
+                paid: [..._backgroundNames.plus, ..._backgroundNames.premium],
+                all: [..._backgroundNames.free, ..._backgroundNames.plus, ..._backgroundNames.premium]
+            },
+            labels: _backgroundLabels
+        }
+    },
     validLetterGradeRegex: new RegExp(`^(?:${_noGpaLetterStrings.join("|")}|F|[A-D][+\-]?)$`)
 }
 

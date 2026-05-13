@@ -6,18 +6,14 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:500&display=swap">
-    <% let theme; %>
-    <% let date = new Date(); %>
-    <% let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes()); %>
-    <% zeroTime = zeroTime.getTime(); %>
-    <% if ((zeroTime >= sunset.getTime()) || (zeroTime <= sunrise.getTime())) { %>
-        <% theme = true; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/dark_mode.css">
-    <% } else { %>
-        <% theme = false; %>
-        <link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/light_mode.css">
-    <% } %>
-    <link rel="stylesheet" type="text/css" href="/public/css/main.css">
+    <% let theme = false; %>
+    <script>(function(){var d=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;window.__dark=d;document.write('<link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/themes/'+(d?'dark':'light')+'/index.css">')})()</script>
+    <noscript><link id="pageStyle" rel="stylesheet" type="text/css" href="/public/css/themes/light/index.css"></noscript>
+    <link rel="stylesheet" type="text/css" href="/public/css/base.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/nav.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/forms.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/components.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/responsive.css">
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
@@ -138,7 +134,8 @@
                     <% } %>
                     <hr style="margin: 0.5rem 0 1.5rem; opacity: 0.15">
                     <div class="recaptcha-wrapper" style="display: flex; justify-content: center; margin-bottom: 1.25rem">
-                        <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>" data-theme="<%= theme ? 'dark' : 'light' %>" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired"></div>
+                        <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired"></div>
+                        <script>document.querySelector('.g-recaptcha').setAttribute('data-theme', window.__dark ? 'dark' : 'light')</script>
                     </div>
                     <div class="text-center">
                         <button id="signupBtn" type="submit" class="btn btn-default btn-lg" disabled>Signup
@@ -163,7 +160,7 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-<%- include('../partials/limited_time/snowfall.ejs', {theme: theme, page: page}); %>
+<%- include('../partials/site_effects.ejs', {theme: theme, page: page}); %>
 <script>
 
     let appearance = <%- JSON.stringify(_appearance); %>;
@@ -634,64 +631,30 @@
     }
 
 
-    let sunrise = <%= sunrise.getTime() %>;
-    let sunset = <%= sunset.getTime() %>;
-    let darkMode;
+    let darkMode = window.__dark;
 
-    checkTime();
-
-    function setAutoTheme() {
-        let date = new Date();
-        let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
-        if (zeroTime >= sunset || zeroTime <= sunrise) {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
-            darkMode = true;
-            if (darkMode !== oldDarkMode) {
-                document.getElementById("fade").disabled = false;
-                document.getElementById("pageStyle").setAttribute("href", "/public/css/dark_mode.css");
-                $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
-                $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
-                setTimeout(() => {
-                    document.getElementById("fade").disabled = true;
-                }, 500);
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+            darkMode = e.matches;
+            document.getElementById("fade").disabled = false;
+            document.getElementById("pageStyle").setAttribute("href", (darkMode ? "/public/css/themes/dark/index.css" : "/public/css/themes/light/index.css"));
+            applyThemeBackground(darkMode);
+            var oldDiv = document.querySelector('.g-recaptcha');
+            var newDiv = document.createElement('div');
+            newDiv.className = 'g-recaptcha';
+            oldDiv.parentNode.replaceChild(newDiv, oldDiv);
+            if (typeof grecaptcha !== 'undefined') {
+                grecaptcha.render(newDiv, {
+                    sitekey: '<%= recaptchaSiteKey %>',
+                    theme: darkMode ? 'dark' : 'light',
+                    callback: onRecaptchaSuccess,
+                    'expired-callback': onRecaptchaExpired
+                });
+                recaptchaPassed = false;
+                invalidateSignup();
             }
-        } else {
-            let oldDarkMode = document.getElementById("pageStyle").getAttribute("href") === "/public/css/dark_mode.css";
-            darkMode = false;
-            if (darkMode !== oldDarkMode) {
-                document.getElementById("fade").disabled = false;
-                document.getElementById("pageStyle").setAttribute("href", "/public/css/light_mode.css");
-                $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
-                $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
-                setTimeout(() => {
-                    document.getElementById("fade").disabled = true;
-                }, 500);
-            }
-        }
-        if (appearance.seasonalEffects) {
-            init = performance.now();
-            $('#lights-disabled-message').hide();
-            $('#snow-disabled-message').hide();
-            $("#snow-fall").show();
-            $(".lightrope").show();
-            if (!darkMode) {
-                $("#light_snowfall").attr("media", "");
-            } else {
-                $("#light_snowfall").attr("media", "not all");
-            }
-        } else {
-            $('#lights-disabled-message').hide();
-            $('#snow-disabled-message').hide();
-            $("#snow-fall").hide();
-            $(".lightrope").hide();
-        }
-    }
-
-    async function checkTime() {
-        setAutoTheme();
-        window.setInterval(function () {
-            setAutoTheme();
-        }, 100);
+            setTimeout(function() { document.getElementById("fade").disabled = true; }, 500);
+        });
     }
 </script>
 </body>
