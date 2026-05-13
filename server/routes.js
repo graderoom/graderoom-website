@@ -2,9 +2,9 @@ const server = require("./graderoom.js");
 const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
-const SunCalc = require("suncalc");
+
 const https = require("https");
-const {changelog, changelogLegend, latestVersion} = require("./dbHelpers");
+const {changelog, changelogLegend, latestVersion, donoAttributes} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isApiAuthenticated, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
 
@@ -40,13 +40,68 @@ function verifyRecaptcha(token) {
     });
 }
 
+const allowedBackgrounds = Constants.themes.backgrounds.names.all;
+
+function getDailyLoggedOutBackground() {
+    const backgrounds = allowedBackgrounds.filter(b => b !== "default");
+    const today = new Date();
+    const dayIndex = Math.floor(today.getTime() / (24 * 60 * 60 * 1000));
+    return backgrounds[dayIndex % backgrounds.length] ?? "default";
+}
+
+function loggedOutAppearance(extra) {
+    const bg = getDailyLoggedOutBackground();
+    return Object.assign({seasonalEffects: true, background: bg, allowPaidBackgrounds: true}, extra);
+}
+
+function appearanceForRender(appearance, attrs = {}) {
+    const copy = Object.assign({}, appearance);
+    const {plus: plusThemes, premium: premiumThemes} = Constants.themes.names;
+    const {plus: plusBackgrounds, premium: premiumBackgrounds} = Constants.themes.backgrounds.names;
+    const allowPaidBackgrounds = copy.allowPaidBackgrounds === true;
+    delete copy.allowPaidBackgrounds;
+
+    if (!attrs.premium) {
+        if (premiumThemes.includes(copy.lightTheme)) {
+            copy.lightTheme = "light";
+        }
+        if (premiumThemes.includes(copy.darkTheme)) {
+            copy.darkTheme = "dark";
+        }
+    }
+    if (!attrs.plus) {
+        if (plusThemes.includes(copy.lightTheme)) {
+            copy.lightTheme = "light";
+        }
+        if (plusThemes.includes(copy.darkTheme)) {
+            copy.darkTheme = "dark";
+        }
+        if (!allowPaidBackgrounds && plusBackgrounds.includes(copy.background)) {
+            copy.background = "default";
+        }
+    }
+    if (!allowPaidBackgrounds && !attrs.premium && premiumBackgrounds.includes(copy.background)) {
+        copy.background = attrs.plus ? "aurora" : "default";
+    }
+
+    return copy;
+}
+
+function renderWithConstants(res, view, data = {}) {
+    const renderData = Object.assign({_themeConstants: Constants.themes, testExtensionID: process.env.TEST_EXTENSION_ID || ''}, data);
+    if (renderData._appearance) {
+        renderData._appearance = appearanceForRender(renderData._appearance, {plus: renderData.plus === true, premium: renderData.premium === true});
+    }
+    res.render(view, renderData);
+}
+
 module.exports = function (app, passport) {
 
     // normal routes ===============================================================
 
     // show the home page (will also have our login links)
     app.get("/", [checkReturnTo], async (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+
 
         if (req.isAuthenticated()) {
             req.session.touch();
@@ -69,7 +124,7 @@ module.exports = function (app, passport) {
             let gradeSync = (await dbClient.getGradeSync(req.user.username)).data.value;
 
             if (term && semester) {
-                let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+                let {plus, premium} = donoAttributes(req.user.donoData);
                 let relevantClassData = (await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value;
                 let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(req.user.username, term, semester)).data.value;
                 let trimmedAlerts = (await dbClient.getTrimmedAlerts(req.user.username, term, semester)).data.value;
@@ -88,7 +143,7 @@ module.exports = function (app, passport) {
                     return [term, sortedSemesters];
                 }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
 
-                res.render("user/authorized_index.ejs", {
+                renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
                     history: req.query.term || req.query.semester,
                     school: req.user.school,
@@ -120,8 +175,6 @@ module.exports = function (app, passport) {
                     semester: semester,
                     _termsAndSemesters: termsAndSemesters,
                     _: _,
-                    sunset: sunset,
-                    sunrise: sunrise,
                     premium: premium,
                     enableLogging: req.user.enableLogging,
                     pairKey: req.user.api.pairKey ?? "",
@@ -130,9 +183,9 @@ module.exports = function (app, passport) {
                     plus: plus
                 });
             } else {
-                let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+                let {plus, premium} = donoAttributes(req.user.donoData);
                 let alerts = (await dbClient.getAllAlerts(req.user.username)).data.value;
-                res.render("user/authorized_index.ejs", {
+                renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
                     history: false,
                     school: req.user.school,
@@ -164,8 +217,6 @@ module.exports = function (app, passport) {
                     semester: "",
                     _termsAndSemesters: [],
                     _: _,
-                    sunset: sunset,
-                    sunrise: sunrise,
                     premium: premium,
                     plus: plus,
                     enableLogging: req.user.enableLogging,
@@ -176,18 +227,58 @@ module.exports = function (app, passport) {
             }
             return;
         }
-        res.render("viewer/index.ejs", {
+        renderWithConstants(res, "viewer/index.ejs", {
             message: req.flash("loginMessage"),
             beta: server.beta,
-            _appearance: {seasonalEffects: true},
+            _appearance: loggedOutAppearance(),
             page: "login",
-            sunset: sunset,
-            sunrise: sunrise,
         });
     });
 
     app.get("/apple-touch-icon.png", (req, res) => {
         res.sendFile("/public/resources/common/pwa-icon-120.png", {root: "./"});
+    });
+
+    app.get("/theme/background.css", async (req, res) => {
+        const allowedThemes = Constants.themes.names.fixed;
+        const theme = allowedThemes.includes(req.query.theme) ? req.query.theme : null;
+        if (!theme) {
+            return res.sendStatus(404);
+        }
+        if (Constants.themes.names.paid.includes(theme)) {
+            if (!req.user) {
+                return res.sendStatus(403);
+            }
+            const attrs = donoAttributes(req.user.donoData);
+            if (Constants.themes.names.premium.includes(theme) && !attrs.premium) {
+                return res.sendStatus(403);
+            }
+            if (Constants.themes.names.plus.includes(theme) && !attrs.plus) {
+                return res.sendStatus(403);
+            }
+        }
+
+        const appearance = req.user?.appearance;
+        const background = req.user ? appearance.background : req.query.background;
+        if (!allowedBackgrounds.includes(background)) {
+            return res.sendStatus(404);
+        }
+        if (Constants.themes.backgrounds.names.paid.includes(background)) {
+            if (req.user) {
+                const attrs = donoAttributes(req.user.donoData);
+                if (Constants.themes.backgrounds.names.premium.includes(background) && !attrs.premium) {
+                    return res.sendStatus(403);
+                }
+                if (Constants.themes.backgrounds.names.plus.includes(background) && !attrs.plus) {
+                    return res.sendStatus(403);
+                }
+            }
+        }
+        if (background === "default") {
+            return res.type("text/css").send("");
+        }
+
+        res.sendFile(`/public/css/themes/${theme}/backgrounds/${background}.css`, {root: "./"});
     });
 
     app.post("/assignmentAverage", [isLoggedIn], async (req, res) => {
@@ -209,21 +300,19 @@ module.exports = function (app, passport) {
     });
 
     app.get("/terms", async (req, res) => {
-        res.render("viewer/terms_and_conditions.ejs");
+        renderWithConstants(res, "viewer/terms_and_conditions.ejs");
     });
 
     app.get("/privacy", async (req, res) => {
-        res.render("viewer/privacy_policy.ejs");
+        renderWithConstants(res, "viewer/privacy_policy.ejs");
     });
 
     app.get("/about", async (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
-        res.render("viewer/about.ejs", {
-            _appearance: {seasonalEffects: true},
+
+        renderWithConstants(res, "viewer/about.ejs", {
+            _appearance: loggedOutAppearance(),
             page: "logged-out-home",
-            sunset: sunset,
-            sunrise: sunrise
         });
     });
 
@@ -304,10 +393,10 @@ module.exports = function (app, passport) {
             };
             user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
 
-            let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+    
 
             if (term && semester) {
-                let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
+                let {plus, premium} = donoAttributes(user.donoData);
                 let relevantClassData = (await dbClient.getRelevantClassData(user.username, term, semester)).data.value;
                 let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(user.username, term, semester)).data.value;
                 let trimmedAlerts = (await dbClient.getTrimmedAlerts(user.username, term, semester)).data.value;
@@ -319,7 +408,7 @@ module.exports = function (app, passport) {
                     });
                     return [term, sortedSemesters];
                 }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
-                res.render("user/authorized_index.ejs", {
+                renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
                     history: req.query.term || req.query.semester,
                     school: user.school,
@@ -350,8 +439,6 @@ module.exports = function (app, passport) {
                     term: term,
                     semester: semester,
                     _termsAndSemesters: termsAndSemesters,
-                    sunset: sunset,
-                    sunrise: sunrise,
                     plus: plus,
                     premium: premium,
                     _: _,
@@ -361,8 +448,8 @@ module.exports = function (app, passport) {
                     apiKey: user.api.apiKey ?? "",
                 });
             } else {
-                let {plus, premium} = (await dbClient.getDonoAttributes(user.username)).data.value;
-                res.render("user/authorized_index.ejs", {
+                let {plus, premium} = donoAttributes(user.donoData);
+                renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
                     history: false,
                     school: user.school,
@@ -393,8 +480,6 @@ module.exports = function (app, passport) {
                     term: "",
                     semester: "",
                     _termsAndSemesters: [],
-                    sunset: sunset,
-                    sunrise: sunrise,
                     plus: plus,
                     premium: premium,
                     _: _,
@@ -510,8 +595,9 @@ module.exports = function (app, passport) {
     });
 
     app.get("/admin", [isAdmin], async (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
-        res.render("admin/admin.ejs", {
+        let {plus, premium} = donoAttributes(req.user.donoData);
+
+        renderWithConstants(res, "admin/admin.ejs", {
             page: "admin",
             username: req.user.username,
             adminSuccessMessage: req.flash("adminSuccessMessage"),
@@ -519,8 +605,8 @@ module.exports = function (app, passport) {
             sessionTimeout: Date.parse(req.session.cookie._expires),
             _appearance: req.user.appearance,
             beta: server.beta,
-            sunset: sunset,
-            sunrise: sunrise
+            plus: plus,
+            premium: premium,
         });
     });
 
@@ -720,15 +806,13 @@ module.exports = function (app, passport) {
     // SIGNUP =================================
     // show the signup form
     app.get("/signup", (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
-        res.render("viewer/signup.ejs", {
+
+        renderWithConstants(res, "viewer/signup.ejs", {
             message: req.flash("signupMessage"),
             beta: server.beta,
-            _appearance: {seasonalEffects: true},
+            _appearance: loggedOutAppearance(),
             page: "signup",
-            sunset: sunset,
-            sunrise: sunrise,
             recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY,
         });
     });
@@ -902,18 +986,18 @@ module.exports = function (app, passport) {
 
     app.get("/finalgradecalculator", async (req, res) => {
 
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+
 
         if (req.isAuthenticated()) {
 
             let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
-            let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+            let {plus, premium} = donoAttributes(req.user.donoData);
             let alerts = (await dbClient.getSpecificAlerts(req.user.username, ["tutorialStatus"])).data.value;
 
             if (term && semester) {
                 let grades = (await dbClient.getSemesterGrades(req.user.username, term, semester)).data.value;
                 let weights = (await dbClient.getSemesterWeights(req.user.username, term, semester)).data.value;
-                res.render("user/final_grade_calculator.ejs", {
+                renderWithConstants(res, "user/final_grade_calculator.ejs", {
                     page: "calc",
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -925,13 +1009,11 @@ module.exports = function (app, passport) {
                     _weightData: weights.filter((_, i) => !Constants.noGpaLetters.includes(grades[i].overall_letter) || grades[i].grades.length),
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
-                    sunset: sunset,
-                    sunrise: sunrise,
                     plus: plus,
                     premium: premium,
                 });
             } else {
-                res.render("user/final_grade_calculator.ejs", {
+                renderWithConstants(res, "user/final_grade_calculator.ejs", {
                     page: "calc",
                     username: req.user.username,
                     schoolUsername: req.user.schoolUsername,
@@ -943,19 +1025,15 @@ module.exports = function (app, passport) {
                     _weightData: {},
                     sessionTimeout: Date.parse(req.session.cookie._expires),
                     beta: server.beta,
-                    sunset: sunset,
-                    sunrise: sunrise,
                     plus: plus,
                     premium: premium,
                 });
             }
         } else {
-            res.render("viewer/final_grade_calculator_logged_out.ejs", {
-                _appearance: {seasonalEffects: true},
+            renderWithConstants(res, "viewer/final_grade_calculator_logged_out.ejs", {
+                _appearance: loggedOutAppearance(),
                 page: "logged_out_calc",
                 beta: server.beta,
-                sunset: sunset,
-                sunrise: sunrise,
             });
         }
 
@@ -973,10 +1051,11 @@ module.exports = function (app, passport) {
     });
 
     app.get("/betakeys", [isAdmin], async (req, res) => {
+        let {plus, premium} = donoAttributes(req.user.donoData);
 
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
 
-        res.render("admin/betakeys.ejs", {
+
+        renderWithConstants(res, "admin/betakeys.ejs", {
             betaKeyData: (await dbClient.getAllBetaKeys()).data.value,
             betaKeySuccessMessage: req.flash("betaKeySuccessMessage"),
             betaKeyFailMessage: req.flash("betaKeyFailMessage"),
@@ -984,9 +1063,9 @@ module.exports = function (app, passport) {
             sessionTimeout: Date.parse(req.session.cookie._expires),
             _appearance: req.user.appearance,
             beta: server.beta,
-            sunset: sunset,
-            sunrise: sunrise,
-            username: req.user.username
+            username: req.user.username,
+            plus: plus,
+            premium: premium
         });
 
     });
@@ -1029,7 +1108,8 @@ module.exports = function (app, passport) {
     });
 
     app.get("/classes", [isAdmin], async (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+        let {plus, premium} = donoAttributes(req.user.donoData);
+
 
         let school = req.query.school ?? "bellarmine";
         if (!Object.values(Schools).includes(school)) {
@@ -1056,7 +1136,7 @@ module.exports = function (app, passport) {
 
         let {classData, catalogData} = (await dbClient.getAllClassData(school, term, semester)).data;
 
-        res.render("admin/classes.ejs", {
+        renderWithConstants(res, "admin/classes.ejs", {
             username: req.user.username,
             page: "classes",
             classData: classData,
@@ -1069,28 +1149,25 @@ module.exports = function (app, passport) {
             term: term,
             semester: semester,
             _termsAndSemesters: (await dbClient.getTermsAndSemestersInClassDb(school)).data.value,
-            sunset: sunset,
-            sunrise: sunrise,
-            _: _
+            _: _,
+            plus: plus,
+            premium: premium
         });
     });
 
     app.get("/charts", async (req, res) => {
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+
         let {success, data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, schoolData, lastUpdated}} = await dbClient.getChartData();
         if (!success) {
-            return res.render("viewer/loading_charts.ejs", {page: "charts-logged-out",
-                _appearance: {seasonalEffects: true, theme: 'sun'},
-                sunset: sunset,
-                sunrise: sunrise,
-                premium: false,
+            return renderWithConstants(res, "viewer/loading_charts.ejs", {page: "charts-logged-out",
+                _appearance: loggedOutAppearance(),
                 _: _
             });
         }
         if (req.isAuthenticated()) {
-            let {plus, premium} = (await dbClient.getDonoAttributes(req.user.username)).data.value;
+            let {plus, premium} = donoAttributes(req.user.donoData);
             let alerts = (await dbClient.getSpecificAlerts(req.user.username, ["tutorialStatus"])).data.value;
-            res.render("viewer/cool_charts.ejs", {
+            renderWithConstants(res, "viewer/cool_charts.ejs", {
                 username: req.user.username,
                 _personalInfo: req.user.personalInfo,
                 _appearance: req.user.appearance,
@@ -1104,8 +1181,6 @@ module.exports = function (app, passport) {
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,
                 _loggedInData: await dbClient.getLoggedInData(true, req.user.username),
-                sunset: sunset,
-                sunrise: sunrise,
                 plus: plus,
                 premium: premium,
                 lastUpdated: lastUpdated.getTime(),
@@ -1114,9 +1189,9 @@ module.exports = function (app, passport) {
                 _: _
             });
         } else {
-            res.render("viewer/cool_charts.ejs", {
+            renderWithConstants(res, "viewer/cool_charts.ejs", {
                 page: "charts-logged-out",
-                _appearance: {seasonalEffects: true, theme: 'sun'},
+                _appearance: loggedOutAppearance(),
                 _loginData: loginData,
                 _uniqueLoginData: uniqueLoginData,
                 _syncData: syncData,
@@ -1124,12 +1199,9 @@ module.exports = function (app, passport) {
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,
                 _loggedInData: await dbClient.getLoggedInData(false, null),
-                sunset: sunset,
-                sunrise: sunrise,
                 lastUpdated: lastUpdated.getTime(),
                 _SchoolAbbr: SchoolAbbr,
                 _PrettySchools: PrettySchools,
-                premium: false,
                 _: _
             });
         }
@@ -1184,14 +1256,12 @@ module.exports = function (app, passport) {
         }
 
         let resetToken = req.query.token;
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+
 
         let {school: school, valid: validToken, gradeSync: gradeSync} = (await dbClient.checkPasswordResetToken(resetToken)).data;
         if (!validToken) {
             res.status(404).render("password_reset/reset_password_404.ejs", {
-                sunset: sunset,
-                _appearance: {seasonalEffects: true},
-                sunrise: sunrise,
+                _appearance: loggedOutAppearance(),
                 page: "password404"
             });
             return;
@@ -1201,9 +1271,7 @@ module.exports = function (app, passport) {
             message: req.flash("resetPasswordMsg"),
             token: resetToken,
             gradeSync: gradeSync,
-            _appearance: {seasonalEffects: true},
-            sunset: sunset,
-            sunrise: sunrise,
+            _appearance: loggedOutAppearance(),
             page: "passwordReset",
             school: school,
         });
@@ -1217,14 +1285,12 @@ module.exports = function (app, passport) {
             return;
         }
 
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+
         let newPass = req.body.password;
         let resp = await dbClient.resetPassword(resetToken, newPass);
         if (!resp.success && resp.data.message === "Invalid token.") {
             res.status(404).render("password_reset/reset_password_404.ejs", {
-                sunset: sunset,
-                _appearance: {seasonalEffects: true},
-                sunrise: sunrise,
+                _appearance: loggedOutAppearance(),
                 page: "password404"
             });
             return;
@@ -1234,10 +1300,8 @@ module.exports = function (app, passport) {
             res.redirect("/reset_password?token=" + resetToken);
             return;
         }
-        res.render("password_reset/reset_password_success.ejs", {
-            _appearance: {seasonalEffects: true},
-            sunset: sunset,
-            sunrise: sunrise,
+        renderWithConstants(res, "password_reset/reset_password_success.ejs", {
+            _appearance: loggedOutAppearance(),
             page: "passwordResetSuccess"
         });
 
@@ -1250,13 +1314,11 @@ module.exports = function (app, passport) {
             return;
         }
 
-        let {sunrise: sunrise, sunset: sunset} = getSunriseAndSunset();
+
         res.status(200).render("password_reset/forgot_password.ejs", {
             message: req.flash("forgotPasswordMsg"),
-            sunset: sunset,
-            _appearance: {seasonalEffects: true},
+            _appearance: loggedOutAppearance(),
             page: "passwordForgot",
-            sunrise: sunrise
         });
     });
 
@@ -1343,13 +1405,6 @@ function apiRespond(res, resp) {
     }
 }
 
-function getSunriseAndSunset() {
-    const SAN_JOSE_CA = {lat: 37, lng: -122};
-    let times = SunCalc.getTimes(new Date(), SAN_JOSE_CA.lat, SAN_JOSE_CA.lng);
-    let sunrise = new Date("0/" + times.sunrise.getHours() + ":" + times.sunrise.getMinutes());
-    let sunset = new Date("0/" + times.sunset.getHours() + ":" + times.sunset.getMinutes());
-    return {sunrise: sunrise, sunset: sunset};
-}
 
 function sortHelper(sortQuery) {
     let _sort = {};

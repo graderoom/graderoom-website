@@ -1,0 +1,9 @@
+#theme-background {
+    --bg-blueprint-base: #E4ECF9;
+    --bg-blueprint-base-2: #EFF4FD;
+    --bg-blueprint-major: rgba(31, 111, 235, 0.18);
+    --bg-blueprint-minor: rgba(31, 111, 235, 0.11);
+    --bg-blueprint-glow: rgba(130, 80, 223, 0.22);
+    --bg-blueprint-line: rgba(26, 127, 55, 0.24);
+    --bg-blueprint-line-opacity: 0.24;
+}

@@ -1,0 +1,547 @@
+/* Form groups */
+
+.form-group input {
+    background: none !important;
+    border-left: none;
+    border-radius: 0;
+    border-right: none;
+    border-top: none;
+    color: var(--clr-text);
+}
+
+.form-group input:focus {
+    box-shadow: none;
+    border-bottom-color: var(--clr-input);
+    color: var(--clr-text);
+}
+
+.form-group:focus-within label {
+    color: var(--clr-btn);
+}
+
+.form-group .user-bg {
+    padding-left: 35px;
+    background: var(--img-user) no-repeat left/23px 27px !important;
+}
+
+.form-group .lock-bg {
+    padding-left: 35px;
+    background: var(--img-lock) no-repeat left/22px 27px !important;
+}
+
+.form-group .email-bg {
+    padding-left: 35px;
+    background: var(--img-email) no-repeat left/27px 20px !important;
+}
+
+.form-group .key-bg {
+    padding-left: 35px;
+    background: var(--img-key) no-repeat left/26px 22px !important;
+}
+
+.form-group .graduation-bg {
+    padding-left: 35px;
+    background: var(--img-graduation) no-repeat left/27px 23px !important;
+}
+
+.form-group .school-bg {
+    padding-left: 35px;
+    background: var(--img-school) no-repeat left/28px 26px !important;
+}
+
+.form-group input[name=searchByNameOrUsername] {
+    background-color: var(--clr-input) !important;
+}
+
+/* Input groups */
+
+.input-group {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.input-group input {
+    padding-left: 0.3rem;
+    transition: width 240ms ease;
+    width: 100%;
+}
+
+.input-group label {
+    filter: opacity(0.4);
+    left: 2.5rem;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: 180ms ease;
+    width: 100%;
+}
+
+.input-group .popup {
+    z-index: 3 !important;
+}
+
+.input-group .popup i {
+    position: absolute;
+    right: 0.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+label.label-active {
+    font-size: xx-small;
+    top: -0.5rem;
+    left: 2.2rem;
+    filter: opacity(1);
+}
+
+label.disabled {
+    cursor: not-allowed;
+    opacity: 0.2;
+}
+
+/* Number inputs */
+
+.number-input {
+    width: 5rem;
+    -moz-appearance: textfield;
+    border-radius: 4px !important;
+    outline: 2px solid var(--clr-border) !important;
+}
+
+.number-input::-webkit-inner-spin-button,
+.number-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Select */
+
+select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    border-radius: 0.2rem;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    display: inline-block;
+    font: inherit;
+    margin: 0;
+    padding: 0.2rem 1.7rem 0.2rem 0.5rem;
+    text-align: center;
+    text-align-last: center;
+    background-color: var(--clr-input);
+    color: var(--clr-text);
+}
+
+select.classic {
+    background-image: linear-gradient(45deg, transparent 50%, var(--clr-select-arrow) 50%),
+                      linear-gradient(135deg, var(--clr-select-arrow) 50%, transparent 50%),
+                      linear-gradient(to right, var(--clr-select-track), var(--clr-select-track));
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.6rem) 50%, calc(100% - 0.3rem) 50%, 100% 0;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
+}
+
+select.classic:focus {
+    border-color: grey;
+    outline: 0;
+    background-image: linear-gradient(45deg, var(--clr-select-arrow) 50%, transparent 50%),
+                      linear-gradient(135deg, transparent 50%, var(--clr-select-arrow) 50%),
+                      linear-gradient(to right, var(--clr-select-track), var(--clr-select-track));
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.3rem) 50%, calc(100% - 0.6rem) 50%, 100% 0;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 100%;
+}
+
+select.round {
+    background-image: linear-gradient(45deg, transparent 50%, var(--clr-select-arrow) 50%),
+                      linear-gradient(135deg, var(--clr-select-arrow) 50%, transparent 50%),
+                      radial-gradient(var(--clr-select-track) 60%, transparent 60%);
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.3rem) 55%, 100% 50%;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
+}
+
+select.round:focus {
+    background-image: linear-gradient(45deg, var(--clr-select-arrow) 50%, transparent 50%),
+                      linear-gradient(135deg, transparent 50%, var(--clr-select-arrow) 50%),
+                      radial-gradient(var(--clr-select-track) 60%, transparent 60%);
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.3rem) 50%, calc(100% - 0.6rem) 50%, 100% 50%;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1.2rem 1.2rem;
+}
+
+select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, var(--clr-select-arrow) 50%),
+                      linear-gradient(135deg, var(--clr-select-arrow) 50%, transparent 50%),
+                      linear-gradient(to right, var(--clr-select-track), var(--clr-select-track));
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.6rem) 55%, calc(100% - 0.3rem) 55%, calc(100% - 1.2rem) 50%;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
+}
+
+.excluded select.minimal {
+    background-image: linear-gradient(45deg, transparent 50%, var(--clr-select-arrow) 50%),
+                      linear-gradient(135deg, var(--clr-select-arrow) 50%, transparent 50%),
+                      linear-gradient(to right, var(--clr-select-track), var(--clr-select-track));
+}
+
+select.minimal:focus {
+    background-image: linear-gradient(45deg, var(--clr-select-arrow) 50%, transparent 50%),
+                      linear-gradient(135deg, transparent 50%, var(--clr-select-arrow) 50%),
+                      linear-gradient(to right, var(--clr-select-track), var(--clr-select-track));
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.3rem) 50%, calc(100% - 0.6rem) 50%, calc(100% - 1.2rem) 50%;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 1px 65%;
+}
+
+.excluded select.minimal:focus {
+    background-image: linear-gradient(45deg, var(--clr-select-arrow) 50%, transparent 50%),
+                      linear-gradient(135deg, transparent 50%, var(--clr-select-arrow) 50%),
+                      linear-gradient(to right, var(--clr-select-track), var(--clr-select-track));
+}
+
+select:focus {
+    outline: none;
+}
+
+.unlock-hint {
+    font-size: 0.8rem;
+    color: var(--clr-text-3);
+    margin-top: 0.3rem;
+}
+
+.excluded select {
+    outline: none;
+    background-color: var(--clr-surface-alt);
+    color: var(--clr-text-excluded);
+}
+
+.class-table select {
+    max-width: 5rem;
+    box-shadow: 0 0 3px 1px var(--clr-shadow-soft), inset 0 0 20px var(--clr-shadow-soft);
+}
+
+/* Toggle slider */
+
+.switch {
+    display: block;
+    margin: 0 0 0 0.5rem;
+    position: relative;
+    text-align: center;
+    white-space: nowrap;
+    width: 1.9rem;
+}
+
+.switch:before {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    margin-right: -0.25em;
+    vertical-align: middle;
+}
+
+.switch input {
+    height: 0;
+    opacity: 0;
+    width: 0;
+}
+
+.slider-container {
+    font-size: 1rem;
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    cursor: pointer;
+}
+
+.slider-container > label:not(:first-child) {
+    margin: 0 0 0 1.5rem;
+    cursor: pointer;
+}
+
+.slider-container > label:first-child {
+    margin: 0;
+}
+
+.slider {
+    position: absolute;
+    top: 0.24rem;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 2.4rem;
+    height: 1.2rem;
+    cursor: pointer;
+    transition: 0.4s;
+    vertical-align: middle;
+    color: #888888;
+    border-radius: 0.6rem;
+    background-color: var(--clr-input);
+}
+
+.slider:before {
+    border-radius: 0.48rem;
+    content: "";
+    height: 0.96rem;
+    left: 0.15rem;
+    position: absolute;
+    top: 0.12rem;
+    transform: translateX(0);
+    transition: 0.4s;
+    width: 0.96rem;
+    background-color: var(--clr-surface);
+}
+
+input:checked + .slider {
+    background-color: currentColor;
+}
+
+input:checked + .slider:before {
+    transform: translateX(1.14rem);
+    background-color: var(--clr-surface-alt);
+}
+
+input:disabled + .slider {
+    cursor: not-allowed !important;
+}
+
+input:disabled + .slider:before {
+    cursor: not-allowed !important;
+    opacity: 0.2;
+}
+
+/* Range picker */
+
+.range-picker-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.range-picker {
+    width: 100%;
+    height: 0.2rem;
+    margin: 0.5rem 0;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    opacity: 0.7;
+    border-radius: 0.1rem;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--clr-disabled);
+}
+
+.range-picker:hover {
+    opacity: 1;
+}
+
+.range-picker::-webkit-slider-thumb {
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+    border-radius: 50%;
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--clr-text);
+}
+
+.range-picker::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    background: var(--clr-text);
+}
+
+/* Form signin */
+
+.form-signin .btn {
+    font-weight: bold;
+    padding: 0.25rem;
+    width: 90%;
+}
+
+.form-signin .btn:hover {
+    background: none;
+}
+
+/* Weights form */
+
+.form-weights .disableable {
+    padding: 0;
+}
+
+.form-weights .disabled {
+    border-bottom: none !important;
+    color: #999999 !important;
+    pointer-events: none;
+}
+
+.form-weights input[type="checkbox"] {
+    vertical-align: middle;
+}
+
+.form-weights input:not([type="checkbox"]) {
+    box-sizing: border-box;
+    font-size: 1rem;
+    margin: 0 !important;
+    text-align: center;
+    width: 100%;
+}
+
+.form-weights input.text-view {
+    border-bottom: 1px transparent;
+}
+
+.form-weights input:not([type="checkbox"]).text-view:hover,
+.form-weights input.text-view:focus {
+    border-bottom: 1px solid;
+    margin-bottom: -1px !important;
+    padding: 0;
+}
+
+.form-weights input:focus::placeholder {
+    color: transparent;
+}
+
+.form-weights input::placeholder {
+    color: var(--clr-text-4);
+}
+
+.form-weights > :not(.weights) input:not([type=checkbox]) {
+    font-size: 1rem;
+}
+
+.form-weights > .weights input:not([type=checkbox]) {
+    font-size: 1rem;
+}
+
+.form-weights .form-signin .btn {
+    margin: 0 0 1rem;
+    padding: .375rem .75rem;
+    width: auto;
+}
+
+/* Break */
+
+.break {
+    flex-basis: 100%;
+    height: 0;
+}
+
+/* Color picker */
+
+#color-scheme-picker-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#classColors {
+    display: flex;
+    align-items: stretch;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    width: fit-content;
+}
+
+#classColors label {
+    font-size: 1rem;
+    font-weight: bolder;
+    flex-basis: 80%;
+    margin: 0.1rem;
+    padding: 0.25rem;
+    transition: all 400ms ease, color 1s ease;
+    border-radius: 0.5rem;
+    background: var(--clr-class-color-label-bg);
+}
+
+#color-scheme-picker {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+#color-scheme-picker button {
+    font-size: 1rem;
+    width: 80%;
+    margin: 0.1rem;
+    padding: 0.1rem;
+}
+
+#color-scheme-picker i {
+    transition: opacity 1s ease;
+}
+
+#color-scheme-picker div {
+    flex-basis: 100%;
+    width: 100%;
+}
+
+#classColors input[type=color] {
+    height: 32px;
+    border-radius: 0.5rem;
+    border: none;
+    padding: 0 0.4rem;
+    margin: 0.1rem;
+    background-color: var(--clr-class-link-active-bg);
+}
+
+/* Key display */
+
+.key-display {
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-bottom: 0;
+    border: 1px solid;
+    border-radius: 0.5rem;
+}
+
+/* Search */
+
+input[name=searchByNameOrUsername] {
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#filters {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#filters label {
+    margin: 0 0.5rem;
+}
+
+/* Feedback form */
+
+#feedbackForm {
+    width: 100%;
+    height: 50vh;
+    border: 0;
+    color: var(--clr-text);
+}

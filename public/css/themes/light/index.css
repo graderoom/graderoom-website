@@ -1,0 +1,68 @@
+:root {
+    /* Core backgrounds */
+    --clr-bg: #EEEEEE;
+    --clr-surface: #FFFFFF;
+    --clr-surface-alt: var(--clr-surface);
+    --clr-surface-deep: var(--clr-surface);
+    --clr-input: #EEEEEE;
+    --clr-disabled: #AAAAAA;
+
+    /* Text */
+    --clr-text: #222222;
+    --clr-text-2: #555555;
+    --clr-text-3: #888888;
+    --clr-text-4: #BBBBBB;
+    --clr-placeholder: #AAAAAA;
+    --clr-text-excluded: #BBBBBB;
+    --clr-text-no-change: rgba(0, 0, 0, 0.5);
+
+    /* Borders and shadows */
+    --clr-border: #DDDDDD;
+    --clr-border-subtle: #EEEEEE;
+    --clr-shadow: rgba(0, 0, 50, 0.3);
+    --clr-shadow-soft: rgba(200, 200, 200, 0.30);
+    --clr-termSwitcher-blur-shadow: var(--clr-shadow-soft) 0 0 2px 1px, inset var(--clr-surface-deep) 0 0 200px 5px;
+
+    /* Buttons and links */
+    --clr-btn: #444444;
+    --clr-btn-text: #DDDDDD;
+    --clr-btn-approve: #6CA66C;
+    --clr-btn-deny: #F57171;
+    --clr-donate-nav-bg: #3F00B2;
+    --clr-card-link: #444444;
+    --clr-card-footer-link: currentColor;
+    --deco-card-link: underline;
+
+    /* Inputs */
+    --clr-select-arrow: gray;
+    --clr-select-track: lightgray;
+
+    /* Status colors */
+    --clr-success: green;
+    --clr-error: red;
+    --clr-warning: darkorange;
+    --clr-loading: blue;
+    --clr-donate: #f7ce48;
+
+    /* Components */
+    --clr-overlay: rgba(255, 255, 255, 0.5);
+    --clr-toolTab-hover: rgba(52, 52, 52, 0.1);
+    --clr-class-link-active-text: white;
+    --clr-class-link-active-bg: #333333;
+    --clr-class-color-label-bg: linear-gradient(to left, var(--clr-class-link-active-bg) 50%, white 50%);
+    --clr-donation-flare: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.6) 20%, rgba(255, 255, 255, 0.8) 27%, transparent 27%, transparent 100%);
+
+    /* Form images */
+    --img-user: url(/public/resources/light_mode/user.png);
+    --img-email: url(/public/resources/light_mode/email.png);
+    --img-lock: url(/public/resources/light_mode/lock.png);
+    --img-key: url(/public/resources/light_mode/key.png);
+    --img-graduation: url(/public/resources/light_mode/graduation.png);
+    --img-school: url(/public/resources/light_mode/school.png);
+}
+
+.logo-dark { display: none !important; }
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}

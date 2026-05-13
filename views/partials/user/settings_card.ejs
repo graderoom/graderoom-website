@@ -31,7 +31,8 @@
                     <div class="card-footer">
                         <h3>What You Get</h3>
                         <p>
-                            The goal of Donation-based features is to reward those who support the maintenance of this website.
+                            The goal of Donation-based features is to reward those who support the maintenance of this
+                            website.
                             Below is the current list of features that are unlocked by donating.
                             The feature list is subject to change at any time.
                             These features will never affect the core functionality of the site.
@@ -40,17 +41,100 @@
                         <div id="donationWhatYouGetContainer">
                             <table id="donationWhatYouGet" style="width: 100%">
                                 <thead>
-                                <tr><th>Feature</th><th>Free</th><th>Donor<br><b>$0.01+</b></th><th><span class="plus label-background"><span class="plus-label">PLUS</span></span><br><b>$3.00+</b></th><th><span class="premium label-background"><span class="premium-label">PREMIUM</span></span><br><b>$5.00+</b></th></tr>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Free</th>
+                                    <th>Donor<br><b>$0.01+</b></th>
+                                    <th><span class="plus label-background"><span
+                                                    class="plus-label">PLUS</span></span><br><b>$3.00+</b></th>
+                                    <th><span class="premium label-background"><span
+                                                    class="premium-label">PREMIUM</span></span><br><b>$5.00+</b></th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                <tr><th><span>Access class average for latest assignment in each course</span></th><td class="supported"></td><td class="previous"></td><td class="previous"></td><td class="previous"></td></tr>
-                                <tr><th><span>Get a Donor role on Discord</span></th><td></td><td class="supported"></td><td class="previous"></td><td class="previous"></td></tr>
-                                <tr><th><span>Maximum Requests per Minute</span></th><td class="supported text">30</td><td class="supported text">40</td><td class="supported text">60</td><td class="supported text">100</td></tr>
-                                <tr><th><span>Sync Cooldown</span></th><td class="supported text">4 hr</td><td class="supported text">2 hr</td><td class="supported text">1 hr</td><td class="supported text">15 min</td></tr>
-                                <tr><th><span>Ability to set custom class colors</span></th><td></td><td></td><td class="supported"></td><td class="previous"></td></tr>
-                                <tr><th><span>Bypass the sync queue</span></th><td></td><td></td><td class="supported"></td><td class="previous"></td></tr>
-                                <tr><th><span>View what other teachers teach a course and how many Graderoom users are in those classes</span></th><td></td><td></td><td class="supported"></td><td class="supported"></td></tr>
-                                <tr><th><span>Access class averages for all assignments</span></th><td></td><td></td><td></td><td class="supported"></td></tr>
+                                <tr>
+                                    <th><span>Access class average for latest assignment in each course</span></th>
+                                    <td class="supported"></td>
+                                    <td class="previous"></td>
+                                    <td class="previous"></td>
+                                    <td class="previous"></td>
+                                </tr>
+                                <tr>
+                                    <th><span>Get a Donor role on Discord</span></th>
+                                    <td></td>
+                                    <td class="supported"></td>
+                                    <td class="previous"></td>
+                                    <td class="previous"></td>
+                                </tr>
+                                <tr>
+                                    <th><span>Maximum Requests per Minute</span></th>
+                                    <td class="supported text">30</td>
+                                    <td class="supported text">40</td>
+                                    <td class="supported text">60</td>
+                                    <td class="supported text">100</td>
+                                </tr>
+                                <tr>
+                                    <th><span>Sync Cooldown</span></th>
+                                    <td class="supported text">4 hr</td>
+                                    <td class="supported text">2 hr</td>
+                                    <td class="supported text">1 hr</td>
+                                    <td class="supported text">15 min</td>
+                                </tr>
+                                <tr>
+                                    <th><span>Themes</span></th>
+                                    <%
+                                        const allLight = _themeConstants.names.light;
+                                        const allDark = _themeConstants.names.dark;
+                                        const freeCount = allLight.filter(t => !_themeConstants.names.paid.includes(t)).length + allDark.filter(t => !_themeConstants.names.paid.includes(t)).length;
+                                        const plusCount = freeCount + allLight.filter(t => _themeConstants.names.plus.includes(t)).length + allDark.filter(t => _themeConstants.names.plus.includes(t)).length;
+                                        const premiumCount = allLight.length + allDark.length;
+                                    %>
+                                    <td class="supported text"><%= freeCount %></td>
+                                    <td class="previous"></td>
+                                    <td class="supported text"><%= plusCount %></td>
+                                    <td class="supported text"><%= premiumCount %></td>
+                                </tr>
+                                <tr>
+                                    <th><span>Backgrounds</span></th>
+                                    <%
+                                        const freeBackgroundCount = _themeConstants.backgrounds.names.free.length;
+                                        const plusBackgroundCount = freeBackgroundCount + _themeConstants.backgrounds.names.plus.length;
+                                        const premiumBackgroundCount = _themeConstants.backgrounds.names.all.length;
+                                    %>
+                                    <td class="supported text"><%= freeBackgroundCount %></td>
+                                    <td class="previous"></td>
+                                    <td class="supported text"><%= plusBackgroundCount %></td>
+                                    <td class="supported text"><%= premiumBackgroundCount %></td>
+                                </tr>
+                                <tr>
+                                    <th><span>Ability to set custom class colors</span></th>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="supported"></td>
+                                    <td class="previous"></td>
+                                </tr>
+                                <tr>
+                                    <th><span>Bypass the sync queue</span></th>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="supported"></td>
+                                    <td class="previous"></td>
+                                </tr>
+                                <tr>
+                                    <th><span>View what other teachers teach a course and how many Graderoom users are in those classes</span>
+                                    </th>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="supported"></td>
+                                    <td class="supported"></td>
+                                </tr>
+                                <tr>
+                                    <th><span>Access class averages for all assignments</span></th>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="supported"></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -101,14 +185,14 @@
                                         charset="UTF-8"></script>
                                 <script>
                                     PayPal.Donation.Button({
-                                                               env: "production",
-                                                               hosted_button_id: "UGSEZPLL7RLFY",
-                                                               image: {
-                                                                   src: "https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif",
-                                                                   alt: "Donate with PayPal button",
-                                                                   title: "PayPal - The safer, easier way to pay online!"
-                                                               }
-                                                           }).render("#donate-button");
+                                        env: 'production',
+                                        hosted_button_id: 'UGSEZPLL7RLFY',
+                                        image: {
+                                            src: 'https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif',
+                                            alt: 'Donate with PayPal button',
+                                            title: 'PayPal - The safer, easier way to pay online!'
+                                        }
+                                    }).render('#donate-button');
                                 </script>
                             </div>
                         </div>
@@ -120,12 +204,346 @@
             </div>
             <div id="settings-1" class="tabcontent show">
                 <div class="card-body">
+                    <div class="card-footer">
+                        <h5>Theme</h5>
+                        <div id="theme">
+                            <style>
+                                #theme .theme-section {
+                                    margin-top: 0.55rem;
+                                    padding-top: 0.5rem;
+                                    border-top: 1px solid var(--clr-border-subtle);
+                                }
+
+                                #theme .theme-section:first-of-type {
+                                    margin-top: 0;
+                                    padding-top: 0;
+                                    border-top: 0;
+                                }
+
+                                #theme .theme-section h6 {
+                                    margin-bottom: 0.25rem;
+                                }
+
+                                #theme .theme-control {
+                                    max-width: 18rem;
+                                }
+
+                                #theme .theme-control select {
+                                    width: 100%;
+                                }
+
+                                #theme select.theme-control {
+                                    width: 100%;
+                                    max-width: 18rem;
+                                }
+
+                                #theme .theme-radio-row {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 0.35rem 1rem;
+                                    align-items: center;
+                                }
+
+                                #theme .theme-radio-row label {
+                                    margin-bottom: 0;
+                                    cursor: pointer;
+                                    white-space: nowrap;
+                                }
+
+                                #theme .theme-radio-row input {
+                                    cursor: inherit;
+                                }
+
+                                #theme .theme-radio-option {
+                                    display: grid;
+                                    gap: 0.1rem;
+                                }
+
+                                #theme .theme-radio-hint {
+                                    display: block;
+                                    margin-left: 1.25rem;
+                                    opacity: 0.6;
+                                    font-size: 0.65rem;
+                                    line-height: 1.1;
+                                }
+
+                                #theme .theme-background-section {
+                                    margin-top: 0.85rem;
+                                    padding-top: 0.75rem;
+                                    border-top: 2px solid var(--clr-border-subtle);
+                                }
+                            </style>
+                            <div id="themeMessage"
+                                 class="alert alert-success alert-dismissible font-weight-bold"
+                                 style="display:none">
+                                <div style="display:none" class="sk-chase-mini">
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                    <div class="sk-chase-dot mini"></div>
+                                </div>
+                                <div class="messageTxt"></div>
+                                <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
+                            </div>
+                            <% const background = _appearance.background || _appearance.lightBackground || (_appearance.seasonalEffects ? "winter-logo" : "default"); %>
+                            <% const plusThemeNames = _themeConstants.names.plus; %>
+                            <% const premiumThemeNames = _themeConstants.names.premium; %>
+                            <% const plusBackgroundNames = _themeConstants.backgrounds.names.plus; %>
+                            <% const premiumBackgroundNames = _themeConstants.backgrounds.names.premium; %>
+                            <% const themeLabels = _themeConstants.labels; %>
+                            <% const selectedLightTheme = _appearance.lightTheme || (_themeConstants.names.light.includes(_appearance.mode) ? _appearance.mode : "light"); %>
+                            <% const selectedDarkTheme = _appearance.darkTheme || (_themeConstants.names.dark.includes(_appearance.mode) ? _appearance.mode : "dark"); %>
+                            <% const isAutoMode = _appearance.mode === "auto" || _appearance.mode === "system"; %>
+                            <div class="theme-section">
+                                <h6>Mode</h6>
+                                <div class="theme-radio-row">
+                                    <label><input type="radio"
+                                                  value="light"
+                                                  name="theme"
+                                                  onchange="$('#light-theme-options').show();
+                                                          $('#dark-theme-options, #automatic-theme-options, #auto-limits-container').hide();
+                                                          changeSetting('theme', {mode: 'light'});"
+                                        <% if (_appearance.mode === "light") { %> checked
+                                                <% } %>
+                                        > Light</label>
+                                    <label><input type="radio"
+                                                  value="dark"
+                                                  name="theme"
+                                                  onchange="$('#dark-theme-options').show();
+                                                          $('#light-theme-options, #automatic-theme-options, #auto-limits-container').hide();
+                                                          changeSetting('theme', {mode: 'dark'});"
+                                        <% if (_appearance.mode === "dark") { %> checked
+                                                <% } %>
+                                        > Dark</label>
+                                    <label><input type="radio"
+                                                  value="auto-mode"
+                                                  name="theme"
+                                                  onchange="$('#light-theme-options, #dark-theme-options, #automatic-theme-options').show();
+                                                          const automaticTheme = $('input[name=automaticTheme]:checked').val() || 'system';
+                                                          if (automaticTheme === 'auto') {
+                                                              $('#auto-limits-container').show().css('display','flex');
+                                                              $('#prefers-color-scheme').hide();
+                                                          } else {
+                                                              $('#auto-limits-container').hide();
+                                                              $('#prefers-color-scheme').show();
+                                                          }
+                                                          changeSetting('theme', {mode: automaticTheme, darkModeStart: darkModeStart, darkModeFinish: darkModeFinish});"
+                                        <% if (isAutoMode) { %> checked
+                                                <% } %>
+                                        > Automatic</label>
+                                </div>
+                            </div>
+                            <div id="automatic-theme-options" class="theme-section" style="<% if (!isAutoMode) { %>display: none;<% } %>">
+                                <h6>Automatic Behavior</h6>
+                                <div class="theme-radio-row">
+                                    <div class="theme-radio-option">
+                                        <label class="disable-when-system-theme-not-supported"><input
+                                                type="radio"
+                                                value="system"
+                                                name="automaticTheme"
+                                                onchange="$('#auto-limits-container').hide();
+                                                        $('#prefers-color-scheme').show();
+                                                        changeSetting('theme', {mode: 'system'});"
+                                                <% if (_appearance.mode === "system") { %> checked
+                                                <% } %>
+                                            > Match System</label>
+                                        <span id="prefers-color-scheme"
+                                              class="theme-radio-hint"
+                                              style="<% if (_appearance.mode !== "system") { %>display: none;<% } %>"></span>
+                                        <span class="popup show-when-system-theme-not-supported"><i
+                                                    class="fa fa-exclamation-circle"><span
+                                                        class="popup-right always-show"
+                                                        style="width: 10rem;">Your
+                                                    browser does not support this option.</span></i></span>
+                                    </div>
+                                    <label><input id="customScheduleTheme"
+                                                  type="radio"
+                                                  value="auto"
+                                                  name="automaticTheme"
+                                                  onchange="$('#auto-limits-container').show().css('display','flex');
+                                                          $('#prefers-color-scheme').hide();
+                                                          changeSetting('theme', {mode: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish});"
+                                            <% if (_appearance.mode === "auto") { %> checked
+                                            <% } %>
+                                        > Custom Schedule</label>
+                                </div>
+                                <div id="auto-limits-container"
+                                     style="<% if (_appearance.mode !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin: 0.35rem 0 0; align-items: stretch">
+                                    <label class="form-group" id="autoLimits"
+                                           style="display: flex; white-space: nowrap;">
+                                        <label style="vertical-align: center; width: 8rem" for="darkModeStart">
+                                            Dark theme from
+                                        </label>
+                                        <% let _startDate = new Date(_appearance.darkModeStart);
+                                        let _endDate = new Date(_appearance.darkModeFinish); %>
+                                        <input id="darkModeStart"
+                                               style="padding: 0 0.75rem 0 0.75rem"
+                                               type="time"
+                                               class="text-center form-control dont-clear" name="darkModeStart"
+                                               onchange="darkModeStart = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {mode: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
+                                               value="<%= ("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2) %>"
+                                        >
+                                        <label style="margin-left: 0.25rem" for="darkModeFinish">
+                                            to
+                                        </label>
+                                        <input id="darkModeFinish"
+                                               style="padding: 0 0.75rem 0 0.75rem;"
+                                               type="time"
+                                               class="text-center form-control dont-clear" name="darkModeFinish"
+                                               onchange="darkModeFinish = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {mode: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
+                                               value="<%= ("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2) %>"
+                                        >
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="theme-section theme-background-section">
+                                <h6>Background
+                                    <span id="backgroundBadge"><% if (premiumBackgroundNames.includes(background)) { %><span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } else if (plusBackgroundNames.includes(background)) { %><span class="plus label-background"><span class="plus-label">PLUS</span></span><% } %></span>
+                                </h6>
+                                <div class="theme-control">
+                                    <select id="backgroundPreset" class="minimal"
+                                            onchange="changeSetting('theme', {mode: appearance.mode, background: this.value})">
+                                        <% for (const backgroundValue of _themeConstants.backgrounds.names.all) { %>
+                                            <% const isLocked = (premiumBackgroundNames.includes(backgroundValue) && !premium) || (plusBackgroundNames.includes(backgroundValue) && !plus); %>
+                                            <% if (!isLocked) { %>
+                                            <option value="<%= backgroundValue %>" <% if (background === backgroundValue) { %>selected
+                                                    <% } %>>
+                                                <%= _themeConstants.backgrounds.labels[backgroundValue] %>
+                                            </option>
+                                            <% } %>
+                                        <% } %>
+                                    </select>
+                                    <% if (!premium) { %>
+                                        <%
+                                            const backgroundPlusCount = !plus ? plusBackgroundNames.length : 0;
+                                            const backgroundPremiumCount = (!plus ? backgroundPlusCount : 0) + premiumBackgroundNames.length;
+                                        %>
+                                        <div class="unlock-hint">
+                                            <% if (!plus && backgroundPlusCount) { %>Unlock <%= backgroundPlusCount %> more with <span class="plus label-background"><span class="plus-label">PLUS</span></span><% if (backgroundPremiumCount) { %><br><% } %><% } %>
+                                            <% if (backgroundPremiumCount) { %>Unlock <%= backgroundPremiumCount %> more with <span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div id="light-theme-options" class="theme-section" style="<% if (_appearance.mode !== "light" && !isAutoMode) { %>display: none;<% } %>">
+                                <h6>Light Theme
+                                    <span id="lightThemeBadge"><% if (premiumThemeNames.includes(selectedLightTheme)) { %><span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } else if (plusThemeNames.includes(selectedLightTheme)) { %><span class="plus label-background"><span class="plus-label">PLUS</span></span><% } %></span>
+                                </h6>
+                                <div class="theme-control">
+                                    <select id="lightThemePreset" class="minimal"
+                                            onchange="changeSetting('theme', {mode: appearance.mode, lightTheme: this.value})">
+                                        <% for (const themeValue of _themeConstants.names.light) { %>
+                                            <% const isLocked = (premiumThemeNames.includes(themeValue) && !premium) || (plusThemeNames.includes(themeValue) && !plus); %>
+                                            <% if (!isLocked) { %>
+                                            <option value="<%= themeValue %>"
+                                                    <% if (selectedLightTheme === themeValue) { %>selected<% } %>>
+                                                <%= themeLabels[themeValue] %>
+                                            </option>
+                                            <% } %>
+                                        <% } %>
+                                    </select>
+                                    <% if (!premium) { %>
+                                        <%
+                                            const lightPlusCount = !plus ? _themeConstants.names.light.filter(t => plusThemeNames.includes(t)).length : 0;
+                                            const lightPremiumCount = (!plus ? lightPlusCount : 0) + _themeConstants.names.light.filter(t => premiumThemeNames.includes(t)).length;
+                                        %>
+                                        <div class="unlock-hint">
+                                            <% if (!plus && lightPlusCount) { %>Unlock <%= lightPlusCount %> more with <span class="plus label-background"><span class="plus-label">PLUS</span></span><% if (lightPremiumCount) { %><br><% } %><% } %>
+                                            <% if (lightPremiumCount) { %>Unlock <%= lightPremiumCount %> more with <span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div id="dark-theme-options" class="theme-section" style="<% if (_appearance.mode !== "dark" && !isAutoMode) { %>display: none;<% } %>">
+                                <h6>Dark Theme
+                                    <span id="darkThemeBadge"><% if (premiumThemeNames.includes(selectedDarkTheme)) { %><span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } else if (plusThemeNames.includes(selectedDarkTheme)) { %><span class="plus label-background"><span class="plus-label">PLUS</span></span><% } %></span>
+                                </h6>
+                                <div class="theme-control">
+                                    <select id="darkThemePreset" class="minimal"
+                                            onchange="changeSetting('theme', {mode: appearance.mode, darkTheme: this.value})">
+                                        <% for (const themeValue of _themeConstants.names.dark) { %>
+                                            <% const isLocked = (premiumThemeNames.includes(themeValue) && !premium) || (plusThemeNames.includes(themeValue) && !plus); %>
+                                            <% if (!isLocked) { %>
+                                            <option value="<%= themeValue %>"
+                                                    <% if (selectedDarkTheme === themeValue) { %>selected<% } %>>
+                                                <%= themeLabels[themeValue] %>
+                                            </option>
+                                            <% } %>
+                                        <% } %>
+                                    </select>
+                                    <% if (!premium) { %>
+                                        <%
+                                            const darkPlusCount = !plus ? _themeConstants.names.dark.filter(t => plusThemeNames.includes(t)).length : 0;
+                                            const darkPremiumCount = (!plus ? darkPlusCount : 0) +  _themeConstants.names.dark.filter(t => premiumThemeNames.includes(t)).length;
+                                        %>
+                                        <div class="unlock-hint">
+                                            <% if (!plus && darkPlusCount) { %>Unlock <%= darkPlusCount %> more with <span class="plus label-background"><span class="plus-label">PLUS</span></span><% if (darkPremiumCount) { %><br><% } %><% } %>
+                                            <% if (darkPremiumCount) { %>Unlock <%= darkPremiumCount %> more with <span class="premium label-background"><span class="premium-label">PREMIUM</span></span><% } %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <label class="slider-container disable-in-firefox">
+                            <label class="switch">
+                                <input
+                                        id="blurEffectsToggle"
+                                        style="margin: 0; display: flex"
+                                        type="checkbox"
+                                        name="blurEffects"
+                                <% if (_appearance.blurEffects) { %>
+                                        checked="checked"
+                                        <% } %>
+                                        onchange="changeSetting('theme', {mode: appearance.mode, blurEffects: !appearance.blurEffects})"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="blurEffectsToggle">
+                                <span>Enable Blur Effects</span> <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, adds blur effects across
+                                            the site.
+                                        </span></i></span> <span class="popup hide-in-firefox"><i
+                                            class="fa fa-exclamation-triangle">
+                                        <span class="popup-right-bottom">Causes lag on slower
+                                            devices</span></i></span>
+                            </label>
+                            <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
+                                        class="fa fa-exclamation-circle"><span
+                                            class="popup-right always-show"
+                                            style="width: 10rem;">Your
+                                        browser does not support these effects.</span></i></span>
+                        </label>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="seasonalEffectsToggle" type="checkbox"
+                                       name="enableSeasonalEffects"
+                                <% if (_appearance.seasonalEffects) { %>
+                                       checked
+                                        <% } %>
+                                       onchange="changeSetting('theme', {mode: appearance.mode, seasonalEffects: !appearance.seasonalEffects})"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="seasonalEffectsToggle">
+                                <span>Enable Seasonal Effects</span> <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, adds seasonal effects
+                                            across the site.
+                                        </span></i></span>
+                            </label>
+                        </label>
+                    </div>
                     <% if (_gradeData.length > 0) { %>
                         <div class="card-footer">
                             <h5>Color Scheme</h5>
                             <div id="color-scheme-picker-container">
                                 <div>
-                                    <label class="slider-container" style="<% if (_appearance.colorPalette === "custom") { %>display: none<%}%>">
+                                    <label class="slider-container"
+                                           style="<% if (_appearance.colorPalette === "custom") { %>display: none<% } %>">
                                         <label class="switch">
                                             <input id="shuffleToggle" type="checkbox"
                                                    name="shuffleColors" onchange="setColorPalette()"
@@ -182,11 +600,15 @@
                                                style="<% if (_appearance.colorPalette !== "dull") { %>opacity: 0;<% } %>"></i>
                                         </div>
                                         <div id="custom">
-                                            <button onclick="<% if (plus || premium) { %>setColorPalette('custom')<%}%>"
+                                            <button onclick="<% if (plus || premium) { %>setColorPalette('custom')<% } %>"
                                                     class="btn btn-med"
-                                                    <% if (!plus && !premium) { %>disabled<% } %>
+                                                    <% if (!plus && !premium) { %>disabled
+                                                    <% } %>
                                             >
-                                                Custom<% if (!plus && !premium) { %>&nbsp;<span class="plus label-background"><span class="plus-label">PLUS</span></span><% } %>
+                                                Custom
+                                                <% if (!plus && !premium) { %>&nbsp;<span class="plus label-background"><span
+                                                            class="plus-label">PLUS</span></span>
+                                                <% } %>
                                             </button>
                                             <i class="fa fa-check"
                                                style="<% if (_appearance.colorPalette !== "custom") { %>opacity: 0;<% } %>"></i>
@@ -201,7 +623,10 @@
                                                    style="color: <%= _appearance.classColors[i]; %>;">
                                                 <%= _gradeData[i].class_name; %><span class="editClassColor"></span>
                                             </label>
-                                            <input class="editClassColor <% if (_appearance.colorPalette === "custom") { %>visible<% } %>" type="color" id="customColor<%= i + _offset; %>" onchange="updateCustomColor(<%= i%>, this.value)" value="<%= _appearance.classColors[i] %>">
+                                            <input class="editClassColor <% if (_appearance.colorPalette === "custom") { %>visible<% } %>"
+                                                   type="color" id="customColor<%= i + _offset; %>"
+                                                   onchange="updateCustomColor(<%= i %>, this.value)"
+                                                   value="<%= _appearance.classColors[i] %>">
                                         <% } else {
                                             _offset--;
                                         } %>
@@ -210,185 +635,6 @@
                             </div>
                         </div>
                     <% } %>
-                    <div class="card-footer">
-                        <h5>Theme</h5>
-                        <div id="theme">
-                            <div id="themeMessage"
-                                 class="alert alert-success alert-dismissible font-weight-bold"
-                                 style="display:none">
-                                <div style="display:none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                </div>
-                                <div class="messageTxt"></div>
-                                <a class="close" onclick="closeMessage('themeMessage')" aria-label="close">X</a>
-                            </div>
-                            <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                   value="light"
-                                                                   name="theme"
-                                                                   onchange="$('#sun-limits-container, #auto-limits-container').hide();
-                                                                               changeSetting('theme', {theme: 'light'})"
-                                <% if (_appearance.theme === "light") { %> checked
-                                        <% } %>
-                                > Always Light
-                            </label>
-                            <br>
-                            <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                   value="dark"
-                                                                   name="theme"
-                                                                   onchange="$('#sun-limits-container, #auto-limits-container').hide();
-                                                                               changeSetting('theme', {theme: 'dark'})"
-                                <% if (_appearance.theme === "dark") { %> checked
-                                        <% } %>
-                                > Always Dark</label>
-                            <br>
-                            <label class="disable-when-system-theme-not-supported"
-                                   style="cursor: pointer; align-items: center"><input
-                                        style="cursor: inherit" type="radio"
-                                        value="system"
-                                        name="theme"
-                                        onclick="$('#sun-limits-container, #auto-limits-container').hide();
-                                                                               changeSetting('theme', {theme: 'system'})"
-                                <% if (_appearance.theme === "system") { %> checked
-                                        <% } %>
-                                > Match System
-                                <span id="prefers-color-scheme"
-                                      style="margin-left: 0.5rem; opacity: 0.5; font-size: 0.6rem;"></span>
-                                <span style="margin-left: 0.5rem;"
-                                      class="popup show-when-system-theme-not-supported"><i
-                                            class="fa fa-exclamation-circle"><span
-                                                class="popup-right always-show"
-                                                style="width: 10rem;">Your
-                                            browser does not support this option.</span></i></span>
-                            </label>
-                            <br>
-                            <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                   value="sun"
-                                                                   name="theme"
-                                                                   onchange="$('#auto-limits-container').hide();
-                                                                       $('#sun-limits-container').show();
-                                                                       changeSetting('theme', {theme: 'sun'})"
-                                <% if (_appearance.theme === "sun") { %> checked
-                                        <% } %>
-                                > Dark from Sunset to Sunrise</label>
-                            <div id="sun-limits-container"
-                                 style="<% if (_appearance.theme !== "sun") { %>display: none;<% } %>font-size: 0.9rem; margin-bottom: 0; width: fit-content; width: -moz-fit-content">
-                                <label class="form-group" id="sunLimits"
-                                       style="display: flex; white-space: nowrap; margin-bottom: 0">
-                                    <label style="vertical-align: center; width: 8rem" for="sunModeStart">
-                                        Dark theme from
-                                    </label>
-                                    <input id="sunModeStart"
-                                           style="padding: 0 0.75rem 0 0.75rem"
-                                           type="time"
-                                           class="text-center form-control"
-                                           value="<%= ("0" + sunset.getHours()).slice(-2) + ":" + ("0" + sunset.getMinutes()).slice(-2) %>"
-                                           disabled>
-                                    <label style="margin-left: 0.25rem" for="sunModeFinish">
-                                        to
-                                    </label>
-                                    <input id="sunModeFinish"
-                                           style="padding: 0 0.75rem 0 0.75rem"
-                                           type="time"
-                                           class="text-center form-control"
-                                           value="<%= ("0" + sunrise.getHours()).slice(-2) + ":" + ("0" + sunrise.getMinutes()).slice(-2) %>"
-                                           disabled>
-                                </label>
-                            </div>
-                            <br>
-                            <label style="cursor: pointer"> <input style="cursor: inherit" type="radio"
-                                                                   value="auto"
-                                                                   name="theme"
-                                                                   onchange="$('#auto-limits-container').show().css('display','flex');
-                                                                                $('#sun-limits-container').hide();
-                                                                       changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
-                                <% if (_appearance.theme === "auto") { %> checked
-                                        <% } %>
-                                > Dark on Custom Schedule</label>
-                            <div id="auto-limits-container"
-                                 style="<% if (_appearance.theme !== "auto") { %>display: none;<% } else { %>display: flex;<% } %>font-size: 0.9rem; margin-bottom: 0; align-items: stretch">
-                                <label class="form-group" id="autoLimits"
-                                       style="display: flex; white-space: nowrap;">
-                                    <label style="vertical-align: center; width: 8rem" for="darkModeStart">
-                                        Dark theme from
-                                    </label>
-                                    <% let _startDate = new Date(_appearance.darkModeStart);
-                                    let _endDate = new Date(_appearance.darkModeFinish); %>
-                                    <input id="darkModeStart"
-                                           style="padding: 0 0.75rem 0 0.75rem"
-                                           type="time"
-                                           class="text-center form-control dont-clear" name="darkModeStart"
-                                           onchange="darkModeStart = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
-                                           value="<%= ("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2) %>"
-                                    >
-                                    <label style="margin-left: 0.25rem" for="darkModeFinish">
-                                        to
-                                    </label>
-                                    <input id="darkModeFinish"
-                                           style="padding: 0 0.75rem 0 0.75rem;"
-                                           type="time"
-                                           class="text-center form-control dont-clear" name="darkModeFinish"
-                                           onchange="darkModeFinish = new Date('0/' + $(this).val()).getTime(); changeSetting('theme', {theme: 'auto', darkModeStart: darkModeStart, darkModeFinish: darkModeFinish})"
-                                           value="<%= ("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2) %>"
-                                    >
-                                </label>
-                            </div>
-                        </div>
-                        <hr>
-                        <label class="slider-container disable-in-firefox">
-                            <label class="switch">
-                                <input
-                                        id="blurEffectsToggle"
-                                        style="margin: 0; display: flex"
-                                        type="checkbox"
-                                        name="blurEffects"
-                                <% if (_appearance.blurEffects) { %>
-                                        checked="checked"
-                                        <% } %>
-                                        onchange="changeSetting('theme', {theme: appearance.theme, blurEffects: !appearance.blurEffects})"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="blurEffectsToggle">
-                                <span>Enable Blur Effects</span> <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, adds blur effects across
-                                            the site.
-                                        </span></i></span> <span class="popup hide-in-firefox"><i
-                                            class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">WARNING: Causes lag on slower
-                                            devices</span></i></span>
-                            </label>
-                            <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
-                                        class="fa fa-exclamation-circle"><span
-                                            class="popup-right always-show"
-                                            style="width: 10rem;">Your
-                                        browser does not support these effects.</span></i></span>
-                        </label>
-                        <label class="slider-container">
-                            <label class="switch">
-                                <input id="seasonalEffectsToggle" type="checkbox"
-                                       name="enableSeasonalEffects"
-                                <% if (_appearance.seasonalEffects) { %>
-                                       checked
-                                        <% } %>
-                                       onchange="changeSetting('theme', {theme: appearance.theme, seasonalEffects: !appearance.seasonalEffects})"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="seasonalEffectsToggle">
-                                <span>Enable Seasonal Effects</span> <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, adds seasonal effects
-                                            across the site.
-                                        </span></i></span>
-                            </label>
-                        </label>
-                    </div>
                     <div class="card-footer">
                         <h5>Charts</h5>
                         <div>
@@ -524,7 +770,8 @@
                                                 <span class="previous">Access class average for latest assignment in each course</span>
                                                 <span class="previous">Get a Donor role on Discord</span>
                                                 <span>Make <span class="strikethrough">40</span>60 requests per minute to the Graderoom server</span>
-                                                <span>Sync once every <span class="strikethrough">2 hours</span>1 hour</span>
+                                                <span>Sync once every <span
+                                                            class="strikethrough">2 hours</span>1 hour</span>
                                                 <span><span class="plus-label">PLUS</span> badge</span>
                                                 <span>Ability to set custom class colors</span>
                                                 <span>Bypass the sync queue</span>
@@ -544,7 +791,9 @@
                                                 <span class="previous">View what other teachers teach a course and how many Graderoom users are in those classes</span>
                                                 <span>Make <span class="strikethrough">60</span>100 requests per minute to the Graderoom server</span>
                                                 <span>Sync once every <span class="strikethrough">1 hour</span>15 minutes</span>
-                                                <span><span class="strikethrough"><span class="plus-label">PLUS</span></span> <span class="premium-label">PREMIUM</span>&nbsp;&nbsp;badge</span>
+                                                <span><span class="strikethrough"><span
+                                                                class="plus-label">PLUS</span></span> <span
+                                                            class="premium-label">PREMIUM</span>&nbsp;&nbsp;badge</span>
                                                 <span>Access class averages for ALL assignments</span>
                                             </span>
                                         </span>
@@ -599,29 +848,32 @@
                             </div>
                         </form>
                         <% if (school !== "bellarmine") { %>
-                        <btn style="margin-top: 0; margin-left: 0;" class="btn btn-sm" onclick="$('#syncGradesDiv').show(); $('#gradeSyncDiv').hide(); showCard('#updateGradesDisplay')">Change School Password</btn>
-                        <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
-                            <label class="slider-container">
-                                <label class="switch">
-                                    <input
-                                            id="gradeSyncToggle"
-                                            type="checkbox"
-                                            name="gradeSync"
-                                    <% if (gradeSync) { %>
-                                            checked
-                                            <% } %>
-                                            onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
-                                            class="popup"><i class="fa fa-question-circle"
-                                                             style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">When enabled, Graderoom syncs whenever
+                            <btn style="margin-top: 0; margin-left: 0;" class="btn btn-sm"
+                                 onclick="$('#syncGradesDiv').show(); $('#gradeSyncDiv').hide(); showCard('#updateGradesDisplay')">
+                                Change School Password
+                            </btn>
+                            <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
+                                <label class="slider-container">
+                                    <label class="switch">
+                                        <input
+                                                id="gradeSyncToggle"
+                                                type="checkbox"
+                                                name="gradeSync"
+                                        <% if (gradeSync) { %>
+                                                checked
+                                                <% } %>
+                                                onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                    <label onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
+                                                class="popup"><i class="fa fa-question-circle"
+                                                                 style="margin-left: 0.4rem"><span
+                                                        class="popup-right-top">When enabled, Graderoom syncs whenever
                                                 you
                                                 login</span></i></span></label>
-                            </label>
-                        </form>
+                                </label>
+                            </form>
                         <% } %>
                     </div>
                     <form id="changePersonalInfo" class="card-footer form-signin" autocomplete="off">
@@ -853,7 +1105,7 @@
                                             are on a different tab or window.
                                         </span></i></span> <span class="popup hide-in-firefox"><i
                                             class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">WARNING: This can cause issues such as the
+                                        <span class="popup-right-bottom">This can cause issues such as the
                                             horizontal snow line</span></i></span>
                             </label>
                         </label>
@@ -1004,7 +1256,10 @@
                         </p>
                     </div>
                     <div class="card-footer">
-                        <h5>Contributors <small><span class="changelog-fixes"><i class="fa fa-github"></i> <a href="https://github.com/graderoom/graderoom-website/graphs/contributors?type=a" target="_blank">View on GitHub <i class="fa fa-external-link-square"></i></a></span></small></h5>
+                        <h5>Contributors <small><span class="changelog-fixes"><i class="fa fa-github"></i> <a
+                                            href="https://github.com/graderoom/graderoom-website/graphs/contributors?type=a"
+                                            target="_blank">View on GitHub <i
+                                                class="fa fa-external-link-square"></i></a></span></small></h5>
                         <h6>Joel Jothiprakasam BCP '21</h6>
                         <h6>Bryce Hackel BCP '21</h6>
                         <h6>Abhinav Nallapa BCP '21</h6>
@@ -1033,30 +1288,30 @@
                         </div>
                         <br>
                         <form id="betaFeatures" action="/betaFeatures" method="post">
-<!--                            <div class="card-footer">-->
-<!--                                <label class="slider-container">-->
-<!--                                    <label style="margin-left: 0;" for="localScraping">-->
-<!--                                        Enable Local Scraping-->
-<!--                                    </label>-->
-<!--                                    <label class="switch">-->
-<!--                                        <input id="localScraping" type="checkbox"-->
-<!--                                               name="localScraping"-->
-<!--                                        <\% if (_betaFeatures.localScraping) { %\>-->
-<!--                                               checked="checked"-->
-<!--                                                <\% } %\>-->
-<!--                                               onchange="$($(this)[0].form).trigger('submit')"-->
-<!--                                        >-->
-<!--                                        <span class="slider"></span>-->
-<!--                                    </label>-->
-<!--                                </label>-->
-<!--                                <small>-->
-<!--                                    Enabled: Uses Graderoom browser extension to scrape grades locally on your computer-->
-<!--                                </small>-->
-<!--                                <br>-->
-<!--                                <small>-->
-<!--                                    Disabled: Default-->
-<!--                                </small>-->
-<!--                            </div>-->
+                            <!--                            <div class="card-footer">-->
+                            <!--                                <label class="slider-container">-->
+                            <!--                                    <label style="margin-left: 0;" for="localScraping">-->
+                            <!--                                        Enable Local Scraping-->
+                            <!--                                    </label>-->
+                            <!--                                    <label class="switch">-->
+                            <!--                                        <input id="localScraping" type="checkbox"-->
+                            <!--                                               name="localScraping"-->
+                            <!--                                        <\% if (_betaFeatures.localScraping) { %\>-->
+                            <!--                                               checked="checked"-->
+                            <!--                                                <\% } %\>-->
+                            <!--                                               onchange="$($(this)[0].form).trigger('submit')"-->
+                            <!--                                        >-->
+                            <!--                                        <span class="slider"></span>-->
+                            <!--                                    </label>-->
+                            <!--                                </label>-->
+                            <!--                                <small>-->
+                            <!--                                    Enabled: Uses Graderoom browser extension to scrape grades locally on your computer-->
+                            <!--                                </small>-->
+                            <!--                                <br>-->
+                            <!--                                <small>-->
+                            <!--                                    Disabled: Default-->
+                            <!--                                </small>-->
+                            <!--                            </div>-->
                             <div class="card-footer">
                                 <h5><small style="opacity: 0.5">No Experiments at the moment. Check back later!</small>
                                 </h5>
@@ -1078,7 +1333,7 @@
     let checkingFirstName;
     let checkingLastName;
     let checkingGradYear;
-    let settingsBtns = $("#settingsCardDisplay .tablinks");
+    let settingsBtns = $('#settingsCardDisplay .tablinks');
 
     function checkFirstName(inputID, messageDivID) {
         const firstNameRegex = new RegExp(/^[a-z]+(?:-[a-z]+)*$/i);
@@ -1086,54 +1341,54 @@
         let firstName = $(inputID)[0].value;
         let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
 
-        $(messageDivID).addClass("dont-show").removeClass("always-show");
-        icon.attr("class", "fa fa-pulse fa-spinner");
-        $(inputID).removeClass("invalid").addClass("loading");
+        $(messageDivID).addClass('dont-show').removeClass('always-show');
+        icon.attr('class', 'fa fa-pulse fa-spinner');
+        $(inputID).removeClass('invalid').addClass('loading');
         if (checkingFirstName) {
             clearTimeout(checkingFirstName);
         }
 
         if (firstName.length === 0) {
             firstName = getPersonalInfo(schoolUsername).firstName;
-            $(messageDivID).addClass("always-show").removeClass("dont-show").text("Your name will be set back to " + firstName + " when you click outside of the input field");
-            icon.attr("class", "fa fa-exclamation-circle");
-            $(inputID).removeClass("loading").addClass("invalid").blur(() => {
+            $(messageDivID).addClass('always-show').removeClass('dont-show').text('Your name will be set back to ' + firstName + ' when you click outside of the input field');
+            icon.attr('class', 'fa fa-exclamation-circle');
+            $(inputID).removeClass('loading').addClass('invalid').blur(() => {
                 $(inputID).val(firstName);
-                $(inputID).trigger("input");
-                $(inputID).off("blur");
+                $(inputID).trigger('input');
+                $(inputID).off('blur');
             });
             return;
         }
 
         checkingFirstName = setTimeout(() => {
             if (!firstNameRegex.test(firstName)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").text("First name can only contain letters and/or hyphens.");
-                icon.attr("class", "fa fa-exclamation-circle");
-                $(inputID).removeClass("loading").addClass("invalid");
+                $(messageDivID).removeClass('dont-show').addClass('always-show').text('First name can only contain letters and/or hyphens.');
+                icon.attr('class', 'fa fa-exclamation-circle');
+                $(inputID).removeClass('loading').addClass('invalid');
                 return;
             }
             $.ajax({
-                       url: "/setPersonalInfo", type: "POST", async: true, data: {firstName: firstName}
-                   }).done((response) => {
-                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                    $(".session-timeout").show();
-                    $("body").find("*").not(".session-timeout").remove();
+                url: '/setPersonalInfo', type: 'POST', async: true, data: {firstName: firstName}
+            }).done((response) => {
+                if (typeof response === 'string' && response.startsWith('<!')) {  // If logged out
+                    $('.session-timeout').show();
+                    $('body').find('*').not('.session-timeout').remove();
                     return;
                 }
                 // Make sure value is still the same
                 if (firstName === $(inputID)[0].value) {
-                    $(messageDivID).removeClass("dont-show").removeClass("always-show").text(response);
-                    icon.attr("class", "fa fa-check-circle");
-                    $(inputID).removeClass("loading").removeClass("invalid");
+                    $(messageDivID).removeClass('dont-show').removeClass('always-show').text(response);
+                    icon.attr('class', 'fa fa-check-circle');
+                    $(inputID).removeClass('loading').removeClass('invalid');
                     personalInfo.firstName = firstName;
                     updateNameDisplay();
                 }
             }).fail((data) => {
                 // Make sure value is still the same
                 if (firstName === $(inputID)[0].value) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").html(data.responseText);
-                    icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).removeClass("loading").addClass("invalid");
+                    $(messageDivID).removeClass('dont-show').addClass('always-show').html(data.responseText);
+                    icon.attr('class', 'fa fa-exclamation-circle');
+                    $(inputID).removeClass('loading').addClass('invalid');
                 }
             });
         }, 400);
@@ -1145,101 +1400,101 @@
         let lastName = $(inputID)[0].value;
         let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
 
-        $(messageDivID).addClass("dont-show").removeClass("always-show");
-        icon.attr("class", "fa fa-pulse fa-spinner");
-        $(inputID).removeClass("loading").removeClass("invalid");
+        $(messageDivID).addClass('dont-show').removeClass('always-show');
+        icon.attr('class', 'fa fa-pulse fa-spinner');
+        $(inputID).removeClass('loading').removeClass('invalid');
         if (checkingLastName) {
             clearTimeout(checkingLastName);
         }
 
-        if (school !== "basis" && lastName.length === 0) {
+        if (school !== 'basis' && lastName.length === 0) {
             lastName = getPersonalInfo(schoolUsername).lastName;
-            $(messageDivID).addClass("always-show").removeClass("dont-show").text(`Your name will be set back to ${lastName} when you click outside of the input field`);
-            icon.attr("class", "fa fa-exclamation-circle");
-            $(inputID).removeClass("loading").addClass("invalid").blur(() => {
+            $(messageDivID).addClass('always-show').removeClass('dont-show').text(`Your name will be set back to ${lastName} when you click outside of the input field`);
+            icon.attr('class', 'fa fa-exclamation-circle');
+            $(inputID).removeClass('loading').addClass('invalid').blur(() => {
                 $(inputID).val(lastName);
-                $(inputID).trigger("input");
-                $(inputID).off("blur");
+                $(inputID).trigger('input');
+                $(inputID).off('blur');
             });
             return;
         }
 
         checkingLastName = setTimeout(() => {
             if (!lastNameRegex.test(lastName)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").text("Last name can only contain letters and/or hyphens.");
-                icon.attr("class", "fa fa-exclamation-circle");
-                $(inputID).removeClass("loading").addClass("invalid");
+                $(messageDivID).removeClass('dont-show').addClass('always-show').text('Last name can only contain letters and/or hyphens.');
+                icon.attr('class', 'fa fa-exclamation-circle');
+                $(inputID).removeClass('loading').addClass('invalid');
                 return;
             }
             $.ajax({
-                       url: "/setPersonalInfo", type: "POST", async: true, data: {lastName: lastName}
-                   }).done((response) => {
-                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                    $(".session-timeout").show();
-                    $("body").find("*").not(".session-timeout").remove();
+                url: '/setPersonalInfo', type: 'POST', async: true, data: {lastName: lastName}
+            }).done((response) => {
+                if (typeof response === 'string' && response.startsWith('<!')) {  // If logged out
+                    $('.session-timeout').show();
+                    $('body').find('*').not('.session-timeout').remove();
                     return;
                 }
                 // Make sure value is still the same
                 if (lastName === $(inputID)[0].value) {
-                    $(messageDivID).removeClass("dont-show").removeClass("always-show").text(response);
-                    icon.attr("class", "fa fa-check-circle");
-                    $(inputID).removeClass("loading").removeClass("invalid");
+                    $(messageDivID).removeClass('dont-show').removeClass('always-show').text(response);
+                    icon.attr('class', 'fa fa-check-circle');
+                    $(inputID).removeClass('loading').removeClass('invalid');
                     personalInfo.lastName = lastName;
                     updateNameDisplay();
                 }
             }).fail((data) => {
                 // Make sure value is still the same
                 if (lastName === $(inputID)[0].value) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").html(data.responseText);
-                    icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).removeClass("loading").addClass("invalid");
+                    $(messageDivID).removeClass('dont-show').addClass('always-show').html(data.responseText);
+                    icon.attr('class', 'fa fa-exclamation-circle');
+                    $(inputID).removeClass('loading').addClass('invalid');
                 }
             });
         }, 400);
     }
 
     function checkGradYear(inputID, messageDivID) {
-        const gradYearRegex = new RegExp("^2[0-9][1-9][0-9]$");
+        const gradYearRegex = new RegExp('^2[0-9][1-9][0-9]$');
 
         let gradYear = $(inputID)[0].valueAsNumber;
         let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
 
-        $(messageDivID).addClass("dont-show").removeClass("always-show");
-        icon.attr("class", "fa fa-pulse fa-spinner");
-        $(inputID).removeClass("invalid").addClass("loading");
+        $(messageDivID).addClass('dont-show').removeClass('always-show');
+        icon.attr('class', 'fa fa-pulse fa-spinner');
+        $(inputID).removeClass('invalid').addClass('loading');
         if (checkingGradYear) {
             clearTimeout(checkingGradYear);
         }
 
         checkingGradYear = setTimeout(() => {
             if (gradYear.length !== 0 && !gradYearRegex.test(gradYear)) {
-                $(messageDivID).removeClass("dont-show").addClass("always-show").text("That doesn't look like a valid graduation year");
-                icon.attr("class", "fa fa-exclamation-circle");
-                $(inputID).removeClass("loading").addClass("invalid");
+                $(messageDivID).removeClass('dont-show').addClass('always-show').text('That doesn\'t look like a valid graduation year');
+                icon.attr('class', 'fa fa-exclamation-circle');
+                $(inputID).removeClass('loading').addClass('invalid');
                 return;
             }
             $.ajax({
-                       url: "/setPersonalInfo", type: "POST", async: true, data: {graduationYear: gradYear}
-                   }).done((response) => {
-                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                    $(".session-timeout").show();
-                    $("body").find("*").not(".session-timeout").remove();
+                url: '/setPersonalInfo', type: 'POST', async: true, data: {graduationYear: gradYear}
+            }).done((response) => {
+                if (typeof response === 'string' && response.startsWith('<!')) {  // If logged out
+                    $('.session-timeout').show();
+                    $('body').find('*').not('.session-timeout').remove();
                     return;
                 }
                 // Make sure value is still the same
                 if (gradYear === $(inputID)[0].valueAsNumber) {
-                    $(messageDivID).removeClass("dont-show").removeClass("always-show").text(response);
-                    icon.attr("class", "fa fa-check-circle");
-                    $(inputID).removeClass("loading").removeClass("invalid");
+                    $(messageDivID).removeClass('dont-show').removeClass('always-show').text(response);
+                    icon.attr('class', 'fa fa-check-circle');
+                    $(inputID).removeClass('loading').removeClass('invalid');
                     personalInfo.graduationYear = gradYear;
                     updateNameDisplay();
                 }
             }).fail((data) => {
                 // Make sure value is still the same
                 if (gradYear === $(inputID)[0].valueAsNumber) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").html(data.responseText);
-                    icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).removeClass("loading").addClass("invalid");
+                    $(messageDivID).removeClass('dont-show').addClass('always-show').html(data.responseText);
+                    icon.attr('class', 'fa fa-exclamation-circle');
+                    $(inputID).removeClass('loading').addClass('invalid');
                 }
             });
         }, 400);
@@ -1258,10 +1513,10 @@
             if (!!graduationYear && graduationYear > 2010) {
                 name.push(`'${graduationYear - 2000}`);
             }
-            $("#nameDisplay").text(name.join(" "));
-            $("#firstName").val(firstName);
-            $("#lastName").val(lastName);
-            $("#graduationYear").val(graduationYear);
+            $('#nameDisplay').text(name.join(' '));
+            $('#firstName').val(firstName);
+            $('#lastName').val(lastName);
+            $('#graduationYear').val(graduationYear);
         } else {
             let name = [];
             if (!!personalInfo.firstName) {
@@ -1273,22 +1528,22 @@
             if (!!personalInfo.graduationYear && personalInfo.graduationYear > 2010) {
                 name.push(`'${personalInfo.graduationYear - 2000}`);
             }
-            $("#nameDisplay").text(name.join(" "));
+            $('#nameDisplay').text(name.join(' '));
         }
     }
 
     function getPersonalInfo(email) {
-        if (school === "bellarmine") {
+        if (school === 'bellarmine') {
             // First Name
-            let firstName = email.substring(0, email.indexOf("."));
+            let firstName = email.substring(0, email.indexOf('.'));
             firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
 
             // Last Name
-            let lastName = email.substring(email.indexOf(".") + 1, email.indexOf(email.match(/\d/)));
+            let lastName = email.substring(email.indexOf('.') + 1, email.indexOf(email.match(/\d/)));
             lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
 
             // Graduation Year
-            let graduationYear = email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+            let graduationYear = email.substring(email.indexOf(email.match(/\d/)), email.indexOf('@'));
             if (graduationYear) {
                 graduationYear = parseInt(graduationYear);
                 graduationYear += 2000;
@@ -1296,7 +1551,7 @@
 
             return {firstName, lastName, graduationYear};
         }
-        if (school === "ndsj") {
+        if (school === 'ndsj') {
             // First Name
             let firstName = email.substring(0, 1).toUpperCase();
 
@@ -1305,7 +1560,7 @@
             lastName = lastName[0].toUpperCase() + lastName.substring(1).toLowerCase();
 
             // Graduation Year
-            let graduationYear = email.substring(email.indexOf(email.match(/\d/)), email.indexOf("@"));
+            let graduationYear = email.substring(email.indexOf(email.match(/\d/)), email.indexOf('@'));
             if (graduationYear) {
                 graduationYear = parseInt(graduationYear);
                 graduationYear += 2000;
@@ -1313,10 +1568,10 @@
 
             return {firstName, lastName, graduationYear};
         }
-        if (school === "basis") {
-            let firstName = email.indexOf("_") === -1 ? email : email.substring(0, email.indexOf("_"));
+        if (school === 'basis') {
+            let firstName = email.indexOf('_') === -1 ? email : email.substring(0, email.indexOf('_'));
             firstName = firstName[0].toUpperCase() + firstName.substring(1).toLowerCase();
-            let lastName = "";
+            let lastName = '';
             let graduationYear = null;
 
             return {firstName, lastName, graduationYear};
@@ -1324,20 +1579,20 @@
     }
 
     function manageGradeSyncCheckbox() {
-        let gradeSyncDiv = $("#gradeSyncDiv");
-        if (gradeSyncDiv.css("display") === "block" && !$("#gradeSyncToggle").prop("checked")) {
+        let gradeSyncDiv = $('#gradeSyncDiv');
+        if (gradeSyncDiv.css('display') === 'block' && !$('#gradeSyncToggle').prop('checked')) {
             gradeSync = false;
-            ajaxPostForm("#gradeSync", [], "", true);
-            $("#gradeSync").trigger("submit");
+            ajaxPostForm('#gradeSync', [], '', true);
+            $('#gradeSync').trigger('submit');
             gradeSyncDiv.hide();
-            $("#syncGradesDiv").show();
-            $(".gradeSyncEnabled").hide();
+            $('#syncGradesDiv').show();
+            $('.gradeSyncEnabled').hide();
             clearTimeout(checkLastUpdated);
-            $(".updateGradesMessage").removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text("GradeSync is not enabled");
+            $('.updateGradesMessage').removeClass('alert-danger').removeClass('alert-success').addClass('alert-info').find('.messageTxt').text('GradeSync is not enabled');
         } else {
-            $("#savePasswordToggle:not(:checked)").trigger("click");
-            $("#syncGradesDiv").show();
-            showCard("#updateGradesDisplay");
+            $('#savePasswordToggle:not(:checked)').trigger('click');
+            $('#syncGradesDiv').show();
+            showCard('#updateGradesDisplay');
         }
     }
 
@@ -1349,44 +1604,44 @@
         if (!palette) {
             palette = appearance.colorPalette;
         }
-        let buttons = $("#color-scheme-picker button:not([disabled])");
-        buttons.prop("disabled", true);
+        let buttons = $('#color-scheme-picker button:not([disabled])');
+        buttons.prop('disabled', true);
         $.ajax({
-                   url: "/setColorPalette",
-                   type: "POST",
-                   data: {preset: palette, shuffleColors: JSON.stringify($("#shuffleToggle").is(":checked"))},
-                   async: true
-               }).done((response) => {
-            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                $(".session-timeout").show();
-                $("body").find("*").not(".session-timeout").remove();
+            url: '/setColorPalette',
+            type: 'POST',
+            data: {preset: palette, shuffleColors: JSON.stringify($('#shuffleToggle').is(':checked'))},
+            async: true
+        }).done((response) => {
+            if (typeof response === 'string' && response.startsWith('<!')) {  // If logged out
+                $('.session-timeout').show();
+                $('body').find('*').not('.session-timeout').remove();
                 return;
             }
-            $("#color-scheme-picker div").each(function () {
+            $('#color-scheme-picker div').each(function () {
                 if (this.id === palette) {
-                    $(this).find("i").css("opacity", 1);
+                    $(this).find('i').css('opacity', 1);
                 } else {
-                    $(this).find("i").css("opacity", 0);
+                    $(this).find('i').css('opacity', 0);
                 }
             });
-            if (palette === "custom") {
-                $(".editClassColor").addClass("visible");
-                $("#shuffleToggle").parent(".switch").parent(".slider-container").hide();
+            if (palette === 'custom') {
+                $('.editClassColor').addClass('visible');
+                $('#shuffleToggle').parent('.switch').parent('.slider-container').hide();
             } else {
-                $(".editClassColor").removeClass("visible");
-                $("#shuffleToggle").parent(".switch").parent(".slider-container").show();
+                $('.editClassColor').removeClass('visible');
+                $('#shuffleToggle').parent('.switch').parent('.slider-container').show();
                 updateClassColors(!appearance.showNonAcademic ? academicIndices.map(n => response[n]) : response);
             }
             appearance.colorPalette = palette;
             setTimeout(() => {
-                buttons.prop("disabled", false);
+                buttons.prop('disabled', false);
             }, 1000);
         });
     }
 
     function updateCustomColor(serverClassIndex, colorHex) {
         let color = colorHex;
-        if (colorHex.startsWith("#")) {
+        if (colorHex.startsWith('#')) {
             color = colorHex.substring(1);
         }
         if (color.length === 3) {
@@ -1395,20 +1650,21 @@
         if (color.length !== 6) {
             return;
         }
-        let buttons = $("#color-scheme-picker button:not([disabled])");
-        buttons.prop("disabled", true);
+        let buttons = $('#color-scheme-picker button:not([disabled])');
+        buttons.prop('disabled', true);
         $.ajax({
-                   url: "/updateCustomColor",
-                   type: "POST",
-                   data: {index: serverClassIndex, color: color}}).done((response) => {
-            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                $(".session-timeout").show();
-                $("body").find("*").not(".session-timeout").remove();
+            url: '/updateCustomColor',
+            type: 'POST',
+            data: {index: serverClassIndex, color: color}
+        }).done((response) => {
+            if (typeof response === 'string' && response.startsWith('<!')) {  // If logged out
+                $('.session-timeout').show();
+                $('body').find('*').not('.session-timeout').remove();
                 return;
             }
             updateClassColors(!appearance.showNonAcademic ? academicIndices.map(n => response[n]) : response);
             setTimeout(() => {
-                buttons.prop("disabled", false);
+                buttons.prop('disabled', false);
             }, 1000);
         });
     }
@@ -1416,30 +1672,30 @@
     function updateClassColors(colorArray) {
         let _colors = colorArray;
         for (let i = 0; i < _colors.length; i++) {
-            $("#classColor" + i).css("color", _colors[i]);
-            $("#customColor" + i).val(_colors[i]);
+            $('#classColor' + i).css('color', _colors[i]);
+            $('#customColor' + i).val(_colors[i]);
         }
         colors = colorArray;
         setupColorStuff();
     }
 
     function updateSchoolUsernameDisplay() {
-        document.getElementById("schoolUsernameDisplay").textContent = document.getElementById("school_email").value;
+        document.getElementById('schoolUsernameDisplay').textContent = document.getElementById('school_email').value;
     }
 
     function openTab(tabIndex) {
         // Declare all variables
-        let tabName = "#settings-" + tabIndex;
+        let tabName = '#settings-' + tabIndex;
 
         // Get all elements with class="tabcontent" and hide them
-        $("#settingsCardDisplay .tabcontent").removeClass("show");
+        $('#settingsCardDisplay .tabcontent').removeClass('show');
 
         // Get all elements with class="tablinks" and remove the class "active"
-        settingsBtns.removeClass("active");
+        settingsBtns.removeClass('active');
 
         // Show the current tab, and add an "active" class to the button that opened the tab
-        $(tabName).addClass("show");
-        $(settingsBtns[tabIndex]).addClass("active");
+        $(tabName).addClass('show');
+        $(settingsBtns[tabIndex]).addClass('active');
         currentSettingsTab = tabIndex;
 
         if (currentSettingsTab === 4) {
@@ -1450,83 +1706,83 @@
     function checkLabel(input) {
         let label = $($(input)[0].previousElementSibling);
         input = $(input);
-        if (input[0].value !== "") {
-            if (!label.hasClass("label-active")) {
-                label.addClass("label-active");
+        if (input[0].value !== '') {
+            if (!label.hasClass('label-active')) {
+                label.addClass('label-active');
             }
         } else {
-            label.removeClass("label-active");
+            label.removeClass('label-active');
         }
     }
 
     let checkingPassword;
 
     function checkPassword(inputID, oldID, messageDivID) {
-        const lowerCaseRegex = new RegExp("^(?=.*[a-z])");
-        const upperCaseRegex = new RegExp("^(?=.*[A-Z])");
-        const numericRegex = new RegExp("^(?=.*[0-9])");
+        const lowerCaseRegex = new RegExp('^(?=.*[a-z])');
+        const upperCaseRegex = new RegExp('^(?=.*[A-Z])');
+        const numericRegex = new RegExp('^(?=.*[0-9])');
 
         let password = $(inputID)[0].value;
         let oldPassword = $(oldID)[0].value;
         let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
         if (messageDivID) {
-            $(messageDivID).addClass("dont-show").removeClass("always-show");
-            icon.attr("class", "fa fa-pulse fa-spinner");
-            $(inputID).removeClass("invalid").addClass("loading");
+            $(messageDivID).addClass('dont-show').removeClass('always-show');
+            icon.attr('class', 'fa fa-pulse fa-spinner');
+            $(inputID).removeClass('invalid').addClass('loading');
             if (checkingPassword) {
                 clearTimeout(checkingPassword);
             }
 
-            if (password === "") {
-                $(messageDivID).addClass("dont-show").removeClass("always-show");
-                icon.attr("class", "");
-                $(inputID).removeClass("loading").removeClass("invalid");
+            if (password === '') {
+                $(messageDivID).addClass('dont-show').removeClass('always-show');
+                icon.attr('class', '');
+                $(inputID).removeClass('loading').removeClass('invalid');
                 invalidate();
                 return;
             }
             checkingPassword = setTimeout(() => {
-                if (oldPassword === "") {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").text("Enter your old password first");
-                    icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).removeClass("loading").addClass("invalid");
+                if (oldPassword === '') {
+                    $(messageDivID).removeClass('dont-show').addClass('always-show').text('Enter your old password first');
+                    icon.attr('class', 'fa fa-exclamation-circle');
+                    $(inputID).removeClass('loading').addClass('invalid');
                     invalidate();
                     return;
                 }
                 if (password === oldPassword) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").text("Your new password should be different from your old password");
-                    icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).removeClass("loading").addClass("invalid");
+                    $(messageDivID).removeClass('dont-show').addClass('always-show').text('Your new password should be different from your old password');
+                    icon.attr('class', 'fa fa-exclamation-circle');
+                    $(inputID).removeClass('loading').addClass('invalid');
                     invalidate();
                     return;
                 }
                 let message;
                 if (password.length < 6) {
-                    message = "Your password must be at least 6 characters long";
+                    message = 'Your password must be at least 6 characters long';
                 } else if (password.length > 64) {
-                    message = "Your password must be fewer than 64 characters long";
+                    message = 'Your password must be fewer than 64 characters long';
                 } else if (!lowerCaseRegex.test(password)) {
-                    message = "Your password must include at least one lowercase character";
+                    message = 'Your password must include at least one lowercase character';
                 } else if (!upperCaseRegex.test(password)) {
-                    message = "Your password must include at least one uppercase character";
+                    message = 'Your password must include at least one uppercase character';
                 } else if (!numericRegex.test(password)) {
-                    message = "Your password must include at least one number";
+                    message = 'Your password must include at least one number';
                 } else {
-                    message = "Strong password";
-                    $(messageDivID).removeClass("dont-show").removeClass("always-show").text(message);
-                    icon.attr("class", "fa fa-check-circle");
-                    $(inputID).removeClass("loading").removeClass("invalid");
+                    message = 'Strong password';
+                    $(messageDivID).removeClass('dont-show').removeClass('always-show').text(message);
+                    icon.attr('class', 'fa fa-check-circle');
+                    $(inputID).removeClass('loading').removeClass('invalid');
                     validate();
                     return;
                 }
                 if (message) {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").css("color", "red").text(message);
-                    icon.attr("class", "fa fa-exclamation-circle");
-                    $(inputID).css("border-bottom-color", "red");
+                    $(messageDivID).removeClass('dont-show').addClass('always-show').css('color', 'red').text(message);
+                    icon.attr('class', 'fa fa-exclamation-circle');
+                    $(inputID).css('border-bottom-color', 'red');
                     invalidate();
                 } else {
-                    $(messageDivID).addClass("dont-show").removeClass("always-show");
-                    icon.attr("class", "");
-                    $(inputID).removeClass("loading").removeClass("invalid");
+                    $(messageDivID).addClass('dont-show').removeClass('always-show');
+                    icon.attr('class', '');
+                    $(inputID).removeClass('loading').removeClass('invalid');
                 }
             }, 400);
         } else {
@@ -1541,37 +1797,37 @@
         let confirm = $(confirmID)[0].value;
         let icon = $($($(confirmID)[0].nextElementSibling)[0].firstElementChild);
         if (messageDivID) {
-            $(messageDivID).addClass("dont-show").removeClass("always-show");
-            icon.attr("class", "fa fa-pulse fa-spinner");
-            $(confirmID).removeClass("invalid").addClass("loading");
+            $(messageDivID).addClass('dont-show').removeClass('always-show');
+            icon.attr('class', 'fa fa-pulse fa-spinner');
+            $(confirmID).removeClass('invalid').addClass('loading');
             if (checkingPasswordConfirm) {
                 clearTimeout(checkingPasswordConfirm);
             }
 
-            if (confirm === "") {
-                $(messageDivID).addClass("dont-show").removeClass("always-show");
-                icon.attr("class", "");
-                $(confirmID).removeClass("loading").removeClass("invalid");
+            if (confirm === '') {
+                $(messageDivID).addClass('dont-show').removeClass('always-show');
+                icon.attr('class', '');
+                $(confirmID).removeClass('loading').removeClass('invalid');
                 invalidate();
                 return;
             }
             checkingPasswordConfirm = setTimeout(() => {
                 if (checkPassword(inputID, oldID)) {
                     if (password === confirm) {
-                        $(messageDivID).removeClass("dont-show").removeClass("always-show").text("Passwords match");
-                        icon.attr("class", "fa fa-check-circle");
-                        $(confirmID).removeClass("loading").removeClass("invalid");
+                        $(messageDivID).removeClass('dont-show').removeClass('always-show').text('Passwords match');
+                        icon.attr('class', 'fa fa-check-circle');
+                        $(confirmID).removeClass('loading').removeClass('invalid');
                         validate();
                     } else {
-                        $(messageDivID).removeClass("dont-show").addClass("always-show").text("Passwords do not match");
-                        icon.attr("class", "fa fa-exclamation-circle");
-                        $(confirmID).removeClass("loading").addClass("invalid");
+                        $(messageDivID).removeClass('dont-show').addClass('always-show').text('Passwords do not match');
+                        icon.attr('class', 'fa fa-exclamation-circle');
+                        $(confirmID).removeClass('loading').addClass('invalid');
                         invalidate();
                     }
                 } else {
-                    $(messageDivID).removeClass("dont-show").addClass("always-show").text("Enter a valid password first");
-                    icon.attr("class", "fa fa-exclamation-circle");
-                    $(confirmID).removeClass("loading").addClass("invalid");
+                    $(messageDivID).removeClass('dont-show').addClass('always-show').text('Enter a valid password first');
+                    icon.attr('class', 'fa fa-exclamation-circle');
+                    $(confirmID).removeClass('loading').addClass('invalid');
                     invalidate();
                 }
             }, 400);
@@ -1581,34 +1837,34 @@
         }
     }
 
-    let passwordDiv = $("#password");
-    let oldPasswordDiv = $("#oldPassword");
-    let confirmDiv = $("#confirmPassword");
-    let signupBtn = $("#changePasswordBtn");
+    let passwordDiv = $('#password');
+    let oldPasswordDiv = $('#oldPassword');
+    let confirmDiv = $('#confirmPassword');
+    let signupBtn = $('#changePasswordBtn');
 
     function validate() {
         if (!checkPasswordConfirm(passwordDiv, oldPasswordDiv, confirmDiv)) { // Invalid or Unconfirmed Password
             invalidate();
             return;
         }
-        signupBtn.prop("disabled", "");
+        signupBtn.prop('disabled', '');
     }
 
     function invalidate() {
-        signupBtn.prop("disabled", "disabled");
+        signupBtn.prop('disabled', 'disabled');
     }
 
     function closeMessage(id) {
-        document.getElementById(id).style.display = "none";
+        document.getElementById(id).style.display = 'none';
     }
 
     function resetTutorial() {
         $.ajax({
-                   url: "/resetTutorial", type: "POST", async: true
-               }).done((response) => {
-            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                $(".session-timeout").show();
-                $("body").find("*").not(".session-timeout").remove();
+            url: '/resetTutorial', type: 'POST', async: true
+        }).done((response) => {
+            if (typeof response === 'string' && response.startsWith('<!')) {  // If logged out
+                $('.session-timeout').show();
+                $('body').find('*').not('.session-timeout').remove();
                 return;
             }
             alerts.tutorialStatus = JSON.parse(response);
@@ -1622,14 +1878,14 @@
         let numGotten = Object.values(tutorialStatus).filter(x => x).length;
         let numTotal = Object.values(tutorialStatus).length;
         let progress = numGotten / numTotal * 100;
-        let bar = $("#tutorialStatus").text(progress !== 0 ? Math.round(progress) + "%" : "").css("width", progress + "%").parents(".progress");
-        let emptyBars = $(".empty-progress");
+        let bar = $('#tutorialStatus').text(progress !== 0 ? Math.round(progress) + '%' : '').css('width', progress + '%').parents('.progress');
+        let emptyBars = $('.empty-progress');
         let i;
         for (i = 0; i < numTotal - numGotten; i++) {
             if (i >= emptyBars.length) {
-                bar.append("<div class=\"progress-bar empty-progress\" role=\"progressbar\" style=\"width: " + (100 / numTotal) + "%\"></div>");
+                bar.append('<div class="progress-bar empty-progress" role="progressbar" style="width: ' + (100 / numTotal) + '%"></div>');
             } else {
-                $(emptyBars[i]).css("width", (100 / numTotal) + "%");
+                $(emptyBars[i]).css('width', (100 / numTotal) + '%');
             }
         }
         for (i; i < emptyBars.length; i++) {
@@ -1638,14 +1894,14 @@
     }
 
     function setupDonos() {
-        let donoDiv = $("#donations");
-        let donoProgressDiv = $("#donationProgress");
-        let progressBars = donoProgressDiv.find("div.progress-bar");
-        $(progressBars).css("width", "0");
-        $(progressBars[0]).css("width", "12.5%");
+        let donoDiv = $('#donations');
+        let donoProgressDiv = $('#donationProgress');
+        let progressBars = donoProgressDiv.find('div.progress-bar');
+        $(progressBars).css('width', '0');
+        $(progressBars[0]).css('width', '12.5%');
         if (donoData.length === 0) {
             donoDiv.html(`<div style="text-align: center">No Donations Yet</div>`);
-            $(progressBars[4]).css("width", "87.5%");
+            $(progressBars[4]).css('width', '87.5%');
             donor = false;
             plus = false;
             premium = false;
@@ -1661,11 +1917,11 @@
                 totalReceived += received;
                 let date = donoData[i].dateDonated;
 
-                if (platform === "paypal") platform = "PayPal";
-                else if (platform === "zelle") platform = "Zelle";
-                else if (platform === "venmo") platform = "Venmo";
-                else if (platform === "cash") platform = "Cash";
-                else if (platform === "gift") platform = "Gift";
+                if (platform === 'paypal') platform = 'PayPal';
+                else if (platform === 'zelle') platform = 'Zelle';
+                else if (platform === 'venmo') platform = 'Venmo';
+                else if (platform === 'cash') platform = 'Cash';
+                else if (platform === 'gift') platform = 'Gift';
 
                 donoTable += `<tr><td class="dono-platform-${platform.toLowerCase()}">${platform}</td><td>$${paid.toFixed(2)}</td><td>$${received.toFixed(2)}</td><td>${new Date(date).toLocaleDateString()}</td></tr>`;
             }
@@ -1678,19 +1934,19 @@
 
             if (totalReceived <= minDonor) {
                 let width = 12.5 * totalReceived / minDonor;
-                $(progressBars[1]).css("width", `${width}%`);
-                $(progressBars[4]).css("width", `${100 - 12.5 - width}%`);
+                $(progressBars[1]).css('width', `${width}%`);
+                $(progressBars[4]).css('width', `${100 - 12.5 - width}%`);
             } else if (totalReceived <= minPlus) {
-                $(progressBars[1]).css("width", "12.5%");
+                $(progressBars[1]).css('width', '12.5%');
                 let width = 25 * (totalReceived - minDonor) / (minPlus - minDonor);
-                $(progressBars[2]).css("width", `${width}%`);
-                $(progressBars[4]).css("width", `${100 - 12.5 - 12.5 - width}%`);
+                $(progressBars[2]).css('width', `${width}%`);
+                $(progressBars[4]).css('width', `${100 - 12.5 - 12.5 - width}%`);
             } else {
-                $(progressBars[1]).css("width", "12.5%");
-                $(progressBars[2]).css("width", `25%`);
+                $(progressBars[1]).css('width', '12.5%');
+                $(progressBars[2]).css('width', `25%`);
                 let width = Math.min(50, 50 * (totalReceived - minPlus) / (minPremium - minPlus));
-                $(progressBars[3]).css("width", `${width}%`);
-                $(progressBars[4]).css("width", `${100 - 12.5 - 12.5 - 25 - width}%`);
+                $(progressBars[3]).css('width', `${width}%`);
+                $(progressBars[4]).css('width', `${100 - 12.5 - 12.5 - 25 - width}%`);
             }
             donor = totalReceived >= minDonor;
             plus = totalReceived >= minPlus;
@@ -1699,13 +1955,13 @@
     }
 
     function changeSetting(name, value) {
-        sendData("settings-change", {[name]: value});
+        sendData('settings-change', {[name]: value});
     }
 
     function ajaxPostForm(formID, fieldIDsToClear, messagesDivID, _async, doInstantly = false) {
         // Get the form.
         let form = $(formID);
-        $(form).on("submit", function (event) {
+        $(form).on('submit', function (event) {
             event.preventDefault();
             event.stopImmediatePropagation();
 
@@ -1724,32 +1980,32 @@
 
                 // Get the messages.
                 formMessagesDiv = $(messagesDivID);
-                $(formMessagesDiv).find(".sk-chase-mini").css("display", "inline-block");
-                message = $(formMessagesDiv).find(".messageTxt");
-                $(message).text("");
-                $(formMessagesDiv).removeClass("alert-success").removeClass("alert-danger").addClass("alert-info");
+                $(formMessagesDiv).find('.sk-chase-mini').css('display', 'inline-block');
+                message = $(formMessagesDiv).find('.messageTxt');
+                $(message).text('');
+                $(formMessagesDiv).removeClass('alert-success').removeClass('alert-danger').addClass('alert-info');
                 $(formMessagesDiv).show();
 
                 // Submit the form using AJAX.
                 $.ajax({
-                           type: "POST", url: $(form).attr("action"), data: formData, async: _async
-                       }).done(function (response) {
-                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
-                        $(".session-timeout").show();
-                        $("body").find("*").not(".session-timeout").remove();
+                    type: 'POST', url: $(form).attr('action'), data: formData, async: _async
+                }).done(function (response) {
+                    if (typeof response === 'string' && response.startsWith('<!')) {  // If logged out
+                        $('.session-timeout').show();
+                        $('body').find('*').not('.session-timeout').remove();
                         return;
                     }
                     console.log(response);
                     setTimeout(function () {
                         $(message).text(response);
-                        $(formMessagesDiv).find(".sk-chase-mini").hide();
-                        $(formMessagesDiv).removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
+                        $(formMessagesDiv).find('.sk-chase-mini').hide();
+                        $(formMessagesDiv).removeClass('alert-info').removeClass('alert-danger').addClass('alert-success');
                     }, 500);
 
-                    if (formID === "#changeSchoolEmail") {
-                        schoolUsername = $("#school_email")[0].value;
+                    if (formID === '#changeSchoolEmail') {
+                        schoolUsername = $('#school_email')[0].value;
                         updateNameDisplay(schoolUsername);
-                        $($("#school_email")[0].form).find("button").prop("disabled", true);
+                        $($('#school_email')[0].form).find('button').prop('disabled', true);
                     }
 
                     // Show the div.
@@ -1757,41 +2013,41 @@
 
                     // Clear fields to clear
                     for (let i = 0; i < fieldIDsToClear.length; i++) {
-                        $(fieldIDsToClear[i]).val("");
-                        $(fieldIDsToClear[i]).trigger("blur");
-                        if (formID === "#changePassword") {
-                            $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass("label-active");
+                        $(fieldIDsToClear[i]).val('');
+                        $(fieldIDsToClear[i]).trigger('blur');
+                        if (formID === '#changePassword') {
+                            $($(fieldIDsToClear[i])[0].previousElementSibling).removeClass('label-active');
                             if ($($(fieldIDsToClear[i])[0].previousElementSibling.children[0])) {
-                                $($(fieldIDsToClear[i])[0].previousElementSibling.children[0]).text("");
+                                $($(fieldIDsToClear[i])[0].previousElementSibling.children[0]).text('');
                             }
                         }
                     }
 
                 }).fail(function (data) {
                     // Make sure that the formMessages div has the alert-danger class
-                    $($(formMessagesDiv)[1]).removeClass("alert-info");
-                    $($(formMessagesDiv)[1]).addClass("alert-danger");
+                    $($(formMessagesDiv)[1]).removeClass('alert-info');
+                    $($(formMessagesDiv)[1]).addClass('alert-danger');
 
                     // Set the message text.
-                    if (data.responseText !== "") {
-                        if (data.responseText === "Incorrect login details.") {
-                            $(message).text("Incorrect school password.");
-                            $("#inputPassword").trigger("focus");
+                    if (data.responseText !== '') {
+                        if (data.responseText === 'Incorrect login details.') {
+                            $(message).text('Incorrect school password.');
+                            $('#inputPassword').trigger('focus');
                         } else {
                             $(message).text(data.responseText);
                         }
                     } else {
                         console.log(formMessagesDiv);
-                        $(message).text("Oops! An error occurred and your message could not be sent.");
+                        $(message).text('Oops! An error occurred and your message could not be sent.');
                     }
 
                     // Show the div.
-                    $(formMessagesDiv).css("display", "block");
+                    $(formMessagesDiv).css('display', 'block');
 
                     // Hide loading
-                    $(formMessagesDiv).find(".sk-chase-mini").hide();
+                    $(formMessagesDiv).find('.sk-chase-mini').hide();
 
-                    if (formID === "#syncGradesForm" || formID === "#gradeSyncForm") {
+                    if (formID === '#syncGradesForm' || formID === '#gradeSyncForm') {
                         clearTimeout(checkLastUpdated);
                     }
 

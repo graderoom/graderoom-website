@@ -1,0 +1,64 @@
+:root {
+    /* Core backgrounds */
+    --clr-bg: #ECEDF8;
+    --clr-surface: #F4F3FD;
+    --clr-surface-alt: var(--clr-surface);
+    --clr-surface-deep: var(--clr-surface);
+    --clr-input: #D8DBEC;
+    --clr-disabled: #ACB0BE;
+
+    /* Text */
+    --clr-text: #4C4F69;
+    --clr-text-2: #5C5F77;
+    --clr-text-3: #8C8FA1;
+    --clr-text-4: #ACB0BE;
+    --clr-placeholder: #9CA0B0;
+    --clr-text-excluded: #BCC0CC;
+    --clr-text-no-change: rgba(76, 79, 105, 0.5);
+
+    /* Borders and shadows */
+    --clr-border: #DCE0E8;
+    --clr-border-subtle: #E6E9EF;
+    --clr-shadow: rgba(76, 79, 105, 0.18);
+    --clr-shadow-soft: rgba(108, 111, 133, 0.18);
+    --clr-termSwitcher-blur-shadow: var(--clr-shadow-soft) 0 0 2px 1px, inset var(--clr-surface-deep) 0 0 200px 5px;
+
+    /* Buttons and links */
+    --clr-btn: #7287FD;
+    --clr-btn-text: #FFFFFF;
+    --clr-btn-approve: #40A02B;
+    --clr-btn-deny: #D20F39;
+    --clr-donate-nav-bg: #8839EF;
+    --clr-card-link: #5C5F77;
+    --clr-card-footer-link: currentColor;
+    --deco-card-link: underline;
+
+    /* Inputs */
+    --clr-select-arrow: #6C6F85;
+    --clr-select-track: #CCD0DA;
+
+    /* Status colors */
+    --clr-success: #40A02B;
+    --clr-error: #D20F39;
+    --clr-warning: #DF8E1D;
+    --clr-loading: #1E66F5;
+    --clr-donate: #DF8E1D;
+
+    /* Components */
+    --clr-overlay: rgba(76, 79, 105, 0.42);
+    --clr-toolTab-hover: rgba(114, 135, 253, 0.08);
+    --clr-class-link-active-text: #FFFFFF;
+    --clr-class-link-active-bg: #7287FD;
+    --clr-class-color-label-bg: linear-gradient(to left, var(--clr-class-link-active-bg) 50%, var(--clr-surface) 50%);
+    --clr-donation-flare: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.35) 20%, rgba(255, 255, 255, 0.5) 27%, transparent 27%, transparent 100%);
+
+    /* Form images */
+    --img-user: url(/public/resources/light_mode/user.png);
+    --img-email: url(/public/resources/light_mode/email.png);
+    --img-lock: url(/public/resources/light_mode/lock.png);
+    --img-key: url(/public/resources/light_mode/key.png);
+    --img-graduation: url(/public/resources/light_mode/graduation.png);
+    --img-school: url(/public/resources/light_mode/school.png);
+}
+
+.logo-dark { display: none !important; }

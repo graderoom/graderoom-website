@@ -1,3 +1,5 @@
+<%- include('../site_effects.ejs', {theme: theme, page: page}); %>
+
 <!-- Admin Nav Bar -->
 <nav class="navbar <% if (theme === true) { %>navbar-dark<% } else if (theme === false) { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
     <span class="d-flex w-50 mr-auto">
@@ -66,8 +68,6 @@
 
 <!-- JavaScript Imports -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-
-<%- include('../limited_time/snowfall.ejs', {theme: theme, page: page}); %>
 
 <!-- Custom JavaScript -->
 <script>

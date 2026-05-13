@@ -1,0 +1,13 @@
+#theme-background {
+    --bg-aurora-base-1: #030604;
+    --bg-aurora-base-2: #08120B;
+    --bg-aurora-base-3: #050B07;
+    --bg-aurora-glow-1: rgba(139, 228, 126, 0.28);
+    --bg-aurora-glow-2: rgba(22, 128, 58, 0.22);
+    --bg-aurora-ribbon-1: transparent;
+    --bg-aurora-ribbon-2: rgba(126, 224, 122, 0.28);
+    --bg-aurora-ribbon-3: rgba(27, 190, 95, 0.18);
+    --bg-aurora-grid-color: rgba(215, 247, 212, 0.18);
+    --bg-aurora-ribbon-opacity: 0.54;
+    --bg-aurora-grid-opacity: 0.16;
+}

@@ -1,0 +1,67 @@
+:root {
+    /* Core backgrounds */
+    --clr-bg: #282828;
+    --clr-surface: #3C3836;
+    --clr-surface-alt: #504945;
+    --clr-surface-deep: #1D2021;
+    --clr-input: #504945;
+    --clr-disabled: #665C54;
+
+    /* Text */
+    --clr-text: #EBDBB2;
+    --clr-text-2: #D5C4A1;
+    --clr-text-3: #A89984;
+    --clr-text-4: #7C6F64;
+    --clr-placeholder: #928374;
+    --clr-text-excluded: #665C54;
+    --clr-text-no-change: rgba(235, 219, 178, 0.5);
+
+    /* Borders and shadows */
+    --clr-border: #1D2021;
+    --clr-border-subtle: #504945;
+    --clr-shadow: #141617;
+    --clr-shadow-soft: rgba(0, 0, 0, 0.35);
+
+    /* Buttons and links */
+    --clr-btn: #FABD2F;
+    --clr-btn-text: #282828;
+    --clr-btn-approve: #B8BB26;
+    --clr-btn-deny: #FB4934;
+    --clr-donate-nav-bg: #4A3A12;
+    --clr-card-link: #1D2021;
+    --clr-card-footer-link: #FABD2F;
+    --deco-card-link: underline;
+
+    /* Inputs */
+    --clr-select-arrow: #D5C4A1;
+    --clr-select-track: #665C54;
+
+    /* Status colors */
+    --clr-success: #B8BB26;
+    --clr-error: #FB4934;
+    --clr-warning: #FE8019;
+    --clr-loading: #83A598;
+    --clr-donate: #FABD2F;
+
+    /* Components */
+    --clr-overlay: rgba(20, 22, 23, 0.6);
+    --clr-toolTab-hover: rgba(250, 189, 47, 0.12);
+    --clr-class-link-active-text: #EBDBB2;
+    --clr-class-link-active-bg: #282828;
+    --clr-class-color-label-bg: var(--clr-class-link-active-bg);
+    --clr-donation-flare: linear-gradient(65deg, transparent 20%, rgba(250, 189, 47, 0.18) 20%, rgba(250, 189, 47, 0.28) 27%, transparent 27%, transparent 100%);
+
+    /* Form images */
+    --img-user: url(/public/resources/dark_mode/user.png);
+    --img-email: url(/public/resources/dark_mode/email.png);
+    --img-lock: url(/public/resources/dark_mode/lock.png);
+    --img-key: url(/public/resources/dark_mode/key.png);
+    --img-graduation: url(/public/resources/dark_mode/graduation.png);
+    --img-school: url(/public/resources/dark_mode/school.png);
+}
+
+.logo-light { display: none !important; }
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28235, 219, 178, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}

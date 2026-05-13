@@ -1,4 +1,4 @@
-<%- include('../limited_time/snowfall.ejs', {theme: theme, page: page}); %>
+<%- include('../site_effects.ejs', {theme: theme, page: page}); %>
 
 <!-- Nav Bar -->
 <nav class="navbar <% if (theme) { %>navbar-dark<% } else { %>navbar-light<% } %> navbar-expand-lg justify-content-center">
@@ -52,7 +52,7 @@
                 <label id="nameDisplay"
                        style="white-space: nowrap;<% if (page === "home") { %> cursor: pointer; <% } %> margin: 0; display: block" onclick="<% if (page === "home") { %>showCard('#settingsCardDisplay'); openTab(2) <% } %>"><%= name.join(" "); %></label>
                 <% if (page === "home") { %>
-                    <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif"
+                    <label style="white-space: nowrap; cursor: pointer; border-radius: 0.5rem; padding: 0.1rem 0.5rem; font-family: Arial, Helvetica, sans-serif; max-width: 15rem; overflow: hidden"
                            onclick="showCard('#gradeChangesCardDisplay')"
                            class="updateGradesMessage alert-info">
                         <span></span>
@@ -200,7 +200,7 @@
     <%- include('sync_grades_card.ejs', {theme: theme}); %>
 <% } %>
 <% if (page === "home") { %>
-    <%- include('local_scrape_card.ejs', {theme: theme}); %>
+    <%- include('local_scrape_card.ejs', {theme: theme, testExtensionID: testExtensionID}); %>
 <% } %>
 <% if (page === "home") { %>
     <%- include('settings_card.ejs', {theme: theme}); %>
@@ -276,15 +276,23 @@
             setupDiscord(true);
         }
         if (id === "#localScrapeCardDisplay") {
-            checkExtensionInstalled().then((installed) => {
-                if (installed) {
-                    document.getElementById("installExtensionInfo").style.display = "none";
-                    document.getElementById("localScrapeDiv").style.display = "block";
-                } else {
-                    document.getElementById("installExtensionInfo").style.display = "block";
-                    document.getElementById("localScrapeDiv").style.display = "none";
-                }
-            }).then(() => $(id).fadeIn(100));
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            if (isMobile) {
+                document.getElementById("mobileExtensionInfo").style.display = "block";
+                document.getElementById("installExtensionInfo").style.display = "none";
+                document.getElementById("localScrapeDiv").style.display = "none";
+                $(id).fadeIn(100);
+            } else {
+                checkExtensionInstalled().then((installed) => {
+                    if (installed) {
+                        document.getElementById("installExtensionInfo").style.display = "none";
+                        document.getElementById("localScrapeDiv").style.display = "block";
+                    } else {
+                        document.getElementById("installExtensionInfo").style.display = "block";
+                        document.getElementById("localScrapeDiv").style.display = "none";
+                    }
+                }).then(() => $(id).fadeIn(100));
+            }
         } else {
             $(id).fadeIn(100);
         }
@@ -332,28 +340,22 @@
             }
         }
         if (id === "localScrapeCardDisplay") {
+            document.getElementById("mobileExtensionInfo").style.display = "none";
             document.getElementById("installExtensionInfo").style.display = "none";
             document.getElementById("localScrapeDiv").style.display = "none";
         }
 
         // Manage theme selection, if it exists
         try {
-            let themeRadioButtons = document.getElementsByName("theme");
-            if (theme === "auto") {
-                themeRadioButtons[3].checked = true;
-                $("#auto-limits-container").show();
-                $("#sun-limits-container").hide();
-            } else if (theme === "sun") {
-                themeRadioButtons[2].checked = true;
-                $("#auto-limits-container").hide();
-                $("#sun-limits-container").show();
-            } else if (theme === "dark") {
-                themeRadioButtons[1].checked = true;
-                $("#auto-limits-container, #sun-limits-container").hide();
-            } else if (theme === "light") {
-                themeRadioButtons[0].checked = true;
-                $("#auto-limits-container, #sun-limits-container").hide();
-            }
+            $(`input[name=theme]`).prop("checked", false);
+            $(`input[name=theme][value=${mode === "auto" || mode === "system" ? "auto-mode" : mode}]`).prop("checked", true);
+            $(`input[name=automaticTheme]`).prop("checked", false);
+            $(`input[name=automaticTheme][value=${mode === "system" ? "system" : "auto"}]`).prop("checked", true);
+            $("#light-theme-options").toggle(mode === "light" || mode === "auto" || mode === "system");
+            $("#dark-theme-options").toggle(mode === "dark" || mode === "auto" || mode === "system");
+            $("#automatic-theme-options").toggle(mode === "auto" || mode === "system");
+            $("#auto-limits-container").toggle(mode === "auto").css("display", mode === "auto" ? "flex" : "none");
+            $("#prefers-color-scheme").toggle(mode === "system");
         } catch (e) {
         }
 
