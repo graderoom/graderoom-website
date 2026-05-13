@@ -52,13 +52,28 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+// ## [Stable 8.0.1] - 
+// ### Added
+// - <a class="changelog-inline-setoff" href="https://microsoftedge.microsoft.com/addons/detail/graderoom/iaogfmdnjddigaclajncbkioienjmnea" target="_blank">Microsoft Edge extension support</a>
+
 ## [Stable 8.0.0] - 2026-05-12
 ### Added
-- Custom backgrounds
-- Custom themes
+- Custom backgrounds<ul>
+- Free: Winter Logo Gradient
+- Plus: Aurora, Blueprint
+- Premium: Nebula, Hologlass</ul>
+- 16 new themes with separate light and dark theme selection<ul>
+- Free: OLED Dark
+- Plus: Midnight Blue, Forest, Rose, Solarized Light, Terminal
+- Premium: Nord, Dracula, Monokai, Gruvbox, Cyberpunk, Catppuccin Latte, Sunset, One Light, GitHub Light, Ayu Light</ul>
 
 ### Improved
 - Darker dark mode
+- Logged-out pages now match your system theme
+- Logged-out pages preview a rotating selection of premium backgrounds
+
+### Fixed
+- <em>[Mobile]</em> Extension install popup no longer appears on mobile
 
 ### Removed
 - Sunrise/sunset theme

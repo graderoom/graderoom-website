@@ -8,7 +8,7 @@ Graderoom is a grade visualization web app that automatically scrapes grades fro
 
 ## Setup & Running
 
-**Prerequisites:** Python 3.13.0, Node.js 22.12.0, Redis, MongoDB
+**Prerequisites:** Python >= 3.6, Node.js >= 22, Redis, MongoDB
 
 ```bash
 pip install -r requirements.txt
@@ -86,14 +86,39 @@ No build pipeline. EJS templates in `views/` with inline JavaScript. Static asse
 - `views/admin/` — Admin panel
 - `views/partials/` — Reusable EJS components
 
-**CSS architecture:** Component-based files in `public/css/` (base, nav, forms, components, layout, tables, responsive, etc.) with theme-specific variable overrides in `public/css/themes/<theme>/index.css`. Themes only contain CSS custom property definitions; all structural CSS lives in the component files.
+**CSS architecture:** Component-based files in `public/css/` with theme-specific variable overrides in `public/css/themes/<theme>/index.css`. Themes only contain CSS custom property definitions (`:root {}` variable blocks); all structural CSS lives in the component files.
+
+**CSS file load order** (theme file loads first via server-side EJS `id="pageStyle"` link):
+
+1. Theme file (`themes/<theme>/index.css`) — `:root {}` variable definitions only
+2. `base.css` — keyframes, scrollbar, html/body, loading spinners, utility classes
+3. `nav.css` — navbar, classLinks, dropdown, secondary nav
+4. `forms.css` — buttons, form inputs, selects, sliders, range pickers
+5. `tables.css` — tables, class tables, toolTab, weights, GPA details
+6. `notifications.css` — notification panel, cards, pinned/dismissed
+7. `layout.css` — term switcher, GPA container, backToHome, mobile grid
+8. `components.css` — cards, tabs, charts, changelog, popups, add-assignment, grade-changes, donation, premium labels
+9. `responsive.css` — `@media` breakpoint rules
+
+Additional CSS: `blur.css`, `responsive_blur.css`, `theme_backgrounds.css`, `fade.css`, `reduce_motion.css`, seasonal files (`april_fools.css`, `christmas_lights.css`).
+
+**CSS variable convention:** All theme variables use `--clr-*` prefix (e.g., `--clr-bg`, `--clr-surface`, `--clr-text`, `--clr-btn`). Image URLs use `--img-*`, decorations use `--deco-*`. New component CSS must use these variables — never hard-code colors that differ between themes.
 
 ### User Tiers & Rate Limiting
 
 Users have tiers (free, donor, plus, premium) that affect:
 - Rate limits (30/40/60/100 req/min)
 - Sync intervals (4h/2h/1h/15min)
-- Access to premium themes (midnight-blue, forest, rose, solarized-light, terminal)
+- Theme access:
+  - **Free:** dark, light, oled-dark
+  - **Plus:** midnight-blue, forest, rose, solarized-light, terminal
+  - **Premium:** nord, dracula, monokai, gruvbox, cyberpunk, catppuccin-latte, sunset, one-light, github-light, ayu-light
+- Background access:
+  - **Free:** default, winter-logo
+  - **Plus:** aurora, blueprint
+  - **Premium:** nebula, hologlass
+
+Each theme has background-specific CSS overrides in `public/css/themes/<theme>/backgrounds/<background>.css`.
 
 ## Conventions
 

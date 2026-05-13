@@ -304,6 +304,12 @@
     }
 }
 
+#theme-background.bg-paused,
+#theme-background.bg-paused::before,
+#theme-background.bg-paused::after {
+    animation-play-state: paused !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
     #theme-background.background-hologlass,
     #theme-background.background-hologlass::before,

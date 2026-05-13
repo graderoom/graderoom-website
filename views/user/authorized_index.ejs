@@ -1012,6 +1012,10 @@
                             setupIncorrectGradeMessages();
                             break;
                         case "Waiting for local scrape...":
+                            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                                messageDiv.css("display", "none");
+                                break;
+                            }
                             checkExtensionInstalled().then(installed => {
                                 if (!installed) {
                                     showCard('#localScrapeCardDisplay');

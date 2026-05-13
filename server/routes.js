@@ -88,7 +88,7 @@ function appearanceForRender(appearance, attrs = {}) {
 }
 
 function renderWithConstants(res, view, data = {}) {
-    const renderData = Object.assign({_themeConstants: Constants.themes}, data);
+    const renderData = Object.assign({_themeConstants: Constants.themes, testExtensionID: process.env.TEST_EXTENSION_ID || ''}, data);
     if (renderData._appearance) {
         renderData._appearance = appearanceForRender(renderData._appearance, {plus: renderData.plus === true, premium: renderData.premium === true});
     }
