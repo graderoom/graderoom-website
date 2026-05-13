@@ -92,6 +92,9 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
             }
             next();
         });
+        app.use("/public/css/themes/:theme/backgrounds/*", (req, res) => {
+            return res.sendStatus(403);
+        });
         app.use("/public/", express.static("./public"));
 
         // routes ======================================================================
