@@ -59,6 +59,11 @@
     --img-key: url(/public/resources/light_mode/key.png);
     --img-graduation: url(/public/resources/light_mode/graduation.png);
     --img-school: url(/public/resources/light_mode/school.png);
+
+    /* About */
+    --clr-about-overlay: rgba(255, 255, 255, 0.8);
+    --clr-about-text: #444444;
+    --clr-about-shadow: rgba(51, 51, 51, 0.2);
 }
 
 .logo-dark { display: none !important; }
