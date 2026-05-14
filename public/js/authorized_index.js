@@ -1,0 +1,4570 @@
+let oldSemester = false;
+
+function disableInput(checkBoxID, id) {
+    $("#" + id).find(".disableable").each(function () {
+        if ($("#" + checkBoxID).is(":checked")) {
+            $(this).val("");
+            $(this).addClass("disabled");
+            $(this).attr("disabled", "disabled");
+        } else {
+            $(this).removeClass("disabled");
+            $(this).removeAttr("disabled");
+        }
+    });
+}
+
+$.get("/donationProgress", function (data) {
+    if (data && data.donorCount > 0) {
+        $("#footer-supporters").html('<i class="fa fa-heart" style="margin-right:0.3rem"></i>' + data.donorCount + (data.donorCount === 1 ? " person has" : " people have") + " supported Graderoom");
+    }
+});
+
+        if (localStorage.getItem("playedAprilFools") === null && new Date().getMonth() == 3 && new Date().getDate() == 1) {
+            $("head").append($(`
+        <link id="aprilFools" rel="stylesheet" type="text/css" href="/public/css/april_fools.css">`));
+            setTimeout(() => {
+                $("#aprilFools").remove();
+                localStorage.setItem("playedAprilFools", "");
+            }, 20000);
+        }
+
+        // define a new console
+        var console = (function (oldCons) {
+            return {
+                log: function (message, ...optionalParams) {
+                    if (enableLogging) {
+                        oldCons.log(message, ...optionalParams);
+                    } else {
+                        oldCons.log("Enable Logging to view this log");
+                    }
+                }, info: function (message, ...optionalParams) {
+                    if (enableLogging) {
+                        oldCons.log(`%c${message} ${[...optionalParams].join(" ")}`, `color: cyan;`);
+                    } else {
+                        oldCons.log("%cEnable Logging to view this log", "color: cyan;");
+                    }
+                }, warn: function (message, ...optionalParams) {
+                    if (enableLogging) {
+                        oldCons.log(`%c${message} ${[...optionalParams].join(" ")}`, `color: orange;`);
+                    } else {
+                        oldCons.log("%cEnable Logging to view this log", "color: orange;");
+                    }
+                }, error: function (message, ...optionalParams) {
+                    if (enableLogging) {
+                        oldCons.log(`%c${message} ${[...optionalParams].join(" ")}`, `color: red;`);
+                    } else {
+                        oldCons.log("%cEnable Logging to view this log", "color: red;");
+                    }
+                }
+            };
+        }(window.console));
+
+        //Then redefine the old console
+        window.console = console;
+
+        let socket = io();
+
+        let scrapeToken;
+
+        function logSocket(socket) {
+
+            function displayNicely(...args) {
+                return [...args].map(arg => {
+                    return JSON.stringify(arg);
+                });
+            }
+
+            socket.onAny((event, ...args) => {
+                if (event.startsWith("info")) {
+                    console.info(event + " | " + displayNicely(...args).join(" | "));
+                } else if (event.startsWith("error")) {
+                    console.error(event + " | " + displayNicely(...args).join(" | "));
+                } else if (event.startsWith("fail")) {
+                    console.warn(event + " | " + displayNicely(...args).join(" | "));
+                } else {
+                    console.log(event + " | " + displayNicely(...args).join(" | "));
+                }
+            });
+
+            socket.onAnyOutgoing((event, ...args) => {
+                if (event.startsWith("info")) {
+                    console.info(event + " | " + displayNicely(...args).join(" | "));
+                } else if (event.startsWith("error")) {
+                    console.error(event + " | " + displayNicely(...args).join(" | "));
+                } else if (event.startsWith("fail")) {
+                    console.warn(event + " | " + displayNicely(...args).join(" | "));
+                } else {
+                    console.log(event + " | " + displayNicely(...args).join(" | "));
+                }
+            });
+        }
+
+        logSocket(socket);
+
+        socket.onAny((event, data) => {
+            let messageDiv = $(".updateGradesMessage");
+            let progressDiv = $(".updateGradesMessage > span");
+            let settings = data?.settings;
+            let keys = settings ? Object.keys(settings) : null;
+            let old;
+
+            switch (event) {
+                case "success-settings-change":
+                    for (let key of keys) {
+                        switch (key) {
+                            case "enableLogging":
+                                enableLogging = settings[key];
+                                $("#enableLoggingToggle").prop("checked", enableLogging);
+                                break;
+                            case "animateWhenUnfocused":
+                                appearance.animateWhenUnfocused = settings[key];
+                                $("#animateWhenUnfocused").prop("checked", appearance.animateWhenUnfocused);
+                                break;
+                            case "showFps":
+                                appearance.showFps = settings[key];
+                                $("#showFps").prop("checked", appearance.showFps);
+                                break;
+                            case "mode":
+                                mode = settings[key];
+                                appearance.mode = settings[key];
+                                $(`input[name=theme]`).prop("checked", false);
+                                $(`input[name=theme][value=${mode === "auto" || mode === "system" ? "auto-mode" : mode}]`).prop("checked", true);
+                                $(`input[name=automaticTheme]`).prop("checked", false);
+                                if (mode === "auto" || mode === "system") {
+                                    $(`input[name=automaticTheme][value=${mode}]`).prop("checked", true);
+                                }
+                                if (mode === "auto" || mode === "system") {
+                                    $("#light-theme-options, #dark-theme-options, #automatic-theme-options").show();
+                                    if (mode === "auto") {
+                                        $("#auto-limits-container").show().css("display", "flex");
+                                        $("#prefers-color-scheme").hide();
+                                    } else {
+                                        $("#auto-limits-container").hide();
+                                        $("#prefers-color-scheme").show();
+                                    }
+                                    checkTime();
+                                } else {
+                                    if (checkingTheme) {
+                                        clearInterval(checkingTheme);
+                                    }
+                                    $("#automatic-theme-options, #auto-limits-container").hide();
+                                    $("#prefers-color-scheme").hide();
+                                    if (mode === "light") {
+                                        $("#light-theme-options").show();
+                                        $("#dark-theme-options").hide();
+                                    } else {
+                                        $("#dark-theme-options").show();
+                                        $("#light-theme-options").hide();
+                                    }
+                                    document.getElementById("fade").disabled = false;
+                                    applyActiveTheme();
+                                    setTimeout(() => {
+                                        document.getElementById("fade").disabled = true;
+                                    }, 200);
+                                }
+                                break;
+                            case "lightTheme":
+                                lightTheme = settings[key];
+                                appearance.lightTheme = settings[key];
+                                $("#lightThemePreset").val(settings[key]);
+                                updateThemeBadge("lightThemeBadge", settings[key]);
+                                if (mode === "light" || ((mode === "auto" || mode === "system") && !darkMode)) {
+                                    document.getElementById("fade").disabled = false;
+                                    applyActiveTheme();
+                                    setTimeout(() => {
+                                        document.getElementById("fade").disabled = true;
+                                    }, 200);
+                                }
+                                break;
+                            case "darkTheme":
+                                darkTheme = settings[key];
+                                appearance.darkTheme = settings[key];
+                                $("#darkThemePreset").val(settings[key]);
+                                updateThemeBadge("darkThemeBadge", settings[key]);
+                                if (mode === "dark" || ((mode === "auto" || mode === "system") && darkMode)) {
+                                    document.getElementById("fade").disabled = false;
+                                    applyActiveTheme();
+                                    setTimeout(() => {
+                                        document.getElementById("fade").disabled = true;
+                                    }, 200);
+                                }
+                                break;
+                            case "darkModeStart":
+                                darkModeStart = settings[key];
+                                let _startDate = new Date(darkModeStart);
+                                $("#darkModeStart").val(("0" + _startDate.getHours()).slice(-2) + ":" + ("0" + _startDate.getMinutes()).slice(-2));
+                                break;
+                            case "darkModeFinish":
+                                darkModeFinish = settings[key];
+                                let _endDate = new Date(darkModeFinish);
+                                $("#darkModeFinish").val(("0" + _endDate.getHours()).slice(-2) + ":" + ("0" + _endDate.getMinutes()).slice(-2));
+                                break;
+                            case "seasonalEffects":
+                                $("#seasonalEffectsToggle").prop("checked", settings[key]);
+                                appearance.seasonalEffects = settings[key];
+                                if (settings[key]) {
+                                    enableSnow();
+                                } else {
+                                    disableSnow();
+                                }
+                                break;
+                            case "background":
+                                appearance.background = settings[key];
+                                $("#backgroundPreset").val(settings[key]);
+                                updateBackgroundBadge("backgroundBadge", settings[key]);
+                                applyThemeBackground();
+                                break;
+                            case "blurEffects":
+                                $("#blurEffectsToggle").prop("checked", settings[key]);
+                                appearance.blurEffects = settings[key];
+                                if (!appearance.blurEffects) {
+                                    $("#blur_base, #blur_responsive").prop("disabled", true);
+                                } else {
+                                    $("#blur_base, #blur_responsive").prop("disabled", false);
+                                }
+                                break;
+                            case "regularizeClassGraphs":
+                                $("#classGraphRegularizationToggle").prop("checked", settings[key]);
+                                appearance.regularizeClassGraphs = settings[key];
+                                renderAllCharts();
+                                break;
+                            case "showPlusMinusLines":
+                                $("#showPlusMinusToggle").prop("checked", settings[key]);
+                                appearance.showPlusMinusLines = settings[key];
+                                renderAllCharts();
+                                break;
+                            case "reduceMotion":
+                                $("#reduceMotionToggle").prop("checked", settings[key]);
+                                appearance.reduceMotion = settings[key];
+                                if (!appearance.reduceMotion) {
+                                    $("#reduceMotion").prop("disabled", true);
+                                } else {
+                                    $("#reduceMotion").prop("disabled", false);
+                                }
+                                break;
+                        }
+                        if (appearance.seasonalEffects) {
+                            $(".lightrope").show();
+                            applyThemeBackground();
+                        } else {
+                            disableSnow();
+                            applyThemeBackground();
+                        }
+                        if (data.message) {
+                            $("#themeMessage").removeClass("alert-danger").addClass("alert-success").show().text(data.message);
+                        } else {
+                            $("#themeMessage").hide();
+                        }
+                    }
+                    let _refresh = data.refresh ?? false;
+                    if (_refresh) {
+                        window.reload();
+                    }
+                    break;
+
+                case "fail-settings-change":
+                    break;
+
+                case "info-initialstatus":
+                    let status = data.message;
+                    switch (status) {
+                        case `Your ${school === "basis" ? "Schoology" : "PowerSchool"} account is no longer active.`:
+                            messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
+                            accountInactive = true;
+                            showChangelog(false, true);
+                            setupIncorrectGradeMessages();
+                            break;
+                        case `Could not connect to ${school === "basis" ? "Schoology" : "PowerSchool"}.`:
+                            messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
+                            showChangelog(false, true);
+                            setupIncorrectGradeMessages();
+                            break;
+                        case `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.`:
+                            messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
+                            showChangelog(false, true);
+                            setupIncorrectGradeMessages();
+                            break;
+                        case "Waiting for local scrape...":
+                            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                                messageDiv.css("display", "none");
+                                break;
+                            }
+                            checkExtensionInstalled().then(installed => {
+                                if (!installed) {
+                                    showCard('#localScrapeCardDisplay');
+                                } else {
+                                    syncPresent(false).then((success) => {
+                                        if (success === false) {
+                                            showCard('#localScrapeCardDisplay');
+                                        }
+                                    });
+                                }
+                            });
+                        case "You need to wait before syncing again.":
+                        case "Syncing history...":
+                            messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
+                            break;
+                        case "Did not sync":
+                            clearTimeout(checkLastUpdated);
+                            break;
+                        case "Sync Complete!":
+                            showChangelog(false, true);
+                            setupLastUpdated();
+                            setupGradeChanges(true, true);
+                            break;
+                        case "Not syncing":
+                        case "Already Synced!":
+                            showChangelog(false, true);
+                            setupLastUpdated();
+                            if (sessionStorage.getItem("showSyncLog") === "true") {
+                                setupGradeChanges(true, true);
+                                sessionStorage.removeItem("showSyncLog");
+                            }
+                            break;
+                        default:
+                            setupLastUpdated();
+                            break;
+                    }
+                    if (status.startsWith("Sync Failed.")) {
+                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
+                        showChangelog(false, true);
+                        setupIncorrectGradeMessages();
+                    }
+                    break;
+                case "sync-progress":
+                    clearTimeout(checkLastUpdated);
+                    let {progress, message} = data;
+                    progressDiv.css("opacity", "0.5").css("width", `${progress}%`);
+                    messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(message);
+                    break;
+                case "sync-progress-history":
+                    clearTimeout(checkLastUpdated);
+                    progressDiv.hide();
+                    messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text('Syncing Grade History...');
+                    break;
+                case "sync-success":
+                    let formMessagesDiv = $(".updateGradesMessage.alert .messageTxt");
+                    if (data.gradeSyncEnabled) {
+                        $("#syncGradesDiv").hide();
+                        $("#gradeSyncDiv").show();
+                        $(".gradeSyncEnabled").show();
+                        gradeSync = true;
+                        setupTutorialPopups();
+                    }
+                    if (data.updateHistory && checkVersion(actualExtensionVersion, [1, 6])) {
+                        syncHistory(data.updateHistoryToken);
+                        return;
+                    }
+                    if (data.message && (data.message === "No class data." || data.message === "Powerschool is locked.")) {
+                        $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+                        $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        setupLastUpdated();
+                    } else if (data.message && data.message === `Could not connect to ${(school === "basis") ? "Schoology" : "PowerSchool"}.`) {
+                        $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+                        $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        setupLastUpdated();
+                    } else if (!data.message) {
+                        $(formMessagesDiv).find(".sk-chase-mini").hide();
+                        let newData = {
+                            grades: JSON.parse(data.grades), weights: JSON.parse(data.weights)
+                        };
+                        clearTimeout(checkLastUpdated);
+                        if (!updateData(newData).updated) {
+                            $(formMessagesDiv).find(".messageTxt").text("Refresh to see the latest updates.");
+                            $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
+                            setTimeout(() => window.reload(), 400);
+                        } else {
+                            alerts.lastUpdated.push(JSON.parse(data.updateData));
+                            setupGradeChanges();
+                            showChangelog(false, true);
+                            refreshWithoutReload(undefined, true);
+                            setupLastUpdated();
+                            setTimeout(() => closeForm(school === "bellarmine" ? "localScrapeCardDisplay" : "updateGradesDisplay"), 250);
+                            if (school === "bellarmine") {
+                                disconnectPort();
+                            }
+                        }
+                    }
+
+                    $(formMessagesDiv).show();
+
+                    let fieldIDsToClear = ["#inputPassword", "#inputUserPassword", "#gradeSyncInputUserPassword"];
+                    for (let i = 0; i < fieldIDsToClear.length; i++) {
+                        $(fieldIDsToClear[i]).val("");
+                        $(fieldIDsToClear[i]).trigger("blur");
+                    }
+
+                    $("#gradeSyncForm, #syncGradesForm").find("button").prop("disabled", false).find("div").removeClass("loading");
+                    $("#loadingDisplay").hide();
+                    shortcutsEnabled = true;
+                    break;
+                case "sync-success-history":
+                    sessionStorage.setItem("showSyncLog", "true");
+                    if (cardsDisplayed.length === 0 || cardsDisplayed[cardsDisplayed.length - 1] === "updateGradesDisplay") {
+                        messageDiv.find(".messageTxt").text("Refreshing...");
+                        setTimeout(() => window.reload(), 400);
+                    } else {
+                        messageDiv.find(".messageTxt").css("cursor", "pointer").text("Grade History synced. Click here to refresh").click(function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            window.reload();
+                        });
+                    }
+                    break;
+                case "sync-limit":
+                    clearTimeout(checkLastUpdated);
+                    $(".updateGradesMessage > span").css("opacity", "");
+                    messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(getLimitMessage(data.timestamp));
+                    $("#gradeSyncForm, #syncGradesForm").find("button").prop("disabled", false).find("div").removeClass("loading");
+                    $("#loadingDisplay").hide();
+                    $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
+                    showChangelog(false, true);
+                    shortcutsEnabled = true;
+                    break;
+                case "sync-fail":
+                    if (data.gradeSyncEnabled) {
+                        $("#syncGradesDiv").hide();
+                        $("#gradeSyncDiv").show();
+                        $(".gradeSyncEnabled").show();
+                        gradeSync = true;
+                        setupTutorialPopups();
+                        $("#gradeSyncForm, #syncGradesForm").find("button").prop("disabled", false).find("div").removeClass("loading");
+                        $("#loadingDisplay").hide();
+                    }
+                case "sync-fail-history":
+                case "sync-fail-general":
+                    $(".updateGradesMessage > span").css("opacity", "");
+                    if (gradeSync) {
+                        $("#inputUserPassword").trigger("focus");
+                    } else {
+                        $("#gradeSyncInputUserPassword").trigger("focus");
+                    }
+                    $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
+                    if (data.message === `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.` || data.message === `Your ${school === "basis" ? "Schoology" : "PowerSchool"} account is no longer active.`) {
+                        messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(data.message);
+                    } else if (data.message === "Incorrect login details.") {
+                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(`Incorrect ${school === "basis" ? "Schoology" : "PowerSchool"} password.`);
+                        $("#inputPassword").trigger("focus");
+                    } else {
+                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
+                    }
+                    showChangelog(false, true);
+                    shortcutsEnabled = true;
+                    break;
+                case 'you-can-update':
+                    if (data.token === scrapeToken) {
+                        clearTimeout(checkLastUpdated);
+                        syncPresent();
+                    } else {
+                        console.warn("Received scrape token did not match the current token");
+                    }
+                    break;
+                case "success-notification-settings-change":
+                    for (let key of keys) {
+                        switch (key) {
+                            case "showUpdatePopup":
+                                $("#updatePopupToggle").prop("chcked", settings[key]);
+                                alerts.notificationSettings.showUpdatePopup = settings[key];
+                                showChangelog(false, true);
+                                break;
+                        }
+                    }
+                    break;
+                case "success-notification-update":
+                    let id = data.id;
+                    let update = data.update;
+                    let updateKeys = Object.keys(update);
+                    for (let key of updateKeys) {
+                        switch (key) {
+                            case "dismissed":
+                                if (update[key]) {
+                                    dismissById(id, true, false);
+                                } else {
+                                    undismissById(id, true, false);
+                                }
+                                break;
+                            case "pinned":
+                                if (update[key]) {
+                                    pinById(id, true, false);
+                                } else {
+                                    unpinById(id, true, false);
+                                }
+                        }
+                    }
+                    break;
+                case "notification-new":
+                    createNotificationFromServer(data, true);
+                    break;
+                case "notification-delete":
+                    deleteById(data.id, true);
+                    break;
+                case "donation-new":
+                    donoData.push(data);
+                    old = {donor, premium, plus};
+                    setupDonos();
+                    if (old.premium !== premium || old.plus !== plus) {
+                        window.reload();
+                    }
+                    break;
+                case "donation-delete":
+                    let toRemove = donoData.findIndex(d => _.isEqual(d, data));
+                    donoData.splice(toRemove, 1);
+                    old = {donor, premium, plus};
+                    setupDonos();
+                    if (old.premium !== premium || old.plus !== plus) {
+                        window.reload();
+                    }
+                    break;
+            }
+        });
+
+        function getLimitMessage(timestamp) {
+            let date = new Date(timestamp);
+            let now = new Date();
+
+            let hours = Math.floor((date - now) / 36e5);
+            let minutes = Math.ceil(((date - now) % 36e5) / 6e4);
+            let timeString = (hours > 0 ? hours + "h" + (minutes > 0 ? " " : "") : "") +
+                (minutes > 0 ? minutes + "m" : "");
+            return `You need to wait ${timeString} before syncing again.`;
+        }
+
+        let donor = false;
+        let plus = false;
+        let premium = false;
+
+        let refreshing;
+        let shortcutsEnabled = true;
+        let recentlyAddedAssignment;
+        let recentlyAddedAssignmentDiv;
+        let accountInactive = false;
+
+        let totaltime = 0;
+        let count = 0;
+
+        let lastYearWithSummerCredit = {"bell": 2020, "ndsj": Infinity, "basis": Infinity};
+
+        function setupColorStuff() {
+            // Class links
+            $.makeArray($("#classLinks a.nav-link")).slice(1).forEach((x, i) => $(x).css("color", colors[i]));
+
+            // Overview Chart
+            $.makeArray($(".overview")).forEach((x, i) => $(x).css("color", colors[Math.floor(i / 2) % colors.length]));
+
+            // Sliders
+            $.makeArray($(".classSlider")).forEach((x, i) => $(x).css("color", colors[i]));
+
+            // Overall Grades in Weight Tables
+            $.makeArray($(".weightOverall")).forEach((x, i) => $(x).css("color", colors[i]));
+
+            // Render all charts
+            renderAllCharts();
+        }
+
+        let cssColorCache = {};
+        let cssRgbColorCache = {};
+
+        function resolveCssColor(variableName) {
+            let probe = document.createElement("div");
+            probe.style.display = "none";
+            probe.style.color = `var(${variableName})`;
+            document.body.appendChild(probe);
+
+            let color = getComputedStyle(probe).color;
+            probe.remove();
+
+            return color;
+        }
+
+        function getCssColor(variableName) {
+            if (!variableName.startsWith("--")) {
+                variableName = "--" + variableName;
+            }
+
+            if (!cssColorCache[variableName]) {
+                cssColorCache[variableName] = resolveCssColor(variableName);
+            }
+
+            return cssColorCache[variableName];
+        }
+
+        function parseRgbColor(color) {
+            let match = color.match(/^rgba?\(\s*([\d.]+)(?:,\s*|\s+)([\d.]+)(?:,\s*|\s+)([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?/);
+            if (!match) {
+                return null;
+            }
+
+            let alpha = match[4] ?? "1";
+            if (alpha.endsWith("%")) {
+                alpha = Number(alpha.slice(0, -1)) / 100;
+            } else {
+                alpha = Number(alpha);
+            }
+
+            return {
+                r: Math.round(Number(match[1])),
+                g: Math.round(Number(match[2])),
+                b: Math.round(Number(match[3])),
+                a: alpha
+            };
+        }
+
+        function getCssRgbColor(variableName) {
+            if (!variableName.startsWith("--")) {
+                variableName = "--" + variableName;
+            }
+
+            if (!cssRgbColorCache[variableName]) {
+                cssRgbColorCache[variableName] = parseRgbColor(getCssColor(variableName));
+            }
+
+            return cssRgbColorCache[variableName];
+        }
+
+        function clearCssColorCache() {
+            cssColorCache = {};
+            cssRgbColorCache = {};
+        }
+
+        function deltaColorFunction(delta, improve) {
+            // Calculate alpha
+            let abs = Math.abs(delta);
+            let max = darkMode ? 0.3 : 0.5;
+            let maxInput = 10;
+            let cutoff = Math.min(abs, maxInput);
+            let alpha = max * Math.pow(cutoff / maxInput, 0.5);
+
+            // Get initial improve/deprove color
+            let initColor = (improve ? {r: 0, g: 255, b: 0, a: alpha} : {r: 255, g: 0, b: 0, a: alpha});
+
+            // Get background color
+            let bgColor = getCssRgbColor("clr-surface-deep") || {r: 255, g: 255, b: 255};
+
+            // Calculate final color
+            let finalColor = {r: 0, g: 0, b: 0};
+            finalColor.r = ((1 - initColor.a) * bgColor.r) + (initColor.a * initColor.r);
+            finalColor.g = ((1 - initColor.a) * bgColor.g) + (initColor.a * initColor.g);
+            finalColor.b = ((1 - initColor.a) * bgColor.b) + (initColor.a * initColor.b);
+
+            finalColor = "rgb(" + finalColor.r + ", " + finalColor.g + ", " + finalColor.b + ")";
+            return finalColor;
+        }
+
+        function refresh(changedClassIndex) {
+            // Trying to be efficient and only change affected data
+            parseData(changedClassIndex);
+            setupAddAssignments(changedClassIndex);
+            setupAddedWeights(changedClassIndex);
+            setupWeightsTables(changedClassIndex);
+            setupWeightsTableListeners();
+            setupOverviewTable(changedClassIndex);
+            setupClassTables(changedClassIndex);
+            setupInputListeners();
+            setupIncorrectGradeMessages(changedClassIndex);
+            setPointBasedWeights(changedClassIndex);
+            renderAllCharts(changedClassIndex);
+            setupGPADisplays();
+        }
+
+        function refreshWithoutReload(changedClassIndex, doItNow = false) {
+            if (doItNow) {
+                if (refreshing) {
+                    clearTimeout(refreshing);
+                }
+                refresh(changedClassIndex);
+            } else {
+                if (refreshing) {
+                    clearTimeout(refreshing);
+                }
+                refreshing = setTimeout(() => {
+                    refresh(changedClassIndex);
+                }, 100);
+            }
+        }
+
+        let aData = data.map(c => Array(c.grades.length).fill(undefined));
+        let categoryChartData = [];
+        let chartData = [];
+        let parsedData = [];
+        let categorySortedData = [];
+        let unobtainedWeights = {};
+        let tempWeights = [];
+        let currentPage = (isNaN(parseInt(sessionStorage.getItem("currentPage"))) ? -1 : parseInt(sessionStorage.getItem("currentPage")));
+        let cardsDisplayed = [];
+        let minCardZIndex = 25;
+        let charts = [];
+        let currentSettingsTab = 1;
+        let maxSettingsTab = $("#settingsCardDisplay .tabcontent").length - 1;
+        let currentGpaDetailsTab = 1;
+        let maxGpaDetailsTab;
+        let darkMode;
+        let colors = appearance.classColors;
+        let darkModeStart = appearance.darkModeStart;
+        let darkModeFinish = appearance.darkModeFinish;
+        let mobile = window.innerWidth <= 991;
+
+        let academicIndices = data.map((d, i) => relClassData[d.class_name].classType !== "non-academic" ? i : null).filter(c => c !== null);
+        let nonAcademicCount = data.length - academicIndices.length;
+
+        let mapToOnlyAcademic = false;
+        if (!appearance.showNonAcademic && Object.keys(Object.fromEntries(Object.entries(relClassData).filter(([k, v]) => data.find(c => c.class_name === k) && v.classType === "non-academic"))).length > 0) {
+            mapToOnlyAcademic = true;
+            colors = academicIndices.map(n => colors[n]);
+            data = academicIndices.map(n => data[n]);
+            weights = academicIndices.map(n => weights[n]);
+            addedWeights = academicIndices.map(n => addedWeights[n]);
+            addedAssignments = academicIndices.map(n => addedAssignments[n]);
+            editedAssignments = academicIndices.map(n => editedAssignments[n]);
+        }
+
+        let _editedAssignments = JSON.parse(JSON.stringify(editedAssignments)); // Copy to apply edits to
+        let _addedAssignments = JSON.parse(JSON.stringify(addedAssignments)); // Copy to apply edits to added assignments to
+        let _data = JSON.parse(JSON.stringify(data)); // Copy to apply edits to assignments to
+        let assignmentAverages = Array(data.length).fill({});
+        let userCounts = Array(data.length).fill({});
+        let categoryChart = Array(data.length).fill(false);
+
+        let unsaved = Array(data.length).fill(false);
+
+        function setupOnBeforeUnload() {
+            if (unsaved.some(x => x)) {
+                window.onbeforeunload = () => true;
+            } else {
+                window.onbeforeunload = null;
+            }
+        }
+
+        if (!(term in gradeHistoryLetters)) {
+            gradeHistoryLetters[term] = {};
+        }
+        if (!(semester in gradeHistoryLetters[term])) {
+            gradeHistoryLetters[term][semester] = [];
+        }
+
+        for (let i = 0; i < _data.length; i++) {
+            if (data[i].ps_locked) {
+                _data[i].overall_letter = false;
+                _data[i].overall_percent = false;
+            }
+            gradeHistoryLetters[term][semester][i] = {[_data[i].class_name]: _data[i].overall_letter};
+        }
+
+        let changeTransition;
+        let mode = appearance.mode;
+        let lightTheme = appearance.lightTheme || "light";
+        let darkTheme = appearance.darkTheme || "dark";
+
+    function updateEntitlementBadge(badgeId, value, plusNames, premiumNames) {
+        const el = document.getElementById(badgeId);
+        if (!el) return;
+        if (premiumNames.includes(value)) {
+            el.innerHTML = '<span class="premium label-background"><span class="premium-label">PREMIUM</span></span>';
+        } else if (plusNames.includes(value)) {
+            el.innerHTML = '<span class="plus label-background"><span class="plus-label">PLUS</span></span>';
+        } else {
+            el.innerHTML = '';
+        }
+    }
+    
+    function updateThemeBadge(badgeId, themeName) {
+        updateEntitlementBadge(badgeId, themeName, PLUS_THEME_NAMES, PREMIUM_THEME_NAMES);
+    }
+    
+    function updateBackgroundBadge(badgeId, backgroundName) {
+        updateEntitlementBadge(badgeId, backgroundName, PLUS_BACKGROUND_NAMES, PREMIUM_BACKGROUND_NAMES);
+    }
+
+    function themeStylesheetFor(themeName) {
+        return THEME_CSS[themeName] ?? THEME_CSS.dark;
+    }
+
+    function isDarkThemeName(themeName) {
+        return !LIGHT_THEME_NAMES.includes(themeName);
+    }
+
+    function isDarkThemeStylesheet() {
+        return !LIGHT_THEME_NAMES.some(themeName => document.getElementById("pageStyle").getAttribute("href") === THEME_CSS[themeName]);
+    }
+
+    function activeThemeNameForMode() {
+        if (mode === "light") {
+            return lightTheme;
+        }
+        if (mode === "dark") {
+            return darkTheme;
+        }
+        return darkMode ? darkTheme : lightTheme;
+    }
+
+    function applyActiveTheme() {
+        const activeThemeName = activeThemeNameForMode();
+        const nextDarkMode = isDarkThemeName(activeThemeName);
+        const oldDarkMode = isDarkThemeStylesheet();
+        darkMode = nextDarkMode;
+        document.getElementById("pageStyle").setAttribute("href", themeStylesheetFor(activeThemeName));
+        renderAllCharts();
+        $(".navbar-brand img").attr("src", `/public/resources/${darkMode ? "dark" : "light"}_mode/logo.png`);
+        $(".navbar").toggleClass("navbar-dark", darkMode).toggleClass("navbar-light", !darkMode);
+        setupDiscord();
+        setupClassTables(undefined, true);
+        if (appearance.seasonalEffects) {
+            applyThemeBackground(darkMode);
+        }
+        return oldDarkMode !== nextDarkMode;
+    }
+
+        let checkingTheme;
+
+        let showMaxGPA = appearance.showMaxGPA;
+        let recentChangeText = "";
+
+        let latestChange;
+
+        // This should only happen once
+        let {dateSort, categorySort} = sortingDataInit;
+        if (mode === "auto" || mode === "system") {
+            checkTime();
+        } else {
+            darkMode = isDarkThemeName(activeThemeNameForMode());
+        }
+
+        let pageStyle = document.getElementById("pageStyle");
+        if (pageStyle) {
+            pageStyle.addEventListener("load", () => {
+                clearCssColorCache();
+                setupClassTables(undefined, true);
+            });
+        }
+        clearCssColorCache();
+
+        setupDonos();
+        setupNotificationPanel();
+
+        if (data.length) {
+            setupGradeChanges(false);
+            refreshWithoutReload(undefined, true);
+            setupAddAssignments(undefined, true);
+        }
+
+        $("#termSwitcher").addClass("hover");
+        setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
+
+        try {
+            showPage(currentPage);
+            sessionStorage.setItem("currentPage", currentPage);
+        } catch (e) {
+            currentPage = -1;
+            try {
+                showPage(-1);
+                sessionStorage.setItem("currentPage", currentPage);
+            } catch (e) {
+            }
+        }
+        if (gradeSync) {
+            $("#syncGradesDiv").hide();
+            $("#gradeSyncDiv").show();
+        } else {
+            $("#gradeSyncDiv").hide();
+            $("#syncGradesDiv").show();
+            $(".updateGradesMessage").find(".messageTxt").text("GradeSync is not enabled");
+            if (alerts.lastUpdated.length) {
+                showChangelog(false, true);
+            } else {
+                $.ajax({
+                    url: "/latestVersionSeen", type: "POST", async: true
+                });
+            }
+        }
+
+        let discordLoaded = false;
+
+        function setupDiscord(initial = false) {
+            if (discordLoaded || !initial) return;
+
+            $(".discord-iframe").attr("src", `https://discord.com/widget?id=897624313136578590&theme=${darkMode ? "dark" : "light"}`);
+            discordLoaded = true;
+        }
+
+        function setAutoTheme() {
+            let date = new Date();
+            let zeroTime = new Date("0/" + date.getHours() + ":" + date.getMinutes());
+            zeroTime = zeroTime.getTime();
+            if (mode !== "auto" && mode !== "system") {
+                if (checkingTheme) {
+                    clearInterval(checkingTheme);
+                }
+                return;
+            }
+
+            if (mode === "system") {
+                if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                    $("#prefers-color-scheme").text("Current browser theme: dark");
+                } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
+                    $("#prefers-color-scheme").text("Current browser theme: light");
+                } else {
+                    $("#prefers-color-scheme").text("Current browser theme: unknown");
+                }
+            }
+
+            let oldDarkMode = isDarkThemeStylesheet();
+            if ((mode === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || (mode === "auto" && (((darkModeStart < darkModeFinish) && ((zeroTime >= darkModeStart) && (zeroTime < darkModeFinish)) || ((darkModeStart > darkModeFinish) && ((zeroTime >= darkModeStart) || (zeroTime < darkModeFinish))))))) {
+                darkMode = true;
+                if (darkMode !== oldDarkMode) {
+                    document.getElementById("fade").disabled = false;
+                    document.getElementById("pageStyle").setAttribute("href", themeStylesheetFor(darkTheme));
+                    renderAllCharts();
+                    $(".navbar-brand img").attr("src", "/public/resources/dark_mode/logo.png");
+                    $(".navbar").removeClass("navbar-light").addClass("navbar-dark");
+                    setupDiscord();
+                    setTimeout(() => {
+                        document.getElementById("fade").disabled = true;
+                        setupClassTables(undefined, true);
+                    }, 500);
+                    if (appearance.seasonalEffects) {
+                        init = performance.now();
+                        if (darkMode === false) {
+                            applyThemeBackground(false);
+                        } else if (darkMode) {
+                            applyThemeBackground(true);
+                        }
+                    }
+                }
+            } else {
+                darkMode = false;
+                if (darkMode !== oldDarkMode) {
+                    document.getElementById("fade").disabled = false;
+                    document.getElementById("pageStyle").setAttribute("href", themeStylesheetFor(lightTheme));
+                    renderAllCharts();
+                    $(".navbar-brand img").attr("src", "/public/resources/light_mode/logo.png");
+                    $(".navbar").removeClass("navbar-dark").addClass("navbar-light");
+                    setTimeout(() => {
+                        document.getElementById("fade").disabled = true;
+                        setupClassTables(undefined, true);
+                        setupDiscord();
+                    }, 500);
+                    if (appearance.seasonalEffects) {
+                        init = performance.now();
+                        if (darkMode === false) {
+                            applyThemeBackground(false);
+                        } else if (darkMode) {
+                            applyThemeBackground(true);
+                        }
+                    }
+                }
+            }
+        }
+
+        async function checkTime() {
+            if (checkingTheme) {
+                clearInterval(checkingTheme);
+            }
+            setAutoTheme();
+            checkingTheme = window.setInterval(function () {
+                setAutoTheme();
+            }, 100);
+        }
+
+        setupTutorialPopups();
+
+        function setupTutorialPopups() {
+            if (!gradeSync) {
+                $("#syncPopup").addClass("always-show");
+                $(Object.entries(alerts.tutorialStatus).filter(([, k]) => !k).map(([t]) => "#" + t.substring(0, t.length - 4)).join("Popup, ") + "Popup").removeClass("always-show");
+            } else {
+                $("#syncPopup").removeClass("always-show");
+                $(Object.entries(alerts.tutorialStatus).filter(([, k]) => !k).map(([t]) => "#" + t.substring(0, t.length - 4)).join("Popup, ") + "Popup").addClass("always-show");
+                if (!alerts.tutorialStatus["legendSeen"] && chartData.filter(c => c).length) {
+                    $("#legendPopup").addClass("always-show");
+                } else {
+                    $("#legendPopup").removeClass("always-show");
+                }
+            }
+        }
+
+        function updateTutorial(action) {
+            if (window.innerWidth <= 991) {
+                return;
+            }
+            $.ajax({
+                url: "/UpdateTutorialStatus", type: "POST", async: true, data: {action: action}
+            }).done((response) => {
+                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                    $(".session-timeout").show();
+                    $("body").find("*").not(".session-timeout").remove();
+                    return;
+                }
+                alerts.tutorialStatus = JSON.parse(response);
+                $("#" + action + "Popup").animate({opacity: 0}, 400, function () {
+                    $(this).removeClass("always-show").css("opacity", "");
+                });
+                setupTutorialPopups();
+                updateTutorialProgress();
+            });
+        }
+
+        function updateData(newData) {
+            if (!(newData.grades) || !(newData.weights)) {
+                return {updated: true};
+            }
+            if (document.location.href.includes("term") && document.location.href.includes("semester")) {
+                return {updated: true};
+            }
+            if (!appearance.showNonAcademic && data.length + nonAcademicCount !== newData.grades.length) {
+                return {updated: false};
+            }
+            if (appearance.showNonAcademic && data.length !== newData.grades.length) {
+                return {updated: false};
+            }
+            if (_.isEqual(data.map(c => c.class_name), newData.grades.filter((c, i) => appearance.showNonAcademic || academicIndices.includes(i)).map(c => c.class_name)) && _.isEqual(weights, newData.weights.filter((c, i) => appearance.showNonAcademic || academicIndices.includes(i)))) {
+                data = newData.grades.filter((c, i) => appearance.showNonAcademic || academicIndices.includes(i));
+                weights = newData.weights.filter((c, i) => appearance.showNonAcademic || academicIndices.includes(i));
+                return {updated: true};
+            }
+            clearTimeout(checkLastUpdated);
+            return {updated: false};
+        }
+
+        function disableScrolling() {
+            let page = $("html");
+            let offsetTop = page.offset().top;
+            page.css("top", offsetTop);
+            page.addClass("no-scroll");
+        }
+
+        function enableScrolling() {
+            let page = $("html");
+            page.css("top", "");
+            page.removeClass("no-scroll");
+        }
+
+        function setupGPADisplays(postNewSettings = false) {
+            if (postNewSettings) {
+                $.ajax({
+                    method: "POST", url: "/updateShowMaxGPA", data: {showMaxGPA: JSON.stringify(showMaxGPA)}
+                }).done((response) => {
+                    if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                        $(".session-timeout").show();
+                        $("body").find("*").not(".session-timeout").remove();
+                        return;
+                    }
+                    setupSemesterGPA();
+                    setupCumulativeGPA();
+                    setupUC_CSU_GPA();
+                    setupGpaDetails(true, false);
+                });
+            } else {
+                $(".weightGPA input").prop("checked", appearance.weightedGPA);
+                setupSemesterGPA();
+                setupCumulativeGPA();
+                setupUC_CSU_GPA();
+                setupGpaDetails(true, false);
+            }
+        }
+
+        function setupIncorrectGradeMessages(classIndex) {
+            if (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked && !accountInactive) {
+                $(".incorrectGPAMessage").show();
+            } else {
+                $(".incorrectGPAMessage").hide();
+            }
+            for (let i = 0; i < _data.length; i++) {
+                if (classIndex === undefined || classIndex === i) {
+                    if (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked && !accountInactive) {
+                        $("#incorrectOverallGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
+                        $("#incorrectOverviewGrade" + i + " span").html(`PowerSchool is locked. Calculated grade may be inaccurate.`);
+                    } else if (!accountInactive) {
+                        $("#incorrectOverallGrade" + i + " span").html(`Grade in ${school === "basis" ? "Schoology" : "PowerSchool"}: <nobr>` + (Math.round(_data[i].overall_percent * 100) / 100) + `% (` + (_data[i].overall_letter ?? getLetterGrade(_data[i].overall_percent)) + `)</nobr>`);
+                        $("#incorrectOverviewGrade" + i).hide();
+                        $("#verified" + i + " span").addClass("always-show");
+                    }
+                    if (!accountInactive && ((!correctCalc(i) && data[i].overall_percent) || (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked && !accountInactive))) {
+                        $("#incorrectOverallGrade" + i).css("display", "inline-block");
+                        if (alerts.lastUpdated.slice(-1)[0] && alerts.lastUpdated.slice(-1)[0].ps_locked) {
+                            $("#incorrectOverviewGrade" + i).css("display", "inline-block");
+                        }
+                    } else {
+                        $("#incorrectOverviewGrade" + i).hide();
+                        $("#incorrectOverallGrade" + i).hide();
+                        $("#verified" + i + " span").removeClass("always-show");
+                    }
+                }
+            }
+        }
+
+        function correctCalc(classIndex) {
+            if (data[classIndex].grades.length === 0) {
+                return true;
+            }
+            let realOverallGrade = data[classIndex].overall_percent;
+            if (realOverallGrade === false) {
+                return true;
+            }
+            let calculatedOverallGrade = getOverallGrade(classIndex);
+            let tenToThePower = Math.pow(10, countDecimals(realOverallGrade));
+            let correctDecimalPlaces = Math.round(getOverallGrade(classIndex) * tenToThePower) / tenToThePower;
+            // If the grade matches, the letter grade doesn't *really* have to match
+            if (correctDecimalPlaces === realOverallGrade) {
+                return true;
+            }
+            if (!alerts.lastUpdated.slice(-1)[0]) {
+                return false;
+            }
+            return alerts.lastUpdated.slice(-1)[0].ps_locked && (relClassData[data[classIndex].class_name].hasWeights === false || Object.values(relClassData[data[classIndex].class_name].weights).filter(w => w !== null).length !== 0);
+        }
+
+        function countDecimals(value) {
+            if (value === false) {
+                return 0;
+            }
+            if (Math.floor(value) === value) {
+                return 0;
+            }
+            return value.toString().includes(".") ? value.toString().split(".")[1].length : 0;
+        }
+
+        function matchDecimals(value, reference) {
+            let decimals = countDecimals(reference);
+            let factor = Math.pow(10, decimals);
+            return Math.round(value * factor) / factor;
+        }
+
+        function setupUC_CSU_GPA() {
+            if (school === "basis") {
+                return;
+            }
+            let out = $("#GPA-display-uc");
+
+            // First we need to determine which years are 9-11
+            // We use graduation year for this
+            let gradYear = personalInfo.graduationYear;
+            let ninth = gradYear - 3;
+            let tenth = gradYear - 2;
+            let eleventh = gradYear - 1;
+
+            // Convert years into terms
+            ninth = (ninth - 2001) + "-" + (ninth - 2000); // 19-20
+            tenth = (tenth - 2001) + "-" + (tenth - 2000);
+            eleventh = (eleventh - 2001) + "-" + (eleventh - 2000);
+
+            // Add up points
+            let basePoints = 0;
+            let tenthHonorsPoints = 0;
+            let eleventhHonorsPoints = 0;
+
+            let maxPoints = 0;
+            let maxTenthHonorsPoints = 0;
+            let maxEleventhHonorsPoints = 0;
+
+            let numClasses = 0;
+
+            if (!(ninth in gradeHistoryLetters) || !("S1" in gradeHistoryLetters[ninth])) {
+                return false;
+            }
+
+            // Ninth Summer
+            if (gradYear - 3 <= lastYearWithSummerCredit[school] && ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
+                let classes = gradeHistoryLetters[ninth]["S3"];
+                for (let c = 0; c < classes.length; c++) {
+                    let classData = Object.entries(classes[c])[0];
+                    let classType = relClassData[classData[0]].uc_csuClassType;
+                    let uc;
+                    [uc, classType] = classType.split("_");
+                    let letterGrade = classData[1] || (term === ninth && semester === "S3" ? getLetterGrade(getOverallGrade(c)) : false);
+                    if ((uc === "uc" || uc === "") && !noGpaLetters.includes(letterGrade)) {
+                        numClasses++;
+                        let points = getGPA(letterGrade);
+                        basePoints += points;
+                        maxPoints += 4;
+                        if ((["hon", "ap"]).includes(classType)) {
+                            if (points >= 2 && tenthHonorsPoints < 4) {
+                                tenthHonorsPoints++;
+                            }
+                            if (maxTenthHonorsPoints < 4) {
+                                maxTenthHonorsPoints++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Tenth
+            let classesCounted = [];
+            if (tenth in gradeHistoryLetters) {
+                let semesters = Object.keys(gradeHistoryLetters[tenth]);
+                    for (let s = 0; s < semesters.length; s++) {
+                    if (gradYear - 2 > lastYearWithSummerCredit[school] && semesters[s] === "S3") continue;
+                    let classes = gradeHistoryLetters[tenth][semesters[s]];
+                    for (let c = 0; c < classes.length; c++) {
+                        let classData = Object.entries(classes[c])[0];
+                        let classType = relClassData[classData[0]].uc_csuClassType;
+                        let uc;
+                        [uc, classType] = classType.split("_");
+                        let letterGrade = classData[1] || (term === tenth && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
+                        if ((uc === "uc" || uc === "") && !noGpaLetters.includes(letterGrade)) {
+                            classesCounted.push(classData[0]);
+                            let points = getGPA(letterGrade);
+                            basePoints += points;
+                            maxPoints += 4;
+                            if ((["hon", "ap"]).includes(classType)) {
+                                if (points >= 2 && tenthHonorsPoints < 4) {
+                                    tenthHonorsPoints++;
+                                }
+                                if (maxTenthHonorsPoints < 4) {
+                                    maxTenthHonorsPoints++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            numClasses += classesCounted.length;
+
+            // Eleventh
+            classesCounted = [];
+            if (eleventh in gradeHistoryLetters) {
+                let semesters = Object.keys(gradeHistoryLetters[eleventh]);
+                for (let s = 0; s < semesters.length; s++) {
+                    if (gradYear - 1 > lastYearWithSummerCredit[school] && semesters[s] === "S3") continue;
+                    let classes = gradeHistoryLetters[eleventh][semesters[s]];
+                    for (let c = 0; c < classes.length; c++) {
+                        let classData = Object.entries(classes[c])[0];
+                        let classType = relClassData[classData[0]].uc_csuClassType;
+                        let uc;
+                        [uc, classType] = classType.split("_");
+                        let letterGrade = classData[1] || (term === eleventh && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
+                        if ((uc === "uc" || uc === "") && !noGpaLetters.includes(letterGrade)) {
+                            classesCounted.push(classData[0]);
+                            let points = getGPA(letterGrade);
+                            basePoints += points;
+                            maxPoints += 4;
+                            if ((["hon", "ap"]).includes(classType)) {
+                                if (points >= 2 && eleventhHonorsPoints < 8 - tenthHonorsPoints) {
+                                    eleventhHonorsPoints++;
+                                }
+                                if (maxEleventhHonorsPoints < 8 - maxTenthHonorsPoints) {
+                                    maxEleventhHonorsPoints++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            numClasses += classesCounted.length;
+
+            let GPA = basePoints + tenthHonorsPoints + eleventhHonorsPoints;
+
+            let max = maxPoints + maxTenthHonorsPoints + maxEleventhHonorsPoints;
+
+            // Dived by numClasses
+            GPA /= numClasses;
+            max /= numClasses;
+
+            if (GPA && max) {
+                out.children("span:not(.popup)").text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : ""));
+                out.parent().show();
+                return true;
+            }
+            out.parent().hide();
+            return false;
+        }
+
+        function setupCumulativeGPA() {
+            if (school === "basis") {
+                return false;
+            }
+
+            let gradYear = personalInfo.graduationYear;
+            let ninth = gradYear - 3;
+            ninth = (ninth - 2001) + "-" + (ninth - 2000);
+            if (!(ninth in gradeHistoryLetters) || !("S1" in gradeHistoryLetters[ninth])) {
+                return false;
+            }
+
+            let out = $("#GPA-display-cumulative");
+            let GPA = 0.0;
+            let max = 0.0;
+            let numClasses = 0;
+            let terms = Object.keys(gradeHistoryLetters);
+            for (let t = 0; t < terms.length; t++) {
+                let _term = terms[t];
+                let semesters = Object.keys(gradeHistoryLetters[_term]);
+                for (let s = 0; s < semesters.length; s++) {
+                    let _semester = semesters[s];
+                    if (gradYear - 3 + t > lastYearWithSummerCredit[school] && semesters[s] === "S3") {
+                        continue;
+                    } // Ignore summer
+                    let classes = gradeHistoryLetters[_term][_semester];
+                    for (let c = 0; c < classes.length; c++) {
+                        let classData = Object.entries(classes[c])[0];
+                        let classType = relClassData[classData[0]].classType;
+                        let letterGrade = classData[1] || (term === _term && semester === _semester ? getLetterGrade(getOverallGrade(c)) : false);
+                        if (classType !== "non-academic" && !noGpaLetters.includes(letterGrade)) {
+                            if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
+                                GPA += 1;
+                                max += 1;
+                            }
+                            GPA += getGPA(letterGrade);
+                            max += 4;
+                            numClasses++;
+                        }
+                    }
+                }
+            }
+            GPA /= numClasses;
+            max /= numClasses;
+
+            if (GPA && max) {
+                out.children("span:not(.popup)").text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : ""));
+                out.parent().show();
+                return true;
+            }
+            out.parent().hide();
+            return false;
+        }
+
+        function setupSemesterGPA() {
+            if (school === "basis") {
+                return;
+            }
+            let out = $("#GPA-display");
+            let GPA = 0.0;
+            let max = 0.0;
+            let numClasses = _data.length;
+            for (let i = 0; i < _data.length; i++) {
+                let className = _data[i].class_name;
+                let classType = relClassData[className]["classType"];
+                let letterGrade = _data[i].overall_letter || getLetterGrade(getOverallGrade(i));
+                if (!noGpaLetters.includes(letterGrade)) {
+                    GPA += getGPA(letterGrade);
+                    max += 4;
+                    if (appearance.weightedGPA && (classType === "ap" || classType === "honors")) {
+                        GPA += 1;
+                        max += 1;
+                    }
+                } else {
+                    numClasses--;
+                }
+            }
+            GPA /= numClasses;
+            max /= numClasses;
+
+            if (GPA && max) {
+                out.children("span:not(.popup)").text((Math.round(GPA * 1000) / 1000).toFixed(3) + (showMaxGPA ? "/" + (Math.round(max * 1000) / 1000).toFixed(3) : ""));
+                out.parent().show();
+                return true;
+            }
+            out.parent().hide();
+            return false;
+        }
+
+        function getGPA(letterGrade) {
+            if (!letterGrade) {
+                return null;
+            }
+            if (noGpaLetters.includes(letterGrade)) {
+                return null;
+            }
+            letterGrade = letterGrade[0];
+            if (letterGrade === "A") {
+                return 4;
+            } else if (letterGrade === "B") {
+                return 3;
+            } else if (letterGrade === "C") {
+                return 2;
+            } else if (letterGrade === "D") {
+                return 1;
+            }
+            return 0;
+        }
+
+        function setPointBasedWeights(classIndex) {
+            for (let i = 0; i < _data.length; i++) {
+                if (classIndex === undefined || classIndex === i) {
+                    let totalPossible = 0;
+                    let result = Object.fromEntries(([...Object.entries(weights[i].weights), ...Object.entries(addedWeights[i].weights)]).map(a => [a[0], 0]));
+                    for (let assignment of _data[i]["grades"]) {
+                        if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
+                            if (!result[assignment.category]) {
+                                result[assignment.category] = 0;
+                            }
+                            result[assignment.category] += assignment["points_possible"];
+                            totalPossible += assignment["points_possible"];
+                        }
+                    }
+                    let numAdded = Object.keys(addedWeights[i].weights).length;
+                    for (let j = 0; j < Object.keys(result).length - numAdded; j++) {
+                        let weight = Object.keys(result)[j];
+                        result[weight] = (Math.round(result[weight] / totalPossible * 100 * 100) / 100) || 0;
+                        $(`#weightTableWeight${i}_${j} input`).attr("placeholder", result[weight]);
+                    }
+                    for (let j = 0; j < numAdded; j++) {
+                        let weight = Object.keys(result)[j];
+                        result[weight] = (Math.round(result[weight] / totalPossible * 100 * 100) / 100) || 0;
+                        $(`#addedWeightWeight${i}_${j} input`).attr("placeholder", result[weight]);
+                    }
+                }
+            }
+        }
+
+        function getOverallGrade(classIndex) {
+            let className = _data[classIndex].class_name;
+            let overallGrade = 0;
+            if (weights[classIndex]["hasWeights"] === false || unobtainedWeights[className]) {
+                let points_earned = 0;
+                let points_total = 0;
+                for (let assignment of _data[classIndex]["grades"]) {
+                    if (assignment["points_gotten"] !== false && assignment["points_possible"] !== false && assignment["exclude"] !== true) {
+                        points_earned += assignment["points_gotten"];
+                        points_total += assignment["points_possible"];
+                    }
+                }
+                if (points_total === 0) {
+                    return null;
+                }
+                overallGrade = points_earned / points_total * 100;
+            } else {
+                let classCategories = [...Object.keys(weights[classIndex]["weights"]), ...Object.keys(addedWeights[classIndex].weights)];
+                let classWeights = [...Object.values(weights[classIndex]["weights"]), ...Object.values(addedWeights[classIndex].weights)];
+                let totalWeight = 0;
+                for (let i = 0; i < classCategories.length; i++) {
+                    let categoryGrade = getCategoryGrade(classIndex, classCategories[i]);
+                    if (categoryGrade === null) {
+                        continue;
+                    }
+                    overallGrade += categoryGrade * classWeights[i];
+                    totalWeight += classWeights[i];
+                }
+                if (totalWeight === 0) {
+                    return null;
+                }
+                overallGrade /= totalWeight;
+            }
+            return overallGrade;
+        }
+
+        function getLetterGrade(grade) {
+            let letter = "";
+            if (grade >= 97.5) {
+                letter = "A+";
+            } else if (grade >= 92.5) {
+                letter = "A";
+            } else if (grade >= 89.5) {
+                letter = "A-";
+            } else if (grade >= 87.5) {
+                letter = "B+";
+            } else if (grade >= 82.5) {
+                letter = "B";
+            } else if (grade >= 79.5) {
+                letter = "B-";
+            } else if (grade >= 77.5) {
+                letter = "C+";
+            } else if (grade >= 72.5) {
+                letter = "C";
+            } else if (grade >= 69.5) {
+                letter = "C-";
+            } else if (grade >= 67.5) {
+                letter = "D+";
+            } else if (grade >= 62.5) {
+                letter = "D";
+            } else if (grade >= 59.5) {
+                letter = "D-";
+            } else if (grade >= 0 && grade !== null) {
+                letter = "F";
+            } else {
+                return false;
+            }
+            return school === "ndsj" ? letter[0] : letter;
+        }
+
+        let submittingWeights;
+
+        function setupWeightsTableListeners() {
+            for (let i = 0; i < _data.length; i++) {
+                let tableCategories = Object.keys(weights[i]["weights"]);
+                let addedCategories = Object.keys(addedWeights[i]["weights"]);
+                for (let j = 0; j < tableCategories.length; j++) {
+                    let weight = $(`#weightTableWeight${i}_${j} input`);
+                    weight.off();
+                    weight.on("blur", (e) => {
+                        clearTimeout(submittingWeights);
+                        submittingWeights = setTimeout(() => {
+                            resetInputs(`#weights${i}`);
+                            $(`#weightTableWeight${i}_${j}`).parents("form").trigger("submit");
+                        }, 100);
+                    }).on("keydown", (e) => {
+                        let keyCode = e.code;
+                        if (keyCode === "ArrowDown" || keyCode === "ArrowUp") {
+                            e.preventDefault();
+                        }
+                    }).on("keyup", (e) => {
+                        let keyCode = e.code;
+                        if (keyCode === "Enter") {
+                            weight.trigger("blur");
+                        }
+                        if (j > 0 && keyCode === "ArrowUp") {
+                            $(`#weightTableWeight${i}_${j - 1} input`).trigger("focus");
+                        }
+                        if (keyCode === "ArrowDown") {
+                            if (j < tableCategories.length - 1) {
+                                $(`#weightTableWeight${i}_${j + 1} input`).trigger("focus");
+                            } else { // j === tableCategories.length - 1
+                                $(`#addedWeightWeight${i}_0 input`).trigger("focus");
+                            }
+                        }
+                    });
+                }
+                for (let j = 0; j < addedCategories.length; j++) {
+                    let weight = $(`#addedWeightWeight${i}_${j} input`);
+                    weight.off();
+                    weight.on("blur", (e) => {
+                        clearTimeout(submittingWeights);
+                        submittingWeights = setTimeout(() => {
+                            resetInputs(`#weights${i}`);
+                            $(`#addedWeightWeight${i}_${j}`).parents("form").trigger("submit");
+                        }, 100);
+                    }).on("keydown", (e) => {
+                        let keyCode = e.code;
+                        if (keyCode === "ArrowDown" || keyCode === "ArrowUp") {
+                            e.preventDefault();
+                        }
+                    }).on("keyup", (e) => {
+                        let keyCode = e.code;
+                        if (keyCode === "Enter") {
+                            weight.trigger("blur");
+                        }
+                        if (keyCode === "ArrowUp") {
+                            if (j > 0) {
+                                $(`#addedWeightWeight${i}_${j - 1} input`).trigger("focus");
+                            } else { // j === 0
+                                $(`#weightTableWeight${i}_${tableCategories.length - 1} input`).trigger("focus");
+                            }
+                        }
+                        if (j < addedCategories.length - 1 && keyCode === "ArrowDown") {
+                            $(`#addedWeightWeight${i}_${j + 1} input`).trigger("focus");
+                        }
+                    });
+                }
+            }
+        }
+
+        function setupWeightsTables(classIndex) {
+            for (let i = 0; i < _data.length; i++) {
+                if (classIndex === undefined || classIndex === i) {
+                    disableInput("check" + i, "weightsTable" + i);
+                    let className = _data[i].class_name;
+                    let tableCategories = Object.keys(weights[i]["weights"]);
+                    let addedCategories = Object.keys(addedWeights[i]["weights"]);
+                    let enableReset = weights[i]["custom"] && relClassData[className].hasWeights !== null;
+                    //if custom and both haveWeights, enable reset only if db had diff value to give to user's weights
+                    //stop reset from showing if custom is due to user having more categories than classes db
+                    if (enableReset && relClassData[className]["hasWeights"] === true) {
+                        enableReset = false;
+                        let keys = Object.keys(weights[i]["weights"]);
+                        for (let j = 0; j < keys.length; j++) {
+                            if (keys[j] in relClassData[className]["weights"] && weights[i]["weights"][keys[j]] != relClassData[className]["weights"][keys[j]]) {
+                                enableReset = true;
+                            }
+                        }
+                    }
+
+                    //Hide or Show Reset Button
+                    if (enableReset) {
+                        $("#reset" + i).show();
+                        $("#weight-header" + i).css("font-style", "italic");
+                    } else {
+                        $("#reset" + i).hide();
+                        $("#weight-header" + i).css("font-style", "normal");
+                    }
+
+                    //Hide or Show Ignoring weights
+                    if (unobtainedWeights[className]) {
+                        $("#ignoringWeights" + i).show();
+                    } else {
+                        $("#ignoringWeights" + i).hide();
+                    }
+
+                    let totalGotten = 0;
+                    let totalPossible = 0;
+
+                    for (let j = 0; j < tableCategories.length; j++) {
+                        //Set italics of weights
+                        if (enableReset) {
+                            $(`#weightTableWeight${i}_${j}`).children().css("font-style", "italic");
+                        } else {
+                            $(`#weightTableWeight${i}_${j}`).children().css("font-style", "normal");
+                        }
+
+                        //Strikethrough weights if any are missing
+                        let input = $(`#weightTableWeight${i}_${j} input`);
+                        if (unobtainedWeights[className] && (!isNaN(parseFloat(input[0].valueAsNumber)))) {
+                            input.addClass("ignored");
+                        } else {
+                            input.removeClass("ignored");
+                        }
+
+                        document.getElementById(`weightTableCategory${i}_${j}`).textContent = tableCategories[j];
+                        document.getElementById(`weightTableCategory${i}_${j}`).title = tableCategories[j];
+                        let categoryGottenAndPossible = getCategoryGottenAndPossible(i, tableCategories[j]);
+                        totalGotten += categoryGottenAndPossible.gotten;
+                        totalPossible += categoryGottenAndPossible.possible;
+                        document.getElementById(`weightTablePoints${i}_${j}`).textContent = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
+                        let categoryGrade = getCategoryGrade(i, tableCategories[j]);
+                        if (categoryGottenAndPossible.possible !== 0) {
+                            document.getElementById(`weightTableGrade${i}_${j}`).textContent = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+                        } else {
+                            document.getElementById(`weightTableGrade${i}_${j}`).textContent = "--";
+                        }
+                    }
+                    for (let j = 0; j < addedCategories.length; j++) {
+                        let categoryGottenAndPossible = getCategoryGottenAndPossible(i, addedCategories[j]);
+                        totalGotten += categoryGottenAndPossible.gotten;
+                        totalPossible += categoryGottenAndPossible.possible;
+                    }
+                    let overallGrade = getOverallGrade(i);
+                    let delta;
+                    let color;
+                    if (latestChange) {
+                        if (latestChange.overall && _data[i].class_name in latestChange.overall && "overall_percent" in latestChange.overall[_data[i].class_name]) {
+                            delta = Math.round((_data[i].overall_percent || overallGrade - latestChange.overall[_data[i].class_name].overall_percent) * 100) / 100;
+                        }
+                        if (delta > 0) {
+                            delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
+                            color = "green";
+                        } else if (delta < 0) {
+                            delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
+                            color = "red";
+                        }
+                    }
+                    delta = (delta ? (" <div style=\"cursor: pointer; display: inline-block; margin: 0 1rem; color: " + color + "\" onclick=\"setupGradeChanges()\">" + delta + "</div>") : "");
+                    if (overallGrade) {
+                        let html = `${(Math.round(overallGrade * 100) / 100).toString()}% (${getLetterGrade(overallGrade)})${delta}`;
+                        if (!weights[i].hasWeights && tableCategories.length + addedCategories.length > 1) {
+                            html += ` ${totalGotten}/${totalPossible}`;
+                        }
+                        document.getElementById("weightTableOverallGrade" + i).innerHTML = html;
+                    } else {
+                        document.getElementById("weightTableOverallGrade" + i).innerHTML = "--" + delta;
+                    }
+                    document.getElementById("weightTableOverallGrade" + i).style.display = "inline-block";
+
+                }
+            }
+        }
+
+        function setupAddedWeights(classIndex) {
+            for (let i = 0; i < _data.length; i++) {
+                if (classIndex === undefined || classIndex === i) {
+                    let div = $(`#addedWeights${i}`);
+                    div.html("");
+                    let count = 0;
+                    let _weights = addedWeights[i].weights;
+                    for (let weight in _weights) {
+                        let value = _weights[weight];
+                        let categoryGrade = getCategoryGrade(i, weight);
+                        let categoryGottenAndPossible = getCategoryGottenAndPossible(i, weight);
+                        let pointDisplay = Math.round(categoryGottenAndPossible.gotten * 10000) / 10000 + ((categoryGottenAndPossible.possible !== 0) ? ("/" + Math.round(categoryGottenAndPossible.possible * 10000) / 10000) : "");
+                        if (categoryGottenAndPossible.possible !== 0) {
+                            categoryGrade = categoryGrade + "% (" + getLetterGrade(categoryGrade) + ")";
+                        } else {
+                            categoryGrade = "--";
+                        }
+                        let row = $(`<tr>
+                            <td id="addedWeightCategory${i}_${count}">${weight}</td>
+                            <td id="addedWeightWeight${i}_${count}"
+                                class="form-group">
+                                <input style="${(weights[i].hasWeights && !value && value !== 0) ? "border-color: lightcoral !important; outline-color: lightcoral !important;" : ""}"
+                                       value="${value || value === 0 ? value : ""}"
+                                       type="number"
+                                       min="0"
+                                       step="0.01"
+                                       class="number-input disableable form-control ${(value || value === 0) ? "text-view" : ""}"
+                                       name="${weight}"
+                                       disabled
+                                >
+                            </td>
+                            <td id="addedWeightPoints${i}_${count}">${pointDisplay}</td>
+                            <td id="addedWeightGrade${i}_${count}">${categoryGrade}</td>
+                        </tr>`);
+                        count++;
+                        div.append(row);
+                    }
+                }
+            }
+        }
+
+        //Requires elements to have same font-family & font-size
+        function adjust(elements, offset, min, max, updateOnBlur = false) {
+            // Initialize parameters
+            offset = offset || 0;
+            min = min || 0;
+            max = max || Infinity;
+
+            if (elements.length < 1) {
+                return;
+            }
+
+            // Add element to measure pixel length of text
+            let tag = $("<span> </span>").css({
+                "display": "none",
+                "font-family": $(elements[0]).css("font-family"),
+                "font-size": $(elements[0]).css("font-size")
+            }).appendTo("body");
+
+            //Adjust element width on keydown
+            elements.each(function () {
+                let element = $(this);
+
+                function update() {
+                    tag.text(element.val());
+
+                    // Clamp length and prevent text from scrolling
+                    let size = Math.max(min, Math.min(max, tag.width() + offset));
+                    if (size < max) {
+                        element.scrollLeft(0);
+                    }
+
+                    // Apply width to element
+                    element.width(size);
+                }
+
+                update();
+                element.keydown(function () {
+                    setTimeout(update(), 0);
+                }); // Give browser time to add current letter
+            });
+        }
+
+        function remToPixels(rem) {
+            return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+        }
+
+        function setSortMethod(element) {
+            let classIndex = parseFloat($(element)[0].id.substring(6));
+            let method = $(element)[0].selectedOptions[0].value;
+            $(element).trigger("blur");
+            categorySort[classIndex] = method === "category";
+            postSortData();
+            refreshWithoutReload(classIndex);
+        }
+
+        function addAssignment(classIndex) {
+            let addDate = $(".addAssignmentDate input")[classIndex].value.split("-");
+            addDate = addDate[1] + "/" + addDate[2] + "/" + addDate[0];
+            let addName = $(".addAssignmentName input")[classIndex].value;
+            let addCategory = $(".addAssignmentCategory select")[classIndex].selectedOptions[0];
+            let weightCount = Object.keys(weights[classIndex].weights).length;
+            let addedWeightCount = Object.keys(addedWeights[classIndex].weights).length;
+            if (addCategory.index === weightCount + addedWeightCount) {
+                addCategory = $(`#newCategory${classIndex}`)[0].value;
+            } else if (addCategory.index < addedWeightCount) {
+                addCategory = addCategory.value.substring(0, addCategory.value.length - " - (Added)".length);
+            } else {
+                addCategory = addCategory.value;
+            }
+            let inputs = $(".addAssignmentScore input");
+            let addGotten = parseFloat(inputs[classIndex * 2].value);
+            if (isNaN(addGotten)) {
+                addGotten = false;
+            }
+            let addPossible = parseFloat(inputs[classIndex * 2 + 1].value);
+            if (isNaN(addPossible)) {
+                addPossible = false;
+            }
+            if (addPossible === false && addGotten !== false) {
+                addPossible = 0;
+            }
+            let addExclude = $(`#addAssignmentExclude${classIndex}`).prop("checked");
+            let addPercent = (Math.round(addGotten / addPossible * 100 * 100) / 100) ?? false;
+            if (addPercent === Infinity || isNaN(addPercent)) {
+                addPercent = false;
+            }
+            // Remove HTML tags (client side)
+            addName = addName.replace(/(<([^>]+)>)/gi, "");
+            addCategory = addCategory.replace(/(<([^>]+)>)/gi, "");
+            let assignmentObject = {
+                assignment_name: addName,
+                date: addDate,
+                category: addCategory,
+                grade_percent: addPercent,
+                points_gotten: addGotten,
+                points_possible: addPossible,
+                exclude: addExclude
+            };
+
+            _addedAssignments[classIndex].data.push(JSON.parse(JSON.stringify(assignmentObject)));
+            addedAssignments[classIndex].data.push(JSON.parse(JSON.stringify(assignmentObject)));
+            $.ajax({
+                type: "POST", url: "/updateAddedAssignments", data: {
+                    data: JSON.stringify(addedAssignments.slice(classIndex, classIndex + 1)),
+                    term: term,
+                    semester: semester
+                }
+            }).done(function (response) {
+                if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                    $(".session-timeout").show();
+                    $("body").find("*").not(".session-timeout").remove();
+                } else {
+                    if (response) {
+                        addedWeights = response;
+                        if (mapToOnlyAcademic) {
+                            addedWeights = academicIndices.map(n => addedWeights[n]);
+                        }
+                    }
+                    let addAssignment = $($(".add-assignment-container")[currentPage]);
+                    addAssignment.removeClass("active");
+                    $("#addAssignmentForm" + currentPage + " input").val("").trigger("input").trigger("blur");
+                    recentlyAddedAssignment = assignmentObject;
+                    refreshWithoutReload(classIndex);
+                }
+            });
+        }
+
+        function toggleExclude(classIndex, assignmentIndex) {
+            if (!categorySort[classIndex]) {
+                if (!dateSort[classIndex]) {
+                    assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                }
+            } else {
+                if (!dateSort[classIndex]) {
+                    let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                    assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                }
+                assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+            }
+
+            if (aData[classIndex][assignmentIndex] !== undefined) {
+                let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
+
+                assignment.exclude = !assignment.exclude;
+            } else {
+
+                let assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
+                if (!assignment) {
+                    _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                    assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
+                    assignment.exclude = _data[classIndex].grades[assignmentIndex].exclude;
+                } else if (!("exclude" in assignment)) {
+                    assignment.exclude = _data[classIndex].grades[assignmentIndex].exclude;
+                }
+
+                assignment.exclude = !assignment.exclude;
+
+                cleanEdits(classIndex, assignmentIndex);
+
+            }
+            refreshWithoutReload(classIndex);
+        }
+
+        function updatePointsGotten(classIndex, assignmentIndex, element) {
+            if (!categorySort[classIndex]) {
+                if (!dateSort[classIndex]) {
+                    assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                }
+            } else {
+                if (!dateSort[classIndex]) {
+                    let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                    assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                }
+                assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+            }
+
+            let doRefresh;
+            if (aData[classIndex][assignmentIndex] !== undefined) {
+
+                let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
+
+                let temp = assignment.points_gotten;
+                assignment.points_gotten = parseFloat($(element)[0].value);
+                if (isNaN(assignment.points_gotten)) {
+                    assignment.points_gotten = false;
+                } else if (assignment.points_possible === false) {
+                    assignment.points_possible = 0;
+                }
+                if ((assignment.points_gotten || assignment.points_gotten === 0) && assignment.points_possible) {
+                    assignment.grade_percent = Math.round(assignment.points_gotten / assignment.points_possible * 100 * 100) / 100;
+                } else {
+                    assignment.grade_percent = false;
+                }
+                if (isNaN(assignment.grade_percent)) {
+                    assignment.grade_percent = false;
+                }
+
+                doRefresh = temp !== assignment.points_gotten;
+
+            } else {
+
+                let assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
+                let pointsPossible;
+
+                if (!assignment) {
+                    _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                    assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
+                    assignment.points_gotten = _data[classIndex].grades[assignmentIndex].points_gotten;
+                    pointsPossible = _data[classIndex].grades[assignmentIndex].points_possible;
+                } else {
+                    pointsPossible = assignment.points_possible || _data[classIndex].grades[assignmentIndex].points_possible;
+                }
+
+                let temp = assignment.points_gotten;
+                assignment.points_gotten = parseFloat($(element)[0].value);
+                if (isNaN(assignment.points_gotten)) {
+                    assignment.points_gotten = false;
+                } else if (pointsPossible === false) {
+                    pointsPossible = 0;
+                }
+
+                if (assignment.points_gotten === _data[classIndex].grades[assignmentIndex].points_gotten && pointsPossible === _data[classIndex].grades[assignmentIndex].points_possible) {
+                    assignment.grade_percent = _data[classIndex].grades[assignmentIndex].grade_percent;
+                } else if ((assignment.points_gotten || assignment.points_gotten === 0) && pointsPossible) {
+                    assignment.grade_percent = Math.round(assignment.points_gotten / pointsPossible * 100 * 100) / 100;
+                } else {
+                    assignment.grade_percent = false;
+                }
+                if (isNaN(assignment.grade_percent)) {
+                    assignment.grade_percent = false;
+                }
+
+                doRefresh = temp !== assignment.points_gotten;
+
+                cleanEdits(classIndex, assignmentIndex);
+            }
+
+            if (doRefresh) {
+                refreshWithoutReload(classIndex);
+            }
+        }
+
+        function updatePointsPossible(classIndex, assignmentIndex, element) {
+            if (!categorySort[classIndex]) {
+                if (!dateSort[classIndex]) {
+                    assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                }
+            } else {
+                if (!dateSort[classIndex]) {
+                    let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                    assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                }
+                assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+            }
+
+            let doRefresh;
+            if (aData[classIndex][assignmentIndex] !== undefined) {
+
+                let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
+
+                let temp = assignment.points_possible;
+                assignment.points_possible = parseFloat($(element)[0].value);
+                if (isNaN(assignment.points_possible)) {
+                    assignment.points_possible = false;
+                }
+                if (assignment.points_possible && assignment.points_gotten) {
+                    assignment.grade_percent = Math.round(assignment.points_gotten / assignment.points_possible * 100 * 100) / 100;
+                } else {
+                    assignment.grade_percent = false;
+                }
+
+                doRefresh = false;
+                if (temp !== assignment.points_possible) {
+                    doRefresh = true;
+                }
+
+            } else {
+
+                let assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
+                let pointsGotten;
+
+                if (!assignment) {
+                    _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                    assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
+                    assignment.points_possible = _data[classIndex].grades[assignmentIndex].points_possible;
+                    pointsGotten = _data[classIndex].grades[assignmentIndex].points_gotten;
+                } else {
+                    pointsGotten = assignment.points_gotten || _data[classIndex].grades[assignmentIndex].points_gotten;
+                }
+
+                let temp = assignment.points_possible;
+                assignment.points_possible = parseFloat($(element)[0].value);
+                if (isNaN(assignment.points_possible)) {
+                    assignment.points_possible = false;
+                }
+
+                if (pointsGotten === _data[classIndex].grades[assignmentIndex].points_gotten && assignment.points_possible === _data[classIndex].grades[assignmentIndex].points_possible) {
+                    assignment.grade_percent = _data[classIndex].grades[assignmentIndex].grade_percent;
+                } else if (assignment.points_possible && pointsGotten) {
+                    assignment.grade_percent = Math.round(pointsGotten / assignment.points_possible * 100 * 100) / 100;
+                } else {
+                    assignment.grade_percent = false;
+                }
+
+
+                doRefresh = temp !== assignment.points_possible;
+
+                cleanEdits(classIndex, assignmentIndex);
+
+            }
+
+            if (doRefresh) {
+                refreshWithoutReload(classIndex);
+            }
+        }
+
+        function updateCategory(classIndex, assignmentIndex, element) {
+            if (!categorySort[classIndex]) {
+                if (!dateSort[classIndex]) {
+                    assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                }
+            } else {
+                if (!dateSort[classIndex]) {
+                    let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                    assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                }
+                assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+            }
+
+            if (aData[classIndex][assignmentIndex] !== undefined) {
+                let assignment = _addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]];
+
+                assignment.category = $(element).find("option:selected").text();
+                $(element).attr("title", assignment.category);
+            } else {
+                let assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
+
+                if (!assignment) {
+                    _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid] = {};
+                    assignment = _editedAssignments[classIndex].data[_data[classIndex]["grades"][assignmentIndex].psaid];
+                    assignment.category = _data[classIndex].grades[assignmentIndex].category;
+                }
+
+                assignment.category = $(element).find("option:selected").text();
+
+                cleanEdits(classIndex, assignmentIndex);
+                $(element).attr("title", assignment.category);
+            }
+        }
+
+        function resetAll(classIndex) {
+            for (let i = 0; i < _data[classIndex].grades.length; i++) {
+                resetRow(classIndex, i, false);
+            }
+            $.ajax({
+                type: "POST", url: "/updateEditedAssignments", data: {
+                    data: JSON.stringify(editedAssignments.slice(classIndex, classIndex + 1)),
+                    term: term,
+                    semester: semester
+                }, async: true
+            });
+            refreshWithoutReload(classIndex);
+        }
+
+        function resetCategory(classIndex, categoryIndex) {
+            let categories = Object.keys(weights[classIndex]["weights"]);
+            let addedCategories = Object.keys(addedWeights[classIndex]["weights"]);
+            let allCategories = addedCategories.concat(categories);
+            $($(`#categoryTable${classIndex} thead.categoryStart`)[categoryIndex]).removeClass("unround-top-right");
+            let category = allCategories[categoryIndex];
+            let startIndex = categorySortedData[classIndex].assignmentCategories.indexOf(category);
+            let numOfCategory = categorySortedData[classIndex].assignmentCategories.filter(x => x === category).length;
+            for (let i = startIndex; i < startIndex + numOfCategory; i++) {
+                resetRow(classIndex, i, false);
+            }
+            if (!_.isEqual(_editedAssignments[classIndex], editedAssignments[classIndex])) {
+                $.ajax({
+                    type: "POST", url: "/updateEditedAssignments", data: {
+                        data: JSON.stringify(editedAssignments.slice(classIndex, classIndex + 1)),
+                        term: term,
+                        semester: semester
+                    }, async: true
+                });
+            }
+            refreshWithoutReload(classIndex);
+        }
+
+        function resetRow(classIndex, assignmentIndex, post = true) {
+            if (!categorySort[classIndex]) {
+                if (!dateSort[classIndex]) {
+                    assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                }
+
+                // This means that the row was never changed
+                if (!_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
+                    $($(`.resetRow${classIndex}`)[assignmentIndex]).addClass("disabled");
+                    return;
+                }
+            } else {
+                if (!dateSort[classIndex]) {
+                    let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                    assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                }
+                assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+
+                // This means that the row was never changed
+                if (!_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
+                    $($(".categoryResetRow" + classIndex)[assignmentIndex]).addClass("disabled");
+                    return;
+                }
+            }
+
+            // Reset all edited values
+
+            if (editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
+                delete editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
+            }
+            delete _editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
+            if (post) {
+                $.ajax({
+                    type: "POST", url: "/updateEditedAssignments", data: {
+                        data: JSON.stringify(editedAssignments.slice(classIndex, classIndex + 1)),
+                        term: term,
+                        semester: semester
+                    }, async: true
+                });
+                refreshWithoutReload(classIndex);
+            }
+        }
+
+        function trashAll(classIndex) {
+            for (let i = 0; i < _data[classIndex].grades.length; i++) {
+                trashRow(classIndex, i, false);
+            }
+            $.ajax({
+                type: "POST", url: "/updateAddedAssignments", data: {
+                    data: JSON.stringify(addedAssignments.slice(classIndex, classIndex + 1)),
+                    term: term,
+                    semester: semester
+                }, async: true
+            }).done((response) => {
+                if (response) {
+                    addedWeights = response;
+                    if (mapToOnlyAcademic) {
+                        addedWeights = academicIndices.map(n => addedWeights[n]);
+                    }
+                }
+                refreshWithoutReload(classIndex);
+            });
+        }
+
+        function trashCategory(classIndex, categoryIndex) {
+            let categories = Object.keys(weights[classIndex]["weights"]);
+            let addedCategories = Object.keys(addedWeights[classIndex]["weights"]);
+            let allCategories = addedCategories.concat(categories);
+            $($(`#categoryTable${classIndex} thead.categoryStart`)[categoryIndex]).removeClass("unround-top-right");
+            let category = allCategories[categoryIndex];
+            let startIndex = categorySortedData[classIndex].assignmentCategories.indexOf(category);
+            let numOfCategory = categorySortedData[classIndex].assignmentCategories.filter(x => x === category).length;
+            for (let i = startIndex; i < startIndex + numOfCategory; i++) {
+                trashRow(classIndex, i, false);
+            }
+            $.ajax({
+                type: "POST", url: "/updateAddedAssignments", data: {
+                    data: JSON.stringify(addedAssignments.slice(classIndex, classIndex + 1)),
+                    term: term,
+                    semester: semester
+                }, async: true
+            }).done((response) => {
+                if (response) {
+                    addedWeights = response;
+                    if (mapToOnlyAcademic) {
+                        addedWeights = academicIndices.map(n => addedWeights[n]);
+                    }
+                }
+                refreshWithoutReload(classIndex);
+            });
+        }
+
+        function trashRow(classIndex, assignmentIndex, post = true) {
+            if (!categorySort[classIndex]) {
+                if (!dateSort[classIndex]) {
+                    assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                }
+            } else {
+                if (!dateSort[classIndex]) {
+                    let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                    assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                }
+                assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+            }
+            let addedAssignmentIndex = aData[classIndex][assignmentIndex];
+            _addedAssignments[classIndex].data.splice(addedAssignmentIndex, 1);
+            addedAssignments[classIndex].data.splice(addedAssignmentIndex, 1);
+
+            if (post) {
+                $.ajax({
+                    type: "POST", url: "/updateAddedAssignments", data: {
+                        data: JSON.stringify(addedAssignments.slice(classIndex, classIndex + 1)),
+                        term: term,
+                        semester: semester
+                    }, async: true
+                }).done((response) => {
+                    if (response) {
+                        addedWeights = response;
+                        if (mapToOnlyAcademic) {
+                            addedWeights = academicIndices.map(n => addedWeights[n]);
+                        }
+                    }
+                    refreshWithoutReload(classIndex);
+                });
+            }
+        }
+
+        function saveAll(classIndex) {
+            for (let i = 0; i < _data[classIndex].grades.length; i++) {
+                saveRow(classIndex, i, false);
+            }
+            $.ajax({
+                type: "POST", url: "/updateEditedAssignments", data: {
+                    data: JSON.stringify(editedAssignments.slice(classIndex, classIndex + 1)),
+                    term: term,
+                    semester: semester
+                }, async: true
+            });
+            $.ajax({
+                type: "POST", url: "/updateAddedAssignments", data: {
+                    data: JSON.stringify(addedAssignments.slice(classIndex, classIndex + 1)),
+                    term: term,
+                    semester: semester
+                }, async: true
+            }).done((response) => {
+                if (response) {
+                    addedWeights = response;
+                    if (mapToOnlyAcademic) {
+                        addedWeights = academicIndices.map(n => addedWeights[n]);
+                    }
+                }
+                refreshWithoutReload(classIndex);
+            });
+        }
+
+        function saveCategory(classIndex, categoryIndex) {
+            let categories = Object.keys(weights[classIndex]["weights"]);
+            let addedCategories = Object.keys(addedWeights[classIndex]["weights"]);
+            let allCategories = addedCategories.concat(categories);
+            $($(`#categoryTable${classIndex} thead.categoryStart`)[categoryIndex]).removeClass("unround-top-right");
+            let category = allCategories[categoryIndex];
+            let startIndex = categorySortedData[classIndex].assignmentCategories.indexOf(category);
+            let numOfCategory = categorySortedData[classIndex].assignmentCategories.filter(x => x === category).length;
+            for (let i = startIndex; i < startIndex + numOfCategory; i++) {
+                saveRow(classIndex, i, false);
+            }
+            $.ajax({
+                type: "POST", url: "/updateEditedAssignments", data: {
+                    data: JSON.stringify(editedAssignments.slice(classIndex, classIndex + 1)),
+                    term: term,
+                    semester: semester
+                }, async: true
+            });
+            $.ajax({
+                type: "POST", url: "/updateAddedAssignments", data: {
+                    data: JSON.stringify(addedAssignments.slice(classIndex, classIndex + 1)),
+                    term: term,
+                    semester: semester
+                }, async: true
+            }).done((response) => {
+                if (response) {
+                    addedWeights = response;
+                    if (mapToOnlyAcademic) {
+                        addedWeights = academicIndices.map(n => addedWeights[n]);
+                    }
+                }
+                refreshWithoutReload(classIndex);
+            });
+        }
+
+        function saveRow(classIndex, assignmentIndex, post = true) {
+            if (!categorySort[classIndex]) {
+                if (!dateSort[classIndex]) {
+                    assignmentIndex = _data[classIndex]["grades"].length - assignmentIndex - 1;
+                }
+            } else {
+                if (!dateSort[classIndex]) {
+                    let assignmentCategories = categorySortedData[classIndex].assignmentCategories;
+                    assignmentIndex = categorySortedData[classIndex].assignmentCategories.filter(c => c === assignmentCategories[assignmentIndex]).length - assignmentIndex + 2 * assignmentCategories.indexOf(assignmentCategories[assignmentIndex]) - 1;
+                }
+                assignmentIndex = categorySortedData[classIndex].originalIndices[assignmentIndex];
+            }
+
+            // Added
+            if (aData[classIndex][assignmentIndex] !== undefined) {
+                addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]] = JSON.parse(JSON.stringify(_addedAssignments[classIndex].data[aData[classIndex][assignmentIndex]]));
+                if (post) {
+                    $.ajax({
+                        type: "POST", url: "/updateAddedAssignments", data: {
+                            data: JSON.stringify(addedAssignments.slice(classIndex, classIndex + 1)),
+                            term: term,
+                            semester: semester
+                        }, async: true
+                    }).done((response) => {
+                        if (response) {
+                            addedWeights = response;
+                            if (mapToOnlyAcademic) {
+                                addedWeights = academicIndices.map(n => addedWeights[n]);
+                            }
+                        }
+                        refreshWithoutReload(classIndex);
+                    });
+                }
+            } else if (_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid] || editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
+                // Edited
+                if (_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]) {
+                    editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid] = JSON.parse(JSON.stringify(_editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid]));
+                } else {
+                    delete editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
+                }
+                if (post) {
+                    $.ajax({
+                        type: "POST", url: "/updateEditedAssignments", data: {
+                            data: JSON.stringify(editedAssignments.slice(classIndex, classIndex + 1)),
+                            term: term,
+                            semester: semester
+                        }, async: true
+                    });
+                }
+            }
+
+            if (post) {
+                refreshWithoutReload(classIndex);
+            }
+        }
+
+        function setupInputListeners() {
+            for (let i = 0; i < parsedData.length; i++) {
+                let classScores = $(".assignmentScore" + i);
+                for (let j = 0; j < parsedData[i].assignmentNames.length; j++) {
+                    let inputs = $(classScores[j]).find(".dynamic-input");
+                    $(inputs[0]).off("keyup");
+                    $(inputs[0]).on("keyup", (e) => {
+                        let keyCode = e.code;
+                        if (keyCode === "Enter") {
+                            $(inputs[0]).trigger("blur");
+                        }
+                    });
+                    $(inputs[1]).off("keyup");
+                    $(inputs[1]).on("keyup", (e) => {
+                        let keyCode = e.code;
+                        if (keyCode === "Enter") {
+                            $(inputs[1]).trigger("blur");
+                        }
+                    });
+                }
+                classScores = $(".categoryAssignmentScore" + i);
+                for (let j = 0; j < categorySortedData[i].assignmentNames.length; j++) {
+                    let inputs = $(classScores[j]).find(".dynamic-input");
+                    $(inputs[0]).off("keyup");
+                    $(inputs[0]).on("keyup", (e) => {
+                        let keyCode = e.code;
+                        if (keyCode === "Enter") {
+                            $(inputs[0]).trigger("blur");
+                        }
+                    });
+                    $(inputs[1]).off("keyup");
+                    $(inputs[1]).on("keyup", (e) => {
+                        let keyCode = e.code;
+                        if (keyCode === "Enter") {
+                            $(inputs[1]).trigger("blur");
+                        }
+                    });
+                }
+            }
+        }
+
+        function toggleSortDirection(classIndex) {
+            let icon = $($("#section" + classIndex).find(".tableOptions").find("i")[0]);
+            if (icon.hasClass("fa-sort-amount-asc")) {
+                dateSort[classIndex] = false;
+                icon.removeClass("fa-sort-amount-asc").addClass("fa-sort-amount-desc");
+                $(icon.find("span")[0]).text("Newest to Oldest");
+            } else {
+                dateSort[classIndex] = true;
+                icon.removeClass("fa-sort-amount-desc").addClass("fa-sort-amount-asc");
+                $(icon.find("span")[0]).text("Oldest to Newest");
+            }
+            postSortData();
+            setupClassTables(classIndex);
+        }
+
+        function postSortData() {
+            $.ajax({
+                type: "POST", url: "/updateSortData", data: {
+                    sortingData: JSON.stringify({
+                        dateSort: dateSort, categorySort: categorySort
+                    }), async: true
+                }
+            });
+        }
+
+        function setupAddAssignments(classIndex, initial = false) {
+            let categorySelectReferences = $(".addCategory");
+            for (let i = 0; i < parsedData.length; i++) {
+                if (classIndex !== undefined && classIndex !== i) continue;
+                let dropdown = $(categorySelectReferences[i]);
+                let categories = Object.keys(weights[i]["weights"]);
+                let addedCategories = Object.keys(addedWeights[i]["weights"]);
+                let allCategories = addedCategories.concat(categories);
+
+                // Set up categories
+                $(dropdown).find("option").remove();
+                for (let j = 0; j < allCategories.length; j++) {
+                    dropdown.append($("<option>").html(allCategories[j] + `${j < addedCategories.length ? ` - (Added)` : ``}`));
+                }
+                dropdown.append($("<option>").text("+ New Category"));
+                if (categories.length === 0) {
+                    $(`#addNewCategory${i}`).show();
+                    $(`#newCategory${i}`).prop('required', true);
+                } else {
+                    $(`#addNewCategory${i}`).hide();
+                    $(`#newCategory${i}`).prop('required', false);
+                }
+                if (initial) {
+                    $("#addAssignmentForm" + i).submit(function (e) {
+                            e.preventDefault();
+                            addAssignment(i);
+                        }
+                    );
+                }
+            }
+
+            //Adjust widths
+            adjust($(".addAssignmentScore input"), 0, remToPixels(2), remToPixels(4));
+        }
+
+        function checkAddCategory(index) {
+            let categorySelectReferences = $(".addCategory");
+            let dropdown = $(categorySelectReferences[index]);
+            if ($(dropdown.find("option:last-child")).prop("selected")) {
+                $(`#addNewCategory${index}`).show();
+                $(`#newCategory${index}`).focus().prop("required", true);
+            } else {
+                $(`#addNewCategory${index}`).hide();
+                $(`#newCategory${index}`).blur().prop("required", false);
+            }
+        }
+
+        function setupClassTables(classIndex, justChangeColors = false) {
+            for (let i = 0; i < parsedData.length; i++) {
+                if (classIndex !== undefined && classIndex !== i) {
+                    continue;
+                }
+                let categories = Object.keys(weights[i]["weights"]);
+                let addedCategories = Object.keys(addedWeights[i].weights);
+                let allCategories = addedCategories.concat(categories);
+                let assignmentData;
+                let assignmentDates;
+                let assignmentNames;
+                let assignmentCategories;
+                let assignmentScoresParsed;
+                let assignmentPercents;
+                let assignmentExcludes;
+                let assignmentMissings;
+                let assignmentLates;
+                let assignmentAdds;
+                let assignmentDescriptions;
+                let assignmentComments;
+                let assignmentPSAIDs;
+                let rowDivs;
+                let row;
+                let assignmentDateDivs;
+                let assignmentInfoButtons;
+                let assignmentInfoDivs;
+                let assignmentNameDivs;
+                let assignmentCategoryDivs;
+                let excludeDivs;
+                let assignmentScoreDivs;
+                let modTabDivs;
+                let resetRowDivs;
+                let trashRowDivs;
+                let saveRowDivs;
+                let assignmentPercentDivs;
+                let assignmentOverallDivs;
+                let resetCategoryDivs;
+                let trashCategoryDivs;
+                let saveCategoryDivs;
+
+                if (categorySort[i]) {
+                    // Data
+                    assignmentData = categorySortedData[i].rawData;
+                    if (!justChangeColors) {
+                        assignmentDates = categorySortedData[i].assignmentDates;
+                        assignmentNames = categorySortedData[i].assignmentNames;
+                    }
+                    assignmentCategories = categorySortedData[i].assignmentCategories;
+                    if (!justChangeColors) {
+                        assignmentScoresParsed = categorySortedData[i].assignmentScoresParsed;
+                        assignmentPercents = categorySortedData[i].assignmentPercents;
+                        assignmentExcludes = categorySortedData[i].assignmentExcludes;
+                        assignmentMissings = categorySortedData[i].assignmentMissings;
+                        assignmentLates = categorySortedData[i].assignmentLates;
+                        assignmentAdds = categorySortedData[i].assignmentAdds;
+                        assignmentDescriptions = categorySortedData[i].assignmentDescriptions;
+                        assignmentComments = categorySortedData[i].assignmentComments;
+                        assignmentPSAIDs = categorySortedData[i].assignmentPSAIDs;
+                    }
+
+                    rowDivs = $(`.categoryClassTableRow${i}`);
+                    if (!justChangeColors) {
+                        row = `<tr class="categoryClassTableRow${i}">
+                                       <td class="compact categoryAssignmentDate${i}"></td>
+                                       <td class="compact assignment-info"><div class="assignment-info categoryAssignmentButton${i}"><span class="categoryAssignmentInfo${i}"></span></div></td>
+                                       <td>
+                                           <div class="excludeToggle"
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                               <div class="compact categoryAssignmentName${i}"></div>
+                                               <div style="display: flex; justify-content: center; flex-flow: column; align-items: center">
+                                                   <i class="fa fa-ban categoryExclude${i}"
+                                                      style="cursor: pointer">
+                                                       <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                   </i>
+                                               </div>
+                                           </div>
+                                       </td>
+                                       <td class="compact categoryAssignmentCategory${i}">
+                                           <select class="minimal categoryCategory${i}"
+                                                   style="margin: 0"></select>
+                                       </td>
+                                       <td class="form-weights form-signin form-group categoryAssignmentScore${i}">
+                                           <div style="display: flex; justify-content: center; align-items: center">
+                                               <input class="form-control text-view dynamic-input categoryGotten${i}"
+                                                      type="number" step="0.001"
+                                                      style="padding: 0; width: 0 !important; "
+                                                      placeholder="--">
+                                                   /<input style="padding: 0; width: 0 !important; "
+                                                           class="form-control text-view dynamic-input categoryPossible${i}"
+                                                           type="number" step="0.001"
+                                                           placeholder="--">
+                                           </div>
+                                       </td>
+                                       <td class="compact categoryAssignmentPercent${i}"></td>
+                                       <td class="categoryAssignment${i}"></td>
+                                       <td class="toolTab categoryModTab${i}">
+                                           <span class="popup">
+                                               <i class="fa fa-undo categoryResetRow${i} disabled">
+                                                   <span class="popup-left">
+                                                       Revert to Actual
+                                                   </span>
+                                               </i>
+                                           </span>
+                                           <span class="popup">
+                                               <i class="fa fa-trash categoryTrashRow${i} disabled">
+                                                   <span class="popup-left">
+                                                       Delete Assignment
+                                                   </span>
+                                               </i>
+                                           </span>
+                                           <span class="popup">
+                                               <i class="fa fa-check categorySaveRow${i} disabled">
+                                                   <span class="popup-left">
+                                                       Save Changes
+                                                   </span>
+                                               </i>
+                                           </span>
+                                       </td>
+                                   </tr>`;
+
+                        for (let j = rowDivs.length; j < assignmentData.length; j++) {
+                            rowDivs.push(row);
+                        }
+
+                        let categorySections = $(`#categoryTable${i} .categoryStart, #categoryTable${i} .categoryStart + tbody`);
+                        categorySections.remove();
+
+                        for (let j = 0; j < allCategories.length; j++) {
+                            let category = allCategories[j];
+
+                            let newSection = `<thead class="categoryStart">
+                                ${j > 0 ? '<tr class="separator"> <td colspan="7"></td> </tr>' : ''}
+                                <tr>
+                                    <th colspan="7">${category}</th>
+                                    <th class="toolTab categoryModAllTab${i}">
+                                        <span class="popup">
+                                            <i
+                                                    class="fa fa-undo resetCategory${i} disabled"
+                                                    onclick="{resetCategory(${i}, ${j})}">
+                                                <span class="popup-top-left">
+                                                    Revert ALL changes in <strong>${category}</strong>
+                                                </span>
+                                            </i>
+                                        </span>
+                                        <span class="popup">
+                                            <i
+                                                    class="fa fa-trash trashCategory${i} disabled"
+                                                    onclick="{trashCategory(${i}, ${j});}"><span
+                                                        class="popup-top-left">
+                                                    Delete ALL added assignments in <strong>${category}</strong>
+                                                </span>
+                                            </i>
+                                        </span>
+                                        <span class="popup">
+                                            <i
+                                                    class="fa fa-check saveCategory${i} disabled"
+                                                    onclick="{saveCategory(${i}, ${j});}"><span
+                                                        class="popup-top-left">
+                                                    Save ALL changes in <strong>${category}</strong>
+                                                </span>
+                                            </i>
+                                        </span>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th class="compact">Date</th>
+                                    <th class="compact" colspan="2">Assignment</th>
+                                    <th class="assignment-colspan-1" colspan="1">Assignment Name</th>
+                                    <th class="compact">Category</th>
+                                    <th>Score</th>
+                                    <th class="compact">Assignment Percent</th>
+                                    <th>Category Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>`;
+                            $(`#categoryTable${i}`).append(newSection);
+                        }
+
+                        categorySections = $(`#categoryTable${i} .categoryStart + tbody`)
+
+                        // Move rows
+                        for (let j = 0; j < assignmentData.length; j++) {
+                            $(categorySections[allCategories.indexOf(assignmentCategories[j])]).append(rowDivs[j]);
+                        }
+
+                        //Bind listeners
+                        adjust($($(`.categoryAssignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
+
+                        // Remove extra rows
+                        for (let j = assignmentData.length; j < rowDivs.length; j++) {
+                            rowDivs[j].remove();
+                        }
+
+                        rowDivs = $(`.categoryClassTableRow${i}`);
+
+                        // Round corners
+                        for (let j = 0; j < rowDivs.length; j++) {
+                            if (j === assignmentCategories.lastIndexOf(assignmentCategories[j])) {
+                                $(rowDivs[j]).addClass("beforeSeparator");
+                            } else {
+                                $(rowDivs[j]).removeClass("beforeSeparator");
+                            }
+                        }
+
+                        // Div References
+                        assignmentDateDivs = $(`.categoryAssignmentDate${i}`);
+                        assignmentInfoButtons = $(`.categoryAssignmentButton${i}`);
+                        assignmentInfoDivs = $(`.categoryAssignmentInfo${i}`);
+                        assignmentNameDivs = $(`.categoryAssignmentName${i}`);
+                        assignmentCategoryDivs = $(`.categoryAssignmentCategory${i}`);
+                        excludeDivs = $(`.categoryExclude${i}`);
+                        assignmentScoreDivs = $(`.categoryAssignmentScore${i}`);
+                        modTabDivs = $(`.categoryModTab${i}`);
+                        resetRowDivs = $(`.categoryResetRow${i}`);
+                        trashRowDivs = $(`.categoryTrashRow${i}`);
+                        saveRowDivs = $(`.categorySaveRow${i}`);
+                        assignmentPercentDivs = $(`.categoryAssignmentPercent${i}`);
+                        assignmentOverallDivs = $(`.categoryAssignment${i}`);
+
+                        // Set up visuals
+                        resetCategoryDivs = $(`.resetCategory${i}`);
+                        trashCategoryDivs = $(`.trashCategory${i}`);
+                        saveCategoryDivs = $(`.saveCategory${i}`);
+                        $(`#table${i}`).hide();
+                        $(`.categoryModAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
+                        $(`#categoryTable${i} thead.categoryStart`).removeClass("unround-top-right");
+                        $(`#categoryTable${i}`).show();
+                    }
+                } else {
+                    // Data
+                    assignmentData = parsedData[i].rawData;
+                    if (!justChangeColors) {
+                        assignmentDates = parsedData[i].assignmentDates;
+                        assignmentNames = parsedData[i].assignmentNames;
+                        assignmentCategories = parsedData[i].assignmentCategories;
+                        assignmentScoresParsed = parsedData[i].assignmentScoresParsed;
+                        assignmentPercents = parsedData[i].assignmentPercents;
+                        assignmentExcludes = parsedData[i].assignmentExcludes;
+                        assignmentMissings = parsedData[i].assignmentMissings;
+                        assignmentLates = parsedData[i].assignmentLates;
+                        assignmentAdds = parsedData[i].assignmentAdds;
+                        assignmentDescriptions = parsedData[i].assignmentDescriptions;
+                        assignmentComments = parsedData[i].assignmentComments;
+                        assignmentPSAIDs = parsedData[i].assignmentPSAIDs;
+                    }
+
+                    rowDivs = $(`.classTableRow${i}`);
+                    if (!justChangeColors) {
+                        row = `<tr class="classTableRow${i}">
+                                       <td class="compact assignmentDate${i}"></td>
+                                       <td class="compact assignment-info"><div class="assignment-info assignmentInfoButton${i}"><span class="assignmentInfo${i}"></span></div></td>
+                                       <td>
+                                           <div class="excludeToggle">
+                                               <div class="assignmentName${i}"></div>
+                                               <div>
+                                                   <i class="fa fa-ban exclude${i}"
+                                                      style="display: flex; flex-flow: column; cursor: pointer; justify-content: center; align-items: center;">
+                                                       <label style="cursor: pointer !important; margin: 0; display: block; font-weight: bolder; font-size: 0.5rem">Exclude</label>
+                                                    </i>
+                                               </div>
+                                           </div>
+                                       </td>
+                                       <td class="compact assignmentCategory${i}">
+                                           <select class="minimal category${i}"
+                                                   style="margin: 0"></select>
+                                       </td>
+                                       <td class="form-weights form-signin form-group assignmentScore${i}">
+                                           <div style="display: flex; justify-content: center; align-items: center">
+                                               <input class="form-control text-view dynamic-input gotten${i}"
+                                                      type="number" step="0.001"
+                                                      style="padding: 0; width: 0 !important; "
+                                                      placeholder="--">
+                                                   /<input style="padding: 0; width: 0 !important; "
+                                                           class="form-control text-view dynamic-input possible${i}"
+                                                           type="number" step="0.001"
+                                                           placeholder="--">
+                                           </div>
+                                       </td>
+                                       <td class="compact assignmentPercent${i}"></td>
+                                       <td class="overall assignment${i}"></td>
+                                       <td class="toolTab modTab${i}">
+                                           <span class="popup">
+                                               <i class="fa fa-undo resetRow${i} disabled">
+                                                   <span class="popup-left">
+                                                       Revert to Actual
+                                                   </span>
+                                               </i>
+                                           </span>
+                                           <span class="popup">
+                                               <i class="fa fa-trash trashRow${i} disabled">
+                                                   <span class="popup-left">
+                                                       Delete Assignment
+                                                   </span>
+                                               </i>
+                                           </span>
+                                           <span class="popup">
+                                               <i class="fa fa-check saveRow${i} disabled">
+                                                   <span class="popup-left">
+                                                       Save Changes
+                                                   </span>
+                                               </i>
+                                           </span>
+                                       </td>
+                                   </tr>`;
+
+                        // Add missing rows
+                        for (let j = rowDivs.length; j < assignmentData.length; j++) {
+                            $(`#table${i}`).append(row);
+                        }
+
+                        //Bind listeners
+                        adjust($($(`.assignmentScore${i}`)).find(".dynamic-input"), 0, remToPixels(2), remToPixels(4));
+
+
+                        // Remove extra rows
+                        for (let j = assignmentData.length; j < rowDivs.length; j++) {
+                            $(`.classTableRow${i}:last-child`).remove();
+                        }
+
+                        rowDivs = $(`.classTableRow${i}`);
+
+                        // Div References
+                        assignmentDateDivs = $(`.assignmentDate${i}`);
+                        assignmentInfoButtons = $(`.assignmentInfoButton${i}`);
+                        assignmentInfoDivs = $(`.assignmentInfo${i}`);
+                        assignmentNameDivs = $(`.assignmentName${i}`);
+                        assignmentCategoryDivs = $(`.assignmentCategory${i}`);
+                        excludeDivs = $(`.exclude${i}`);
+                        assignmentScoreDivs = $(`.assignmentScore${i}`);
+                        modTabDivs = $(`.modTab${i}`);
+                        resetRowDivs = $(`.resetRow${i}`);
+                        trashRowDivs = $(`.trashRow${i}`);
+                        saveRowDivs = $(`.saveRow${i}`);
+                        assignmentPercentDivs = $(`.assignmentPercent${i}`);
+                        assignmentOverallDivs = $(`.assignment${i}`);
+
+                        // Set up visuals
+                        $(`#categoryTable${i}`).hide();
+                        $(`#modAllTab${i}`).css("visibility", "hidden").children("span").children("i").addClass("disabled");
+                        $(`#table${i}`).removeClass("unround-top-right").show();
+                    }
+                }
+                if (!justChangeColors) {
+                    $("#addedOption" + i + ", #modifiedOption" + i).hide();
+                }
+                let missingCount = 0;
+                let lateCount = 0;
+                unsaved[i] = false;
+                // Rows
+                for (let j = 0; j < assignmentData.length; j++) {
+                    let assignmentIndex;
+                    if (categorySort[i] && !dateSort[i]) {
+                        assignmentIndex = assignmentCategories.filter(c => c === assignmentCategories[j]).length - j + 2 * assignmentCategories.indexOf(assignmentCategories[j]) - 1;
+                    } else if (dateSort[i]) {
+                        assignmentIndex = j;
+                    } else {
+                        assignmentIndex = assignmentData.length - 1 - j;
+                    }
+                    if (!justChangeColors) {
+                        // Set up dates
+                        $(assignmentDateDivs[assignmentIndex]).text(assignmentDates[j]);
+
+                        // Set up info
+                        let infoItems = [];
+                        if (!assignmentAdds[j]) {
+                            infoItems.push(`<span class="popup"><i class="fa fa-info-circle"><span class="popup-top">View assignment info</span></i></span>`);
+                            if (assignmentDescriptions[j]) {
+                                infoItems.push(`<span class="popup"><i class="fa fa-file-text-o"><span class="popup-top">This assignment has a description</span></i></span>`);
+                            }
+                            if (assignmentComments[j]) {
+                                infoItems.push(`<span class="popup"><i class="fa fa-commenting-o"><span class="popup-top">Your instructor left a comment</span></i></span>`);
+                            }
+                            $(assignmentInfoDivs[assignmentIndex]).html(infoItems.join("&nbsp;"));
+                        } else {
+                            $(assignmentInfoDivs[assignmentIndex]).html(`<span class="popup fill-parent"><i class="fa fa-pencil"><span class="popup-top">Edit Date</span></i></span>`);
+                        }
+
+                        // Set up names
+                        $(assignmentNameDivs[assignmentIndex]).text(assignmentNames[j]);
+
+                        // Set up categories
+                        let dropdown = $(assignmentCategoryDivs[assignmentIndex]).children("select");
+
+                        // Bind listeners only once
+                        let options = $(dropdown).find("option");
+                        options.remove();
+                        for (let k = 0; k < categories.length; k++) {
+                            dropdown.append($("<option>").text(categories[k]));
+                        }
+                        dropdown.on("change", () => {
+                            updateCategory(i, assignmentIndex, dropdown);
+                            refreshWithoutReload(i);
+                            dropdown.trigger("blur");
+                        });
+
+                        if (assignmentAdds[j]) {
+                            for (let k = options.length - 1; k >= categories.length; k--) {
+                                options[k].remove();
+                            }
+                            for (let k = 0; k < addedCategories.length; k++) {
+                                dropdown.append($("<option>").text(addedCategories[k]));
+                            }
+                        }
+
+                        // Select assignment category
+                        let index = categories.indexOf(assignmentCategories[j]);
+                        if (index === -1) {
+                            index = categories.length + addedCategories.indexOf(assignmentCategories[j]);
+                        }
+                        $(dropdown.find("option")[index]).prop("selected", true);
+                        $(dropdown).attr("title", assignmentCategories[j]);
+
+                        // Set up excludes
+                        if (assignmentExcludes[j]) {
+                            $(excludeDivs[assignmentIndex]).find("label").text("Unexclude").addClass("always-show");
+                        } else {
+                            $(excludeDivs[assignmentIndex]).find("label").text("Exclude").removeClass("always-show");
+                        }
+                        $(excludeDivs[assignmentIndex]).attr("onclick", `toggleExclude(${i}, ${assignmentIndex})`);
+
+                        // Set up scores
+                        let scoreDiv = $(assignmentScoreDivs[assignmentIndex]);
+                        let score = assignmentScoresParsed[j];
+                        if (score.substring(score.length - 2, score.length) === "--") {
+                            score = score.substring(0, score.length - 2);
+                        }
+                        if (score.substring(0, 2) === "--") {
+                            score = score.substring(2);
+                        }
+                        if (score && score.indexOf("/") === -1) {
+                            score += "/0";
+                        }
+                        score = score.split("/");
+                        let inputs = scoreDiv.find(".dynamic-input");
+                        $(inputs[0]).attr("onblur", `updatePointsGotten(${i}, ${assignmentIndex}, this)`).val(score[0]);
+                        $(inputs[1]).attr("onblur", `updatePointsPossible(${i}, ${assignmentIndex}, this)`).val(score[1]);
+
+                        // Set up tooltab buttons
+                        let modTab = $(modTabDivs[assignmentIndex]);
+                        let resetButton = $(resetRowDivs[assignmentIndex]);
+                        let trashButton = $(trashRowDivs[assignmentIndex]);
+                        let saveButton = $(saveRowDivs[assignmentIndex]);
+                        modTab.css("visibility", "hidden");
+                        let realIndex = categorySort[i] ? categorySortedData[i].originalIndices[j] : j;
+
+                        // Set up info buttons
+                        if (assignmentAdds[j]) {
+                            $(assignmentInfoButtons[assignmentIndex]).attr("onclick", `showEditAssignment(${i}, ${realIndex})`);
+                        } else {
+                            $(assignmentInfoButtons[assignmentIndex]).attr("onclick", `showAssignmentInfo(${i}, ${realIndex})`);
+                        }
+
+                        let categoryIndex = allCategories.indexOf(assignmentCategories[j]);
+
+                        // Set up trash button
+                        if (assignmentAdds[j]) {
+                            if (recentlyAddedAssignment && _.isEqual(_data[i].grades[realIndex], recentlyAddedAssignment)) {
+                                recentlyAddedAssignment = undefined;
+                                recentlyAddedAssignmentDiv = $(resetButton.parents("tr")[0]);
+                            }
+                            trashButton.removeClass("disabled");
+                            modTab.css("visibility", "visible");
+                            $(`#modAllTab${i}`).css("visibility", "visible");
+                            $(`#trashAll${i}`).removeClass("disabled");
+                            $($(`.categoryModAllTab${i}`)[categoryIndex]).css("visibility", "visible");
+                            $($(`.trashCategory${i}`)[categoryIndex]).removeClass("disabled");
+                            $(`#table${i}`).addClass("unround-top-right");
+                            $($(`#categoryTable${i} thead.categoryStart`)[categoryIndex]).addClass("unround-top-right");
+                        } else {
+                            trashButton.addClass("disabled");
+                        }
+                        trashButton.attr("onclick", `trashRow(${i}, ${assignmentIndex})`);
+
+                        // Set up revert buttons
+                        if (!assignmentAdds[j] && _editedAssignments[i].data[_data[i].grades[realIndex].psaid]) {
+                            resetButton.removeClass("disabled");
+                            modTab.css("visibility", "visible");
+                            $(`#modAllTab${i}`).css("visibility", "visible");
+                            $(`#resetAll${i}`).removeClass("disabled");
+                            $($(`.categoryModAllTab${i}`)[categoryIndex]).css("visibility", "visible");
+                            $($(`.resetCategory${i}`)[categoryIndex]).removeClass("disabled");
+                            $(`#table${i}`).addClass("unround-top-right");
+                            $($(`#categoryTable${i} thead.categoryStart`)[categoryIndex]).addClass("unround-top-right");
+                        } else {
+                            resetButton.addClass("disabled");
+                        }
+                        resetButton.attr("onclick", `resetRow(${i}, ${assignmentIndex})`);
+
+                        // Set up save buttons
+                        if (assignmentAdds[j] && !_.isEqual(_addedAssignments[i].data[aData[i][realIndex]], addedAssignments[i].data[aData[i][realIndex]]) || !_.isEqual(editedAssignments[i].data[_data[i].grades[realIndex].psaid], _editedAssignments[i].data[_data[i].grades[realIndex].psaid])) {
+                            saveButton.removeClass("disabled");
+                            modTab.css("visibility", "visible");
+                            $(`#modAllTab${i}`).css("visibility", "visible");
+                            $(`#saveAll${i}`).removeClass("disabled");
+                            $($(`.categoryModAllTab${i}`)[categoryIndex]).css("visibility", "visible");
+                            $($(`.saveCategory${i}`)[categoryIndex]).removeClass("disabled");
+                            $(`#table${i}`).addClass("unround-top-right");
+                            $($(`#categoryTable${i} thead.categoryStart`)[categoryIndex]).addClass("unround-top-right");
+                            unsaved[i] = true;
+                        } else {
+                            saveButton.addClass("disabled");
+                        }
+                        saveButton.attr("onclick", `saveRow(${i}, ${assignmentIndex})`);
+
+                        // Set up percents
+                        let percent = assignmentPercents[j];
+                        let roundPercent = "--";
+                        let letterGrade = "";
+                        if (isNaN(parseFloat(percent))) {
+                            percent = "--";
+                        } else if (percent >= 0) {
+                            letterGrade = " (" + getLetterGrade(percent) + ")";
+                            roundPercent = (Math.round(100 * percent) / 100).toFixed(2) + "%";
+                            percent += "%";
+                        } else {
+                            roundPercent = (Math.round(100 * percent) / 100).toFixed(2) + "%";
+                            percent += "%";
+                        }
+                        let statusIcon = "";
+                        if (assignmentMissings[j]) {
+                            statusIcon = "<span class=\"popup\"><i class=\"fa fa-exclamation-circle\" style=\"color:#e74c3c;font-size:1.1rem\"><span class=\"popup-top\">Missing</span></i></span>";
+                        } else if (assignmentLates[j]) {
+                            statusIcon = "<span class=\"popup\"><i class=\"fa fa-clock-o\" style=\"color:#e67e22;font-size:1.1rem\"><span class=\"popup-top\">Late</span></i></span>";
+                        }
+                        let iconSlot = "<div style=\"width:1.4rem;text-align:center;flex-shrink:0\">" + statusIcon + "</div>";
+                        $(assignmentPercentDivs[assignmentIndex]).html("<div style=\"display:flex;align-items:center;justify-content:center\">" + iconSlot + "<div title=\"" + percent + "\">" + roundPercent + "</div><div style=\"margin-left:0.4rem\">" + letterGrade + "</div></div>");
+                    }
+                    // Set up coloring and gain/loss
+                    let display = +isNaN(Math.round(assignmentData[j] * 100) / 100) ? (Math.round(assignmentData[assignmentData.length - 1] * 100) / 100) : (Math.round(assignmentData[j] * 100) / 100);
+                    let delta = Math.round((assignmentData[j] - (assignmentData[j - 1] || 100)) * 100) / 100;
+                    if (categorySort[i] && assignmentCategories[j] !== assignmentCategories[j - 1]) {
+                        delta = Math.round((assignmentData[j] - 100) * 100) / 100;
+                    }
+                    let colorClass;
+                    let bgColor;
+
+                    if (delta > 0) {
+                        colorClass = "improve";
+                        bgColor = deltaColorFunction(delta, true);
+                        delta = "+" + delta + "% <i class=\"fa fa-long-arrow-up\"></i>";
+                    } else if (delta < 0) {
+                        colorClass = "deprove";
+                        bgColor = deltaColorFunction(delta, false);
+                        delta = delta + "% <i class=\"fa fa-long-arrow-down\"></i>";
+                    } else {
+                        colorClass = "";
+                        bgColor = "";
+                        delta = "±0.000% <i class=\"fa fa-arrows-v\"></i>";
+                    }
+                    if (!justChangeColors) {
+                        display = "<div class=\"" + colorClass + "\" style=\"display: flex; justify-content: space-around; align-items: flex-end;\"><div style=\"display: flex; flex-flow: row; justify-content: center; align-items: center\"><div>" + display + "%" + "</div><div style=\"margin-left: 0.4rem\">(" + getLetterGrade(display) + ")</div></div><div class=\"delta\" style=\"font-family: 'Maison Mono',monospace\">" + delta + "</div></div>";
+                        $(assignmentOverallDivs[assignmentIndex]).html(display).css("font-weight", "bold");
+                    }
+                    $(rowDivs[assignmentIndex]).children("td:not(.toolTab)").css("background-color", bgColor);
+
+                    // Set up exclusion
+                    if (!justChangeColors) {
+                        if (assignmentExcludes[j]) {
+                            $(rowDivs[assignmentIndex]).addClass("excluded").find(".dynamic-input").addClass("excluded");
+                        } else {
+                            $(rowDivs[assignmentIndex]).removeClass("excluded").find(".dynamic-input").removeClass("excluded");
+                            if (colorClass === "" && assignmentScoresParsed[j].includes("--")) {
+                                $(rowDivs[assignmentIndex]).addClass("no-change");
+                            } else {
+                                $(rowDivs[assignmentIndex]).removeClass("no-change");
+                            }
+                        }
+                    }
+
+                    if (!justChangeColors) {
+                        if (assignmentMissings[j]) {
+                            missingCount++;
+                        }
+                        if (assignmentLates[j]) {
+                            lateCount++;
+                        }
+                    }
+                }
+
+                document.getElementById(`lateCount${i}`).textContent = lateCount;
+                document.getElementById(`missingCount${i}`).textContent = missingCount;
+            }
+            if (recentlyAddedAssignmentDiv) {
+                $("html, body").animate({scrollTop: recentlyAddedAssignmentDiv.offset().top - $(window).height() / 2 - recentlyAddedAssignmentDiv.height() / 2}, 400);
+                recentlyAddedAssignmentDiv.addClass("addedAssignmentAnimation");
+                recentlyAddedAssignmentDiv.on("webkitAnimationEnd oanimationend msAnimationEnd animationend", function () {
+                    $(this).removeClass("addedAssignmentAnimation");
+                });
+                recentlyAddedAssignmentDiv = undefined;
+            }
+            setupOnBeforeUnload();
+        }
+
+        function setupOverviewTable(changedClassIndex) {
+            for (let i = 0; i < parsedData.length; i++) {
+                if (changedClassIndex === undefined || changedClassIndex === i) {
+                    let grade = getOverallGrade(i);
+                    let [overallGrade, overallLetter] = (correctCalc(i) || _data[i].ps_locked) ? [grade, _data[i].ps_locked ? getLetterGrade(grade) : (_data[i].overall_letter || getLetterGrade(grade))] : [_data[i].overall_percent, _data[i].overall_letter ?? getLetterGrade(_data[i].overall_percent)];
+                    let assignmentData = parsedData[i].rawData;
+                    let lastIndex = assignmentData.length - 1;
+                    let delta = Math.round(assignmentData[lastIndex] - assignmentData[lastIndex - 1] * 100) / 100;
+                    let color;
+
+                    if (delta > 0) {
+                        delta = "<i class=\"fa fa-caret-up\"></i>" + delta + "%";
+                        color = "green";
+                    } else if (delta < 0) {
+                        delta = "<i class=\"fa fa-caret-down\"></i>" + delta + "%";
+                        color = "red";
+                    }
+                    delta = (delta ? (" <div class=\"delta\" style=\"color: " + color + "\">" + delta + "</div>") : "");
+                    if (overallGrade) {
+                        document.getElementById("overviewChart" + i).innerHTML = "<div class=\"overallGrade\">" + (Math.round(overallGrade * 100) / 100).toString() + "%" + "</div><div class=\"overallLetter\">" + overallLetter + "</div>" + delta;
+                        document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>` + (Math.round(overallGrade * 100) / 100).toString() + "%" + ` (` + overallLetter + `)<span class="popup"><i id="incorrectOverviewGrade` + i + `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top"></span></i></span>`;
+                    } else {
+                        document.getElementById("overviewChart" + i).innerHTML = "N/A";
+                        document.getElementById("link" + i).querySelectorAll("a")[0].innerHTML = _data[i].class_name + `<br>N/A<span class="popup"><i id="incorrectOverviewGrade` + i + `" class="fa fa-exclamation-triangle" style="display: none; margin-left: 0.2rem"><span class="popup-top"></span></i></span>`;
+                    }
+                }
+            }
+        }
+
+        function getCategoryGottenAndPossible(classIndex, categoryName) {
+            let grades = _data[classIndex].grades;
+            let totalGotten = 0;
+            let totalPossible = 0;
+            for (let i = 0; i < grades.length; i++) {
+                if (!grades[i].exclude && grades[i].category === categoryName) {
+                    if (grades[i].points_gotten !== false && grades[i].points_possible !== false) {
+                        totalGotten += grades[i].points_gotten;
+                        totalPossible += grades[i].points_possible;
+                    }
+                }
+            }
+            return {"gotten": totalGotten, "possible": totalPossible};
+        }
+
+        function getCategoryGrade(classIndex, categoryName) {
+            let categoryGottenAndPossible = getCategoryGottenAndPossible(classIndex, categoryName);
+            let totalGotten = categoryGottenAndPossible.gotten;
+            let totalPossible = categoryGottenAndPossible.possible;
+            if (totalPossible === 0) {
+                return null;
+            }
+            return Math.round(totalGotten / totalPossible * 100 * 100) / 100;
+        }
+
+        function cleanEdits(classIndex, assignmentIndex) {
+            let edited = _editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
+            let current = data[classIndex].grades.find(g => g.psaid === _data[classIndex].grades[assignmentIndex].psaid);
+            let keys = Object.keys(edited);
+            for (let i = 0; i < keys.length; i++) {
+                let key = keys[i];
+                if (edited[key] === current[key]) {
+                    delete edited[key];
+                }
+            }
+            if (Object.keys(edited).length === 0) {
+                delete _editedAssignments[classIndex].data[_data[classIndex].grades[assignmentIndex].psaid];
+            }
+        }
+
+        /**
+         * Parses all data
+         * @param classIndex index of class to parse. If not given or undefined, all classes are parsed
+         */
+        function parseData(classIndex) {
+            // Reset local data copies
+            if (classIndex === undefined) {
+                _data = JSON.parse(JSON.stringify(data));
+                for (let i = 0; i < _data.length; i++) {
+                    if (data[i].ps_locked) {
+                        _data[i].overall_letter = false;
+                        _data[i].overall_percent = false;
+                    }
+                }
+                aData = data.map(c => Array(c.grades.length).fill(undefined));
+            } else {
+                _data[classIndex] = JSON.parse(JSON.stringify(data[classIndex]));
+                if (data[classIndex].ps_locked) {
+                    _data[classIndex].overall_letter = false;
+                    _data[classIndex].overall_percent = false;
+                }
+                aData[classIndex] = Array(data[classIndex].grades.length).fill(undefined);
+            }
+
+            // Get unobtained weights
+            for (let i = 0; i < _data.length; i++) {
+                if (classIndex === undefined || classIndex === i) {
+                    let classData = _data[i];
+                    let className = classData.class_name;
+                    let classWeights = Object.assign({}, weights[i].weights, addedWeights[i].weights);
+                    let localMissingCategories = Object.keys(classWeights).filter(category => !classWeights[category] && classWeights[category] !== 0);
+                    delete unobtainedWeights[className];
+                    if (localMissingCategories.length > 0 && weights[i].hasWeights !== false) {
+                        unobtainedWeights[className] = localMissingCategories;
+                    }
+                }
+            }
+
+            // Insert added assignments
+            for (let i = 0; i < _data.length; i++) {
+                if (classIndex === undefined || classIndex === i) {
+                    for (let j = 0; j < _addedAssignments[i].data.length; j++) {
+                        let assignmentObject = JSON.parse(JSON.stringify(_addedAssignments[i].data[j]));
+                        let insertAt = _data[i].grades.findIndex(g => new Date(g.date) > new Date(assignmentObject.date));
+                        if (insertAt >= 0) {
+                            _data[i].grades.splice(insertAt, 0, assignmentObject);
+                            aData[i].splice(insertAt, 0, j);
+                        } else {
+                            _data[i].grades.push(assignmentObject);
+                            aData[i].push(j);
+                        }
+                    }
+                }
+            }
+
+            // Apply edits
+            for (let i = 0; i < _data.length; i++) {
+                if (classIndex === undefined || classIndex === i) {
+                    for (let j = 0; j < Object.keys(_editedAssignments[i].data).length; j++) {
+                        let searchID = Object.keys(_editedAssignments[i].data)[j];
+                        let needsEdits = _data[i].grades.find(g => `${g.psaid}` === searchID);
+                        Object.assign(needsEdits, _editedAssignments[i].data[searchID]);
+                        if (!Object.keys(_editedAssignments[i].data[searchID]).length) {
+                            delete _editedAssignments[i].data[searchID];
+                        }
+                    }
+                }
+            }
+
+            //Add array to each object in parsedData: one for weights (not needed?), one for missing weights
+            //Get data for one class
+            for (let i = 0; i < _data.length; i++) {
+                let classWeights = Object.assign({}, addedWeights[i].weights, weights[i].weights);
+                let categories = Object.keys(classWeights);
+                if (classIndex === undefined || classIndex === i) {
+                    //Add sorting vars
+                    if (!dateSort[i] && dateSort[i] !== false) {
+                        dateSort[i] = false;
+                    }
+                    if (!categorySort[i] && categorySort[i] !== false) {
+                        categorySort[i] = false;
+                    }
+
+                    let classData = _data[i].grades;
+                    let className = _data[i].class_name;
+                    let overallGradeSteps = [];
+                    let excludedGradeSteps = [];
+                    let categoryGradeSteps = [];
+                    let categoryGrades = {}; // If category is default
+                    let totalPossiblesAndGottens = {}; //by category
+                    let totalWeightValue = 0; // divide by the total weight amount - so even if the final is not entered the grade is still of 100
+                    // VERY JANK CHANGE LATER
+                    let doesntHaveWeights = (className in unobtainedWeights) || (weights[i].hasWeights === false);
+                    for (let grade of classData) {
+                        let category = grade.category;
+                        if (doesntHaveWeights) {
+                            category = "default";
+                            if (!categoryGrades[grade.category]) {
+                                categoryGrades[grade.category] = {
+                                    totalPossible: 0, totalGotten: 0
+                                };
+                            }
+                        }
+                        try {
+                            if (typeof totalPossiblesAndGottens[category] === "undefined" && !grade.exclude && grade.points_possible !== false && grade.points_gotten !== false) {
+                                let weightVal = 100;
+                                if (!doesntHaveWeights) {
+                                    weightVal = classWeights[category];
+                                }
+                                totalPossiblesAndGottens[category] = {
+                                    totalPossible: 0, totalGotten: 0, weight: weightVal
+                                };
+                                totalWeightValue += weightVal;
+                            }
+                            if (!grade.exclude) {
+                                if (grade.points_possible !== false && grade.points_gotten !== false) {
+                                    totalPossiblesAndGottens[category].totalPossible += grade.points_possible;
+                                    totalPossiblesAndGottens[category].totalGotten += grade.points_gotten;
+                                    if (doesntHaveWeights) {
+                                        categoryGrades[grade.category].totalPossible += grade.points_possible;
+                                        categoryGrades[grade.category].totalGotten += grade.points_gotten;
+                                    }
+                                    let overallPercent = 0;
+                                    for (let [, value] of Object.entries(totalPossiblesAndGottens)) {
+                                        if (value.totalGotten === false || value.totalPossible === false || (value.totalGotten === 0 && value.totalPossible === 0)) {
+                                            totalWeightValue -= value.weight;
+                                            value.weight = 0;
+                                            continue;
+                                        }
+                                        overallPercent += value.weight * (value.totalPossible !== 0 ? Math.round(value.totalGotten / value.totalPossible * 100 * 100) / 100 : 100);
+                                    }
+                                    let total = Math.round(overallPercent / totalWeightValue * 100) / 100;
+                                    overallGradeSteps.push(total);
+                                } else {
+                                    overallGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0] || 100);
+                                }
+                            } else {
+                                overallGradeSteps.push(false);
+                                excludedGradeSteps.push(overallGradeSteps.filter(x => x).slice(-1)[0] || 100);
+                            }
+                            if (doesntHaveWeights) {
+                                if (categoryGrades[grade.category]) {
+                                    categoryGradeSteps.push((categoryGrades[grade.category].totalPossible !== 0 ? Math.round(categoryGrades[grade.category].totalGotten / categoryGrades[grade.category].totalPossible * 100 * 100) / 100 : 100));
+                                } else {
+                                    categoryGradeSteps.push(100);
+                                }
+                            } else {
+                                if (totalPossiblesAndGottens[category]) {
+                                    categoryGradeSteps.push((totalPossiblesAndGottens[category].totalPossible !== 0 ? Math.round(totalPossiblesAndGottens[category].totalGotten / totalPossiblesAndGottens[category].totalPossible * 100 * 100) / 100 : 100));
+                                } else {
+                                    categoryGradeSteps.push(100);
+                                }
+                            }
+                        } catch (err) {
+                            // console.log(err);
+                            // console.log("bad weight input");
+                        }
+                    }
+
+                    let assignmentNames = classData.map(x => x.assignment_name);
+                    let assignmentDates = classData.map(x => x.date);
+                    let assignmentPercents = classData.map(x => x.grade_percent ?? ((x.points_gotten !== false && x.points_possible !== false) ? (x.points_gotten / x.points_possible * 100) : null));
+                    let assignmentScoresParsed = classData.map(x => parseScore(x.points_gotten, x.points_possible));
+                    let assignmentCategories = classData.map(x => x.category);
+                    let assignmentExcludes = classData.map(x => x.exclude);
+                    let assignmentMissings = classData.map(x => x.missing);
+                    let assignmentLates = classData.map(x => x.late);
+                    let assignmentPSAIDs = classData.map(x => x.psaid);
+                    let assignmentAdds = classData.map((grade, index) => aData[i][index] !== undefined);
+                    let assignmentDescriptions = classData.map(x => x.description);
+                    let assignmentComments = classData.map(x => x.comment);
+                    let rawData = overallGradeSteps.map((grade, index) => grade === false ? (index >= 0 ? excludedGradeSteps.shift() : 100) : grade);
+                    parsedData[i] = {
+                        assignmentNames: assignmentNames,
+                        assignmentDates: assignmentDates,
+                        assignmentPercents: assignmentPercents,
+                        assignmentScoresParsed: assignmentScoresParsed,
+                        assignmentCategories: assignmentCategories,
+                        assignmentExcludes: assignmentExcludes,
+                        assignmentMissings: assignmentMissings,
+                        assignmentLates: assignmentLates,
+                        assignmentPSAIDs: assignmentPSAIDs,
+                        assignmentAdds: assignmentAdds,
+                        assignmentDescriptions: assignmentDescriptions,
+                        assignmentComments: assignmentComments,
+                        rawData: rawData
+                    };
+
+                    // This took forever...I am so proud of it - Joel 06/03/20 10:25PM
+                    let sortHelper = Array.apply(null, Array(assignmentCategories.length)).map((x, index) => index).sort((a, b) => categories.indexOf(assignmentCategories[a]) - categories.indexOf(assignmentCategories[b]));
+                    categorySortedData[i] = {
+                        assignmentNames: assignmentNames.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentDates: assignmentDates.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentPercents: assignmentPercents.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentScoresParsed: assignmentScoresParsed.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentCategories: assignmentCategories.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentExcludes: assignmentExcludes.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentMissings: assignmentMissings.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentLates: assignmentLates.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentPSAIDs: assignmentPSAIDs.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentAdds: assignmentAdds.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentDescriptions: assignmentDescriptions.map((x, index, arr) => arr[sortHelper[index]]),
+                        assignmentComments: assignmentComments.map((x, index, arr) => arr[sortHelper[index]]),
+                        rawData: categoryGradeSteps.map((x, index, arr) => arr[sortHelper[index]]),
+                        originalIndices: sortHelper
+                    };
+
+                    if (_data[i].grades.length !== 0) {
+                        let unexcludeMask = classData.map(x => !x.exclude && x.points_gotten !== false);
+                        let assignmentTimestamps = assignmentDates.filter((x, k) => unexcludeMask[k]).map((x, k, arr) => new Date(Date.parse(x) + ((24 * 60 * 60 * 1000 / arr.filter(y => x === y).length + 1) * arr.filter((y, j) => j < k && x === y).length)));
+                        let mixedData = overallGradeSteps.filter((x, k) => unexcludeMask[k]).map((grade, k) => {
+                            return {x: assignmentTimestamps[k], y: grade};
+                        });
+                        chartData[i] = {
+                            assignmentNames: assignmentNames.filter((x, k) => unexcludeMask[k]),
+                            assignmentDates: assignmentDates.filter((x, k) => unexcludeMask[k]),
+                            assignmentTimestamps: assignmentTimestamps.filter((x, k) => unexcludeMask[k]),
+                            assignmentPercents: assignmentPercents.filter((x, k) => unexcludeMask[k]),
+                            assignmentScoresParsed: assignmentScoresParsed.filter((x, k) => unexcludeMask[k]),
+                            assignmentCategories: assignmentCategories.filter((x, k) => unexcludeMask[k]),
+                            mixedData: mixedData,
+                        };
+
+                        unexcludeMask = categorySortedData[i].assignmentExcludes.map((x, j) => !x && categorySortedData[i].assignmentPercents[j] !== false);
+                        let categoryIndices = categories.map(category => categorySortedData[i].assignmentCategories.filter((x, k) => unexcludeMask[k]).indexOf(category));
+                        categoryIndices.push(categorySortedData[i].assignmentCategories.filter((x, k) => unexcludeMask[k]).length);
+
+                        categoryChartData[i] = Object.fromEntries(
+                            categories.map((category, j) => {
+                                assignmentDates = categorySortedData[i].assignmentDates.filter((x, k) => unexcludeMask[k]).slice(categoryIndices[j], categoryIndices[j + 1]);
+                                assignmentTimestamps = assignmentDates.filter((x, k) => unexcludeMask[k]).map((x, k, arr) => new Date(Date.parse(x) + ((24 * 60 * 60 * 1000 / arr.filter(y => x === y).length + 1) * arr.filter((y, j) => j < k && x === y).length)));
+                                mixedData = categorySortedData[i].rawData.filter((x, k) => unexcludeMask[k]).slice(categoryIndices[j], categoryIndices[j + 1]).map((grade, k) => {
+                                    return {x: assignmentTimestamps[k], y: grade};
+                                });
+                                return [
+                                    category,
+                                    {
+                                        assignmentNames: categorySortedData[i].assignmentNames.filter((x, k) => unexcludeMask[k]).slice(categoryIndices[j], categoryIndices[j + 1]),
+                                        assignmentDates: assignmentDates,
+                                        assignmentTimestamps: assignmentTimestamps,
+                                        assignmentPercents: categorySortedData[i].assignmentPercents.filter((x, k) => unexcludeMask[k]).slice(categoryIndices[j], categoryIndices[j + 1]),
+                                        assignmentScoresParsed: categorySortedData[i].assignmentScoresParsed.filter((x, k) => unexcludeMask[k]).slice(categoryIndices[j], categoryIndices[j + 1]),
+                                        mixedData: mixedData,
+                                    }
+                                ];
+                            })
+                        );
+                    } else {
+                        chartData[i] = undefined;
+                        categoryChartData[i] = undefined;
+                    }
+                }
+            }
+        }
+
+        function parseScore(points_gotten, points_possible) {
+            return (points_gotten === false ? "--" : points_gotten) + (points_possible === false ? "" : "/" + points_possible);
+        }
+
+        function renderAllCharts(classIndex) {
+            if (_data && _data.length && !mobile) {
+                renderOverviewChart();
+
+                let offsetX, offsetY, zoneRadius = 1;
+                $("#chart-1").on("mousedown", function (e) {
+                    offsetX = e.offsetX;
+                    offsetY = e.offsetY;
+                }).on("mouseup", function (e) {
+                    // Only register click to move to page if pointer doesn't move more than 1 pixel(s) between mousedown and mouseup
+                    if (Math.abs(e.offsetX - offsetX) < zoneRadius && Math.abs(e.offsetY - offsetY) < zoneRadius) {
+                        let activePoints = charts[0].getElementsAtEventForMode(e, "nearest", {intersect: true}, true);
+                        let activeDataSet = charts[0].getElementsAtEventForMode(e, "nearest", {intersect: true}, true);
+
+                        if (activePoints.length > 0) {
+                            let clickedDatasetIndex = activeDataSet[0].datasetIndex;
+                            if (clickedDatasetIndex < _data.length) {
+                                showPage(clickedDatasetIndex);
+                            }
+                        }
+                    }
+                });
+                for (let i = 0; i < _data.length; i++) {
+                    if (classIndex === undefined || classIndex === i) {
+                        renderChart(i);
+                    }
+                }
+            }
+        }
+
+        function resetZoom(id) {
+            charts[id + 1].resetZoom();
+        }
+
+        let hoveredDatasetIndex = -1;
+
+        let running;
+
+        Chart.register({
+            id: "hideLoading", afterRender: chartInstance => {
+                $(`#chart-container${chartInstance.ctx.canvas.id.substring(5)} .chart-placeholder`).addClass("hide");
+            }
+        });
+
+        function renderOverviewChart() {
+            $("#chart-1").remove();
+            $("#chart-container-1").append("<canvas id=\"chart-1\"></canvas>");
+            let ctx = document.getElementById("chart-1");
+            let dataset = [];
+            let _colors = colors;
+            if (!_data) {
+                return;
+            }
+            let startDate = Infinity;
+            let endDate = 0;
+            let lowScore = Infinity;
+            let lines = [{"A+": 97.5}, {"A": 92.5}, {"A-": 89.5}, {"B+": 87.5}, {"B": 82.5}, {"B-": 79.5}, {"C+": 77.5}, {"C": 72.5}, {"C-": 69.5}, {"D+": 67.5}, {"D": 62.5}, {"D-": 59.5}];
+            if (!appearance.showPlusMinusLines) {
+                lines = [lines[1], lines[4], lines[7], lines[10]];
+            }
+            let badDates = Object.fromEntries(lines.map(k => [Object.keys(k)[0], []]));
+            const aDay = 24 * 60 * 60 * 1000;
+            const aWeek = 7 * aDay;
+            for (let i = 0; i < _data.length; i++) {
+                if (!chartData[i]) {
+                    dataset.push({
+                        label: "undefined"
+                    });
+                    continue;
+                }
+                let _mixedData = [];
+                for (let j = 0; j < chartData[i].mixedData.length; j++) {
+                    _mixedData.push(chartData[i].mixedData[j]);
+                    let _date = Date.parse(_mixedData[j].x);
+                    startDate = Math.min(startDate, _date);
+                    endDate = Math.max(endDate, _date);
+                    let _score = _mixedData[j].y;
+                    lowScore = Math.min(lowScore, _score);
+
+                    let safeZone = 2;
+                    let keys = [];
+                    for (let k = 0; k < lines.length; k++) {
+                        let [label, value] = Object.entries(lines[k])[0];
+                        if (_score > value + 2) {
+                            break;
+                        }
+                        if (Math.abs(value - _score) <= 2) {
+                            keys.push(label);
+                        }
+                    }
+                    for (let key of keys) {
+                        badDates[key].push(3 * aDay * Math.floor(_date / (3 * aDay)));
+                    }
+                }
+                if (!correctCalc(i)) {
+                    if (endDate === 0) {
+                        _mixedData.push({
+                            x: new Date(Date.now() - aDay), y: data[i].overall_percent
+                        });
+                        _mixedData.push({x: new Date(Date.now()), y: data[i].overall_percent});
+                    } else {
+                        _mixedData.push({x: new Date(endDate + aDay), y: data[i].overall_percent});
+                    }
+                }
+                dataset.push({
+                    label: _data[i].class_name,
+                    backgroundColor: "transparent",
+                    pointBackgroundColor: _colors[i],
+                    pointBorderColor: "transparent",
+                    borderColor: (correctCalc(i) || endDate === 0 ? _colors[i] : "darkgray"),
+                    data: _mixedData,
+                    cubicInterpolationMode: "monotone",
+                    borderDash: (correctCalc(i) || endDate === 0 ? [0, 0] : [3, 3]),
+                    spanGaps: false,
+                    pointRadius: 3,
+                    borderWidth: (correctCalc(i) || endDate === 0 ? 3 : 1),
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: _colors[i],
+                    pointHoverBorderColor: _colors[i],
+                    pointHoverBorderWidth: 2,
+                    yAxisID: "yAxis"
+                });
+            }
+            let lineLabels;
+            if (startDate < endDate) {
+                lines = lines.filter(element => Object.values(element)[0] > lowScore - 5);
+                lineLabels = lines.map(element => Object.keys(element)[0]);
+                lines = lines.map(element => Object.values(element)[0]);
+                for (let i = 0; i < lines.length; i++) {
+                    let mixedData = [{x: startDate - aWeek, y: lines[i]}];
+                    let step = (endDate - startDate + 2 * aWeek) / 100;
+                    for (let j = startDate - aWeek + step; j <= endDate + aWeek - step; j += step) {
+                        let _thisDate = 3 * aDay * Math.floor(j / (3 * aDay));
+                        let _dates = [_thisDate, _thisDate - 3 * aDay, _thisDate + 3 * aDay];
+                        if (_dates.filter(d => badDates[lineLabels[i]].includes(d)).length > 0) {
+                            continue;
+                        }
+                        mixedData.push({x: new Date(j), y: lines[i]});
+                    }
+                    mixedData.push({x: endDate + aWeek, y: lines[i]});
+                    dataset.push({
+                        label: "undefined",
+                        backgroundColor: "transparent",
+                        pointBackgroundColor: "transparent",
+                        pointBorderColor: "transparent",
+                        borderColor: darkMode ? "white" : "black",
+                        data: mixedData,
+                        cubicInterpolationMode: "monotone",
+                        spanGaps: false,
+                        borderDash: [10, 10],
+                        pointRadius: 0,
+                        borderWidth: 1,
+                        pointHoverRadius: 0,
+                        pointHoverBackgroundColor: "transparent",
+                        pointHoverBorderColor: darkMode ? "white" : "black",
+                        pointHoverBorderWidth: 0,
+                        yAxisID: "yAxis"
+                    });
+                }
+            }
+            charts[0] = new Chart(ctx, {
+                type: "line", data: {
+                    datasets: dataset
+                }, options: {
+                    hover: {
+                        mode: "nearest", intersect: false
+                    }, onHover: function (evt, activeElements) {
+                        let datasetIndices = activeElements.map(a => a.datasetIndex);
+                        for (let i = 0; i < this.data.datasets.length; i++) {
+                            if (i >= chartData.length) {
+                                continue;
+                            }
+                            let inactiveDataset = this.data.datasets[i];
+                            inactiveDataset.borderWidth = 3;
+                            inactiveDataset.pointRadius = 3;
+                        }
+                        let hovering = false;
+                        for (let datasetIndex of datasetIndices) {
+                            if (datasetIndex >= chartData.length) {
+                                continue;
+                            }
+                            let activeDataset = this.data.datasets[datasetIndex];
+                            activeDataset.borderWidth = 6;
+                            activeDataset.pointRadius = 6;
+                            hovering = true;
+                        }
+                        if (hovering) {
+                            for (let i = 0; i < this.data.datasets.length; i++) {
+                                if (i >= chartData.length || datasetIndices.includes(i)) {
+                                    continue;
+                                }
+                                let inactiveDataset = this.data.datasets[i];
+                                inactiveDataset.borderWidth = 1;
+                                inactiveDataset.pointRadius = 1;
+                            }
+                        }
+                        this.update(0);
+                    }, scales: {
+                        xAxis: {
+                            type: "time", time: {
+                                unit: chartData.filter(d => d && new Date(d.assignmentDates.slice(-1)[0]).getMonth() !== new Date(d.assignmentDates[0]).getMonth()).length ? "month" : "day"
+                            }, ticks: {
+                                color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
+                            }, grid: {
+                                color: (darkMode ? "#555555" : "#CCCCCC")
+                            }
+                        }, yAxis: {
+                            suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
+                            suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
+                            ticks: {
+                                color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
+                            },
+                            grid: {
+                                color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
+                            }
+                        }
+                    }, animation: {
+                        duration: appearance.reduceMotion ? 0 : 600, easing: "easeOutCubic"
+                    }, responsive: true, maintainAspectRatio: false, plugins: {
+                        legend: {
+                            display: true, position: "top", labels: {
+                                usePointStyle: true,
+                                color: (darkMode ? "white" : "black"),
+                                fontFamily: "Verdana",
+                                boxWidth: 20,
+                                fontSize: 13,
+                                filter: function (item) {
+                                    return item.text !== "undefined";
+                                }
+                            }, onHover: function (event, legendItem, legend) {
+                                for (let i = 0; i < legend.chart.data.datasets.length; i++) {
+                                    if (i >= chartData.length) {
+                                        continue;
+                                    }
+                                    let inactiveDataset = legend.chart.data.datasets[i];
+                                    inactiveDataset.borderWidth = 3;
+                                    inactiveDataset.pointRadius = 3;
+                                }
+                                legend.chart.update(0);
+                            }
+                        }, tooltip: {
+                            enabled: true,
+                            mode: "nearest",
+                            intersect: false,
+                            displayColors: true,
+                            yAlign: "top",
+                            caretSize: 10,
+                            callbacks: {
+                                title: function (tooltipItems) {
+                                    if (tooltipItems[0].datasetIndex >= chartData.length) {
+                                        return lines[tooltipItems[0].datasetIndex - chartData.length] + "% (" + lineLabels[tooltipItems[0].datasetIndex - chartData.length] + ")";
+                                    }
+                                    if (!correctCalc(tooltipItems[0].datasetIndex)) {
+                                        if (!chartData[tooltipItems[0].datasetIndex].mixedData.length) {
+                                            return _data[tooltipItems[0].datasetIndex].class_name + " - " + _data[tooltipItems[0].datasetIndex].overall_percent + "% (" + _data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                        }
+                                        if (tooltipItems[0].dataIndex >= chartData[tooltipItems[0].datasetIndex].mixedData.length) {
+                                            return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + data[tooltipItems[0].datasetIndex].overall_percent + "% (" + data[tooltipItems[0].datasetIndex].overall_letter + ")";
+                                        }
+                                        return `${moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY")} ${tooltipItems[0].formattedValue}% (${getLetterGrade(tooltipItems[0].formattedValue)}) [Unverified weights]`;
+                                    }
+                                    return `${moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY")} ${tooltipItems[0].formattedValue}% (${getLetterGrade(tooltipItems[0].formattedValue)})`;
+                                }, label: function (tooltipItem) {
+                                    if (tooltipItem.datasetIndex >= chartData.length) {
+                                        return;
+                                    }
+                                    if (!chartData[tooltipItem.datasetIndex].mixedData.length) {
+                                        return;
+                                    }
+                                    if (tooltipItem.dataIndex >= chartData[tooltipItem.datasetIndex].mixedData.length) {
+                                        let delta = Math.round((data[tooltipItem.datasetIndex].overall_percent - chartData[tooltipItem.datasetIndex].mixedData.slice(-1)[0].y) * 100) / 100;
+                                        if (delta > 0) {
+                                            delta = "+" + delta;
+                                        }
+                                        return delta + `% (To Match ${school === "basis" ? "Schoology" : "PowerSchool"})`;
+                                    }
+                                    let _chartData = chartData[tooltipItem.datasetIndex];
+                                    let category = _chartData.assignmentCategories[tooltipItem.dataIndex];
+                                    let name = _chartData.assignmentNames[tooltipItem.dataIndex];
+                                    let percent = _chartData.assignmentPercents[tooltipItem.dataIndex];
+                                    let score = _chartData.assignmentScoresParsed[tooltipItem.dataIndex];
+                                    return [`[${category}] ${name}${((score.substring(0, 2) !== "--") ? (" - " + Math.round(percent * 100) / 100 + "% ") : (" ")) + ((score.substring(score.length - 2)) !== "/0" ? ("(" + score + ")") : ("(" + score.substring(0, score.length - 2) + ")"))}`];
+                                }
+                            }
+                        }, zoom: {
+                            zoom: {
+                                wheel: {
+                                    enabled: true, speed: 0.05
+                                }, pinch: {
+                                    enabled: true, threshold: 100
+                                }, drag: {enabled: false}, mode: "xy", onZoom: ({chart}) => {
+                                    $("#reset-zoom-1").show();
+
+                                    // Disable hovering and tooltips to make animation smoother
+                                    chart.options.hover.mode = null;
+                                    chart.options.plugins.tooltip.enabled = false;
+                                }, onZoomComplete: ({chart}) => {
+                                    chart.options.hover.mode = "nearest";
+                                    chart.options.plugins.tooltip.enabled = true;
+                                }
+                            }, pan: {
+                                enabled: true, onPan: ({chart}) => {
+                                    $("#reset-zoom-1").show();
+                                    // Disable hovering and tooltips to make animation smoother
+                                    chart.options.hover.mode = null;
+                                }, onPanComplete: ({chart}) => {
+                                    chart.options.hover.mode = "nearest";
+                                }
+                            }
+                        }
+                    }
+                }, plugins: [{
+                    id: "eventCatcher", afterEvent: (chart, args, pluginOptions) => {
+                        const event = args.event;
+                        if (event.type === "mouseout") {
+                            for (let i = 0; i < chart.data.datasets.length; i++) {
+                                if (i >= chartData.length) {
+                                    continue;
+                                }
+                                let dataset = chart.data.datasets[i];
+                                dataset.borderWidth = 3;
+                                dataset.pointRadius = 3;
+                            }
+                            chart.update(10);
+                        }
+                    }
+                }]
+            });
+        }
+
+        function renderChart(id) {
+            $("#chart" + id).remove();
+            $(`#chart-container${id} .chart-placeholder`).removeClass("hide").css("color", colors[id]);
+            if (chartData[id] && chartData[id].mixedData.length) {
+                $(`#chart-container${id} .chart-no-data`).remove();
+                $("#chart-container" + id).append(`<canvas id="chart${id}"></canvas>`);
+                let ctx = document.getElementById("chart" + id);
+                let _colors = colors;
+                let startDate = Infinity;
+                let endDate = 0;
+                let lowScore = Infinity;
+                let lines = [{"A+": 97.5}, {"A": 92.5}, {"A-": 89.5}, {"B+": 87.5}, {"B": 82.5}, {"B-": 79.5}, {"C+": 77.5}, {"C": 72.5}, {"C-": 69.5}, {"D+": 67.5}, {"D": 62.5}, {"D-": 59.5}];
+                if (!appearance.showPlusMinusLines) {
+                    lines = [lines[1], lines[4], lines[7], lines[10]];
+                }
+                let badDates = Object.fromEntries(lines.map(k => [Object.keys(k)[0], []]));
+                const aDay = 24 * 60 * 60 * 1000;
+                const aWeek = 7 * aDay;
+                let dataset = [];
+                let _mixedData = [];
+                if (!categoryChart[id]) {
+                    for (let j = 0; j < chartData[id].mixedData.length; j++) {
+                        _mixedData.push(chartData[id].mixedData[j]);
+                        let _date = Date.parse(_mixedData[j].x);
+                        startDate = Math.min(startDate, _date);
+                        endDate = Math.max(endDate, _date);
+                        let _score = _mixedData[j].y;
+                        lowScore = Math.min(lowScore, _score);
+
+                        let safeZone = 2;
+                        let keys = [];
+                        for (let k = 0; k < lines.length; k++) {
+                            let [label, value] = Object.entries(lines[k])[0];
+                            if (_score > value + 2) {
+                                break;
+                            }
+                            if (Math.abs(value - _score) <= 2) {
+                                keys.push(label);
+                            }
+                        }
+                        for (let key of keys) {
+                            badDates[key].push(3 * aDay * Math.floor(_date / (3 * aDay)));
+                        }
+                    }
+                    if (!correctCalc(id)) {
+                        if (endDate === 0) {
+                            _mixedData.push({
+                                x: new Date(Date.now() - aDay), y: data[id].overall_percent
+                            });
+                            _mixedData.push({x: new Date(Date.now()), y: data[id].overall_percent});
+                        } else {
+                            _mixedData.push({x: new Date(endDate + aDay), y: data[id].overall_percent});
+                        }
+                    }
+                    dataset.push({
+                        backgroundColor: "transparent",
+                        pointBackgroundColor: _colors[id],
+                        pointBorderColor: _colors[id],
+                        borderColor: (correctCalc(id) ? _colors[id] : "darkgray"),
+                        fill: "start",
+                        data: _mixedData,
+                        cubicInterpolationMode: "monotone",
+                        borderDash: (correctCalc(id) ? [0, 0] : [3, 3]),
+                        spanGaps: false,
+                        pointRadius: 3,
+                        borderWidth: (correctCalc(id) ? 3 : 1),
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: _colors[id],
+                        pointHoverBorderColor: _colors[id],
+                        pointHoverBorderWidth: 2,
+                        yAxisID: "yAxis"
+                    });
+                } else {
+                    let categories = Object.keys(categoryChartData[id]);
+                    for (let i = 0; i < categories.length; i++) {
+                        let category = categories[i];
+                        let categoryColor = generateDistinctColor(_colors[id], i, categories.length);
+
+                        for (let j = 0; j < categoryChartData[id][category].mixedData.length; j++) {
+                            let _date = Date.parse(categoryChartData[id][category].mixedData[j].x);
+                            startDate = Math.min(startDate, _date);
+                            endDate = Math.max(endDate, _date);
+                            let _score = categoryChartData[id][category].mixedData[j].y;
+                            lowScore = Math.min(lowScore, _score);
+
+                            let safeZone = 2;
+                            let keys = [];
+                            for (let k = 0; k < lines.length; k++) {
+                                let [label, value] = Object.entries(lines[k])[0];
+                                if (_score > value + 2) {
+                                    break;
+                                }
+                                if (Math.abs(value - _score) <= 2) {
+                                    keys.push(label);
+                                }
+                            }
+                            for (let key of keys) {
+                                badDates[key].push(3 * aDay * Math.floor(_date / (3 * aDay)));
+                            }
+                        }
+
+                        dataset.push({
+                            label: category,
+                            backgroundColor: "transparent",
+                            pointBackgroundColor: categoryColor,
+                            pointBorderColor: categoryColor,
+                            borderColor: categoryColor,
+                            fill: "start",
+                            data: categoryChartData[id][category].mixedData,
+                            cubicInterpolationMode: "monotone",
+                            borderDash: (correctCalc(id) ? [0, 0] : [3, 3]),
+                            spanGaps: false,
+                            pointRadius: 3,
+                            borderWidth: (correctCalc(id) ? 3 : 1),
+                            pointHoverRadius: 7,
+                            pointHoverBackgroundColor: categoryColor,
+                            pointHoverBorderColor: categoryColor,
+                            pointHoverBorderWidth: 2,
+                            yAxisID: "yAxis"
+                        });
+                    }
+                }
+                let lineLabels;
+                if (startDate < endDate) {
+                    lines = lines.filter(element => Object.values(element)[0] > lowScore - 5);
+                    lineLabels = lines.map(element => Object.keys(element)[0]);
+                    lines = lines.map(element => Object.values(element)[0]);
+                    for (let i = 0; i < lines.length; i++) {
+                        let mixedData = [{x: startDate - aWeek, y: lines[i]}];
+                        let step = (endDate - startDate + 2 * aWeek) / 100;
+                        for (let j = startDate - aWeek + step; j <= endDate + aWeek - step; j += step) {
+                            let _thisDate = 3 * aDay * Math.floor(j / (3 * aDay));
+                            let _dates = [_thisDate, _thisDate - 3 * aDay, _thisDate + 3 * aDay];
+                            if (_dates.filter(d => badDates[lineLabels[i]].includes(d)).length > 0) {
+                                continue;
+                            }
+                            mixedData.push({x: new Date(j), y: lines[i]});
+                        }
+                        mixedData.push({x: endDate + aWeek, y: lines[i]});
+                        dataset.push({
+                            label: "undefined",
+                            backgroundColor: "transparent",
+                            pointBackgroundColor: "transparent",
+                            pointBorderColor: "transparent",
+                            borderColor: darkMode ? "white" : "black",
+                            data: mixedData,
+                            cubicInterpolationMode: "monotone",
+                            spanGaps: false,
+                            borderDash: [10, 10],
+                            pointRadius: 0,
+                            borderWidth: 1,
+                            pointHoverRadius: 0,
+                            pointHoverBackgroundColor: "transparent",
+                            pointHoverBorderColor: darkMode ? "white" : "black",
+                            pointHoverBorderWidth: 0,
+                            yAxisID: "yAxis"
+                        });
+                    }
+                }
+                charts[id + 1] = new Chart(ctx, {
+                    type: "line", data: {
+                        datasets: dataset
+                    }, options: {
+                        hover: {
+                            mode: "nearest", intersect: false
+                        }, scales: {
+                            xAxis: {
+                                type: "time", time: {
+                                    unit: new Date(chartData[id].assignmentDates.slice(-1)[0]).getMonth() === new Date(chartData[id].assignmentDates[0]).getMonth() ? "day" : "month"
+                                }, ticks: {
+                                    color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "13"
+                                }, grid: {
+                                    color: (darkMode ? "#555555" : "#CCCCCC")
+                                }
+                            }, yAxis: {
+                                suggestedMax: appearance.regularizeClassGraphs ? 110 : undefined,
+                                suggestedMin: appearance.regularizeClassGraphs ? 70 : undefined,
+                                ticks: {
+                                    color: (darkMode ? "white" : "black"), fontFamily: "Verdana", fontSize: "12"
+                                },
+                                grid: {
+                                    color: (darkMode ? "#555555" : "#CCCCCC"), drawBorder: false
+                                }
+                            }
+                        }, animation: {
+                            duration: appearance.reduceMotion ? 0 : 600, easing: "easeOutCubic"
+                        }, responsive: true, maintainAspectRatio: false, plugins: {
+                            legend: {
+                                display: categoryChart[id],
+                                position: "top", labels: {
+                                    usePointStyle: true,
+                                    color: (darkMode ? "white" : "black"),
+                                    fontFamily: "Verdana",
+                                    boxWidth: 20,
+                                    fontSize: 13,
+                                    filter: function (item) {
+                                        return item.text !== "undefined";
+                                    }
+                                },
+                            }, tooltip: {
+                                enabled: true,
+                                position: "nearest",
+                                yAlign: "top",
+                                intersect: false,
+                                displayColors: false,
+                                callbacks: {
+                                    title: function (tooltipItems) {
+                                        if (tooltipItems[0].datasetIndex >= (categoryChart[id] ? Object.keys(categoryChartData[id]).length : 1)){
+                                            return lines[tooltipItems[0].datasetIndex - (categoryChart[id] ? Object.keys(categoryChartData[id]).length : 1)] + "% (" + lineLabels[tooltipItems[0].datasetIndex - (categoryChart[id] ? Object.keys(categoryChartData[id]).length : 1)] + ")";
+                                        }
+                                        if (!categoryChart[id] && !correctCalc(id)) {
+                                            if (!chartData[id].mixedData.length) {
+                                                return "Unknown Date " + _data[id].overall_percent + "% (" + _data[id].overall_letter + ")";
+                                            }
+                                            if (tooltipItems[0].dataIndex >= chartData[id].mixedData.length) {
+                                                return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + data[id].overall_percent + "% (" + data[id].overall_letter + ")";
+                                            }
+                                            return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " N/A [Unverified weights]";
+                                        }
+                                        return moment(tooltipItems[0].label, "MMM D, YYYY, h:mm:ss a").format("MM/DD/YY") + " " + tooltipItems[0].formattedValue + "% (" + getLetterGrade(tooltipItems[0].formattedValue) + ")";
+                                    }, label: function (tooltipItem) {
+                                        if (tooltipItem.datasetIndex >= (categoryChart[id] ? Object.keys(categoryChartData[id]).length : 1)) {
+                                            return;
+                                        }
+                                        if (categoryChart[id]) {
+                                            let category = Object.keys(categoryChartData[id])[tooltipItem.datasetIndex];
+                                            let _chartData = categoryChartData[id][category];
+                                            let name = _chartData.assignmentNames[tooltipItem.dataIndex];
+                                            let percent = _chartData.assignmentPercents[tooltipItem.dataIndex];
+                                            let score = _chartData.assignmentScoresParsed[tooltipItem.dataIndex];
+                                            return [`[${category}] ${name}${((score.substring(0, 2) !== "--") ? (" - " + Math.round(percent * 100) / 100 + "% ") : (" ")) + ((score.substring(score.length - 2)) !== "/0" ? ("(" + score + ")") : ("(" + score.substring(0, score.length - 2) + ")"))}`];
+                                        }
+                                        if (!chartData[id].mixedData.length) {
+                                            return;
+                                        }
+                                        if (tooltipItem.dataIndex >= chartData[id].mixedData.length) {
+                                            let delta = Math.round((data[id].overall_percent - chartData[id].mixedData.slice(-1)[0].y) * 100) / 100;
+                                            if (delta > 0) {
+                                                delta = "+" + delta;
+                                            }
+                                            return delta + `% (To Match ${school === "basis" ? "Schoology" : "PowerSchool"})`;
+                                        }
+
+                                        let _chartData = chartData[id];
+                                        let category = _chartData.assignmentCategories[tooltipItem.dataIndex];
+                                        let name = _chartData.assignmentNames[tooltipItem.dataIndex];
+                                        let percent = _chartData.assignmentPercents[tooltipItem.dataIndex];
+                                        let score = _chartData.assignmentScoresParsed[tooltipItem.dataIndex];
+                                        return [`[${category}] ${name}${((score.substring(0, 2) !== "--") ? (" - " + Math.round(percent * 100) / 100 + "% ") : (" ")) + ((score.substring(score.length - 2)) !== "/0" ? ("(" + score + ")") : ("(" + score.substring(0, score.length - 2) + ")"))}`];
+                                    }
+                                }
+                            }, zoom: {
+                                zoom: {
+                                    wheel: {
+                                        enabled: true, speed: 0.05
+                                    }, pinch: {
+                                        enabled: true, threshold: 100
+                                    }, drag: {
+                                        enabled: false
+                                    }, mode: "xy", onZoom: ({chart}) => {
+                                        $(`#reset-zoom${id}`).show();
+
+                                        // Disable hovering and tooltips to make animation smoother
+                                        chart.options.hover.mode = null;
+                                        chart.options.plugins.tooltip.enabled = false;
+                                    }, onZoomComplete: ({chart}) => {
+                                        chart.options.hover.mode = "nearest";
+                                        chart.options.plugins.tooltip.enabled = true;
+                                    }
+                                }, pan: {
+                                    enabled: true, onPan: ({chart}) => {
+                                        $(`#reset-zoom${id}`).show();
+                                        // Disable hovering and tooltips to make animation smoother
+                                        chart.options.hover.mode = null;
+                                    }, onPanComplete: ({chart}) => {
+                                        chart.options.hover.mode = "nearest";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                $("#chart-container" + id).html("<div class=\"chart-no-data\">No Data</div>");
+            }
+        }
+
+        function showPage(id) {
+            document.getElementById("pageNumber").textContent = id;
+            for (let i = -1; i < _data.length; i++) {
+                document.getElementById("link" + i).classList.remove("active");
+            }
+            document.getElementById("link" + id).classList.add("active");
+            for (let i = -1; i < _data.length; i++) {
+                document.getElementById("section" + i).classList.remove("show");
+            }
+            document.getElementById("section" + id).classList.add("show");
+
+            if (id !== -1 && mobile) {
+                $(".backToHome").show();
+            } else {
+                $(".backToHome").hide();
+            }
+
+            sessionStorage.setItem("currentPage", id);
+            currentPage = id;
+        }
+
+        let currKey = null;
+        document.onkeyup = function (e) {
+            if (e.key.toLowerCase() === currKey) currKey = null;
+        }
+        document.onkeydown = function (e) {
+            if (e.ctrlKey || e.altKey || e.metaKey) {
+                // Do nothing
+                return;
+            }
+            if (e.key !== "Escape" && $("input:focus").length) {
+                // Do nothing
+                return;
+            }
+            if (!shortcutsEnabled) {
+                // Do nothing
+                return;
+            }
+            if (currKey !== null) {
+                // Do nothing
+                return;
+            }
+            e.preventDefault();
+            currKey = e.key.toLowerCase();
+            if (e.key === "Escape" && $("input:focus").length > 0) {
+                $("input:focus").blur();
+                return;
+            }
+            if (e.key === "ArrowUp") {
+                // up arrow
+            } else if (e.key === "ArrowDown") {
+                // down arrow
+            } else if (e.key === "ArrowLeft") {
+                // left arrow
+                if (cardsDisplayed.slice(-1)[0] === "gpaDetailsCardDisplay") {
+                    if (currentGpaDetailsTab === 1) {
+                        openGpaDetailsTab(maxGpaDetailsTab);
+                    } else {
+                        openGpaDetailsTab(currentGpaDetailsTab - 1);
+                    }
+                } else if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
+                    if (currentSettingsTab === 0) {
+                        openTab(maxSettingsTab);
+                    } else {
+                        openTab(currentSettingsTab - 1);
+                    }
+                } else if (cardsDisplayed.length === 0) {
+                    if (currentPage === -1) {
+                        showPage(_data.length - 1);
+                    } else {
+                        showPage(currentPage - 1);
+                    }
+                }
+            } else if (e.key === "ArrowRight") {
+                // right arrow
+                if (cardsDisplayed.slice(-1)[0] === "gpaDetailsCardDisplay") {
+                    if (currentGpaDetailsTab === maxGpaDetailsTab) {
+                        openGpaDetailsTab(1);
+                    } else {
+                        openGpaDetailsTab(currentGpaDetailsTab + 1);
+                    }
+                } else if (cardsDisplayed.slice(-1)[0] === "settingsCardDisplay") {
+                    if (currentSettingsTab === maxSettingsTab) {
+                        openTab(0);
+                    } else {
+                        openTab(currentSettingsTab + 1);
+                    }
+                } else if (cardsDisplayed.length === 0) {
+                    if (currentPage === _data.length - 1) {
+                        showPage(-1);
+                    } else {
+                        showPage(currentPage + 1);
+                    }
+                }
+            } else if (["s", "S"].includes(e.key)) {
+                if (cardsDisplayed.includes("settingsCardDisplay")) {
+                    if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
+                        showCard("#settingsCardDisplay");
+                    } else {
+                        closeForm("settingsCardDisplay");
+                    }
+                } else {
+                    showCard("#settingsCardDisplay");
+                    openTab(1);
+                }
+            } else if (["q", "Q"].includes(e.key)) {
+                if (cardsDisplayed.includes("changelogDisplay")) {
+                    if (cardsDisplayed.indexOf("changelogDisplay") !== cardsDisplayed.length - 1) {
+                        showChangelog();
+                    } else {
+                        closeForm("changelogDisplay");
+                    }
+                } else {
+                    showChangelog();
+                }
+            } else if (["k", "K"].includes(e.key)) {
+                if (cardsDisplayed.includes("shortcutsDisplay")) {
+                    if (cardsDisplayed.indexOf("shortcutsDisplay") !== cardsDisplayed.length - 1) {
+                        showCard("#shortcutsDisplay");
+                    } else {
+                        closeForm("shortcutsDisplay");
+                    }
+                } else {
+                    showCard("#shortcutsDisplay");
+                }
+            } else if (["a", "A"].includes(e.key)) {
+                if (currentPage === -1 || cardsDisplayed.length != 0) {
+                    return;
+                }
+                if ($($(".add-assignment-container")[currentPage]).hasClass("active")) {
+                    $($(".add-assignment-container")[currentPage]).removeClass("active");
+                    unblockClicks();
+                } else {
+                    $($(".addAssignment")[currentPage]).trigger("click");
+                    blockClicks();
+                }
+            } else if (["i", "I"].includes(e.key)) {
+                if (currentPage === -1) {
+                    return;
+                }
+                if (cardsDisplayed.includes("classInfoCardDisplay")) {
+                    if (cardsDisplayed.indexOf("classInfoCardDisplay") !== cardsDisplayed.length - 1) {
+                        showClassInfo(currentPage);
+                    } else {
+                        closeForm("classInfoCardDisplay");
+                    }
+                } else {
+                    showClassInfo(currentPage);
+                }
+            } else if (["h", "H"].includes(e.key)) {
+                if (cardsDisplayed.includes("settingsCardDisplay")) {
+                    if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
+                        showCard("#settingsCardDisplay");
+                    }
+                    openTab(4);
+                } else {
+                    showCard("#settingsCardDisplay");
+                    openTab(4);
+                }
+            } else if (betaFeatures.active && ["e", "E"].includes(e.key)) {
+                if (cardsDisplayed.includes("settingsCardDisplay")) {
+                    if (cardsDisplayed.indexOf("settingsCardDisplay") !== cardsDisplayed.length - 1) {
+                        showCard("#settingsCardDisplay");
+                    }
+                    openTab(6);
+                } else {
+                    showCard("#settingsCardDisplay");
+                    openTab(6);
+                }
+            } else if (["g", "G"].includes(e.key)) {
+                if (cardsDisplayed.includes("gradeChangesCardDisplay")) {
+                    if (cardsDisplayed.indexOf("gradeChangesCardDisplay") !== cardsDisplayed.length - 1) {
+                        setupGradeChanges(true, true);
+                    } else {
+                        closeForm("gradeChangesCardDisplay");
+                    }
+                } else {
+                    setupGradeChanges(true, true);
+                }
+            } else if ((["n", "N"]).includes(e.key)) {
+                if (cardsDisplayed.length === 0) {
+                    let nPanel = $("#notificationPanel");
+                    nPanel.toggleClass("active");
+                    if (nPanel.hasClass("active")) {
+                        blockClicks();
+                    } else {
+                        unblockClicks();
+                    }
+                }
+            } else if (_.inRange(e.key, 1, data.length + 1)) {
+                if (cardsDisplayed.length === 0) {
+                    showPage(e.key - 1);
+                }
+            } else if (e.key === "0" && data.length > 9) {
+                if (cardsDisplayed.length === 0) {
+                    showPage(10);
+                }
+            } else if (e.key === "-" && data.length > 10) {
+                if (cardsDisplayed.length === 0) {
+                    showPage(11);
+                }
+            } else if (e.key === "=" && data.length > 11) {
+                if (cardsDisplayed.length === 0) {
+                    showPage(12);
+                }
+            } else if (e.key === "`") {
+                if (cardsDisplayed.length === 0) {
+                    showPage(-1);
+                }
+            } else {
+                //console.log(e.key);
+            }
+        };
+
+        function resetWeights(index) {
+            let className = _data[index].class_name;
+            let classWeights = weights[index];
+            $("#check" + index).prop("checked", relClassData[className]["hasWeights"] === false);
+            let keys = Object.keys(classWeights.weights);
+            for (let i = 0; i < keys.length; i++) {
+                if (keys[i] in relClassData[className]["weights"]) {
+                    $(`#weightTableWeight${index}_${i} input`).val(relClassData[className]["weights"][keys[i]]);
+                } else if (tempWeights[index]) {
+                    $(`#weightTableWeight${index}_${i} input`).val(tempWeights[index][keys[i]]);
+                }
+            }
+
+            let hasWeights = relClassData[className]["hasWeights"];
+            if (classWeights.hasWeights !== hasWeights) {
+                if (!hasWeights) {
+                    tempWeights[index] = Object.assign({}, classWeights.weights);
+                }
+            }
+        }
+
+        //Resets inputs to old weight value when exiting point based
+        function resetInputs(form) {
+            let hasWeights = !($(form).find("input[name=\"hasWeights\"]")).is(":checked");
+            let classIndex = $(form)[0].id.substring(7);
+            if (weights[classIndex]["hasWeights"] !== hasWeights) {
+                if (!hasWeights) {
+                    tempWeights[classIndex] = Object.assign({}, weights[classIndex]["weights"]);
+                } else if (tempWeights[classIndex]) {
+                    for (let i = 0; i < Object.keys(weights[classIndex]["weights"]).length; i++) {
+                        let weight = $(`#weightTableWeight${$(form)[0].id.substring(7)}_${i} input`);
+                        weight.val(tempWeights[classIndex][Object.keys(tempWeights[classIndex])[i]]);
+                    }
+                }
+            }
+        }
+        function withAlpha(hexString, alpha) {
+            if (hexString.startsWith("#")) {
+                hexString = hexString.substring(1);
+            }
+            let red = parseInt(hexString.substring(0, 2), 16);
+            let green = parseInt(hexString.substring(2, 4), 16);
+            let blue = parseInt(hexString.substring(4), 16);
+
+            return `rgba(${red},${green},${blue},${alpha / 100})`;
+        }
+
+        $(function initAjaxFormPosts() {
+            if ($("form.form-weights").length > 0) {
+                $("form.form-weights").each(function () {
+                    let form = $(this);
+                    $(form).submit(function (event) {
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+                        let hasWeights = !($(form).find("input[name=\"hasWeights\"]")).is(":checked");
+                        let classIndex = parseInt($(form)[0].id.substring(7));
+                        let className = _data[classIndex].class_name;
+
+                        let weightData = $(form).serializeArray();
+                        let weightURI = {};
+                        let addedURI = {};
+                        jQuery.map(weightData, function (n) {
+                            if (n.name in weights[classIndex].weights) {
+                                weightURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
+                            } else if (n.name !== "hasWeights") {
+                                addedURI[n.name] = isNaN(parseFloat(n.value)) ? null : parseFloat(n.value);
+                            }
+                        });
+                        if (!hasWeights) {
+                            weightURI = Object.fromEntries(Object.entries(weights[classIndex].weights).map(([h,]) => [h, null]));
+                        }
+                        if (_.isEqual(weights[classIndex]["weights"], weightURI) && (weights[classIndex]["hasWeights"] === hasWeights)
+                            && _.isEqual(addedWeights[classIndex]["weights"], addedURI)) {
+                            return;
+                        }
+                        let formData = {
+                            "className": className,
+                            "hasWeights": JSON.stringify(hasWeights),
+                            "newWeights": JSON.stringify(weightURI),
+                            "addedWeights": JSON.stringify(addedURI),
+                            "term": term,
+                            "semester": semester
+                        };
+
+                        $.ajax({
+                            type: "POST", url: "/updateWeights", data: formData
+                        }).done((response) => {
+                            if (typeof response === "string" && response.startsWith("<!")) {  // If logged out
+                                $(".session-timeout").show();
+                                $("body").find("*").not(".session-timeout").remove();
+                                return;
+                            }
+                            weights[classIndex]["custom"] = response.includes("Custom");
+                            for (let i = 0; i < Object.keys(weights[classIndex]["weights"]).length; i++) {
+                                let weight = $(`#weightTableWeight${$(form)[0].id.substring(7)}_${i} input`);
+                                if (!hasWeights || weight[0].value || weight[0].value === 0) {
+                                    weight.addClass("text-view");
+                                    weight.css("border-color", "unset").css("outline-color", "unset");
+                                } else {
+                                    weight.removeClass("text-view");
+                                    weight.css("cssText", "border-color: lightcoral; outline-color: lightcoral !important;");
+                                }
+                            }
+                            for (let i = 0; i < Object.keys(addedWeights[classIndex]["weights"]).length; i++) {
+                                let weight = $(`#addedWeightWeight${$(form)[0].id.substring(7)}_${i} input`);
+                                if (!hasWeights || weight[0].value || weight[0].value === 0) {
+                                    weight.addClass("text-view");
+                                    weight.css("border-color", "unset").css("outline-color", "unset");
+                                } else {
+                                    weight.removeClass("text-view");
+                                    weight.css("cssText", "border-color: lightcoral; outline-color: lightcoral !important;");
+                                }
+                            }
+                            for (let weight in addedURI) {
+                                addedWeights[classIndex].weights[weight] = parseFloat(addedURI[weight]) ?? null;
+                            }
+                            if (weightData[0].value === "on") {
+                                weights[classIndex]["hasWeights"] = false;
+                                setPointBasedWeights();
+                            } else {
+                                weights[classIndex]["hasWeights"] = true;
+                                if (weightData.length === 0) {
+                                    return;
+                                }
+                                for (let weight in weightURI) {
+                                    weights[classIndex]["weights"][weight] = parseFloat(weightURI[weight]) ?? null;
+                                }
+                            }
+                            refreshWithoutReload(classIndex);
+                        });
+                    });
+                    $(form).find("input").prop("disabled", false);
+                });
+            }
+        });
+
+        // Get the navbar
+        let navbar = document.getElementById("classLinks");
+        let sticky, height;
+
+        if (navbar && $(".navbar")[0]) {
+            // Get the offset position of the navbar
+            sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
+
+            // Get the height of the navbar
+            height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
+
+            function stickyNavbar() {
+                if (window.pageYOffset >= sticky) {
+                    navbar.classList.add("sticky");
+                } else {
+                    navbar.classList.remove("sticky");
+                }
+            }
+
+            let hidingBack;
+
+            function setupBackToHome() {
+                clearTimeout(hidingBack);
+                $(".backToHome").removeClass("showDetails");
+                hidingBack = setTimeout(() => {
+                    $(".backToHome").addClass("showDetails");
+                }, 400);
+            }
+
+            // Do it once on load
+            stickyNavbar();
+            setupBackToHome();
+
+            // When the user scrolls the page
+            window.onscroll = () => {
+                if (!mobile) {
+                    stickyNavbar();
+                } else {
+                    setupBackToHome();
+                }
+            };
+        }
+
+        document.onload = disableMobileGraphFeatures();
+
+        function disableMobileGraphFeatures() {
+            //Disable zoom for mobile
+            if (mobile) {
+                charts.forEach((chart, index) => {
+                    // Reset zoom
+                    chart.resetZoom();
+                    $("#reset-zoom" + (index - 1)).hide();
+
+                    // Disable zoom and pan
+                    chart.options.plugins.zoom.zoom.enabled = false;
+                    chart.options.plugins.zoom.pan.enabled = false;
+
+                    // Disable tooltips and hover
+                    chart.options.hover.mode = null;
+                    chart.options.plugins.tooltip.enabled = false;
+                });
+            } else {
+                charts.forEach(chart => {
+                    // Enabled zoom and pan
+                    chart.options.plugins.zoom.zoom.enabled = true;
+                    chart.options.plugins.zoom.pan.enabled = true;
+
+                    // Enabled tooltips and hover
+                    chart.options.hover.mode = "nearest";
+                    chart.options.plugins.tooltip.enabled = true;
+                });
+            }
+
+        }
+
+        let resizeTimer;
+        window.onresize = () => {
+            mobile = window.innerWidth <= 991;
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                disableMobileGraphFeatures();
+
+                if (navbar && !mobile) {
+                    navbar.classList.remove("sticky");
+                    disableScrolling();
+
+                    // Get the offset position of the navbar
+                    sticky = navbar.offsetTop - $(".navbar")[0].offsetTop;
+
+                    enableScrolling();
+
+                    // Get the height of the navbar
+                    height = navbar.offsetHeight + parseInt(getComputedStyle(navbar).marginBottom);
+
+                    // Render all charts if not already rendered
+                    if ($(".chartjs-size-monitor").length !== _data.length + 1) {
+                        renderAllCharts();
+                    }
+                }
+
+                if (currentPage !== -1 && mobile) {
+                    $(".backToHome").show();
+                } else {
+                    $(".backToHome").hide();
+                }
+            }, 1000);
+        };
+
+        // Collapse stuff when click outside
+        $(document).mousedown(function (e) {
+            if (cardsDisplayed.length || $(e.target).is(".blurred-background")) {
+                return;
+            }
+            if (!$(e.target).is(".addAssignment, .add-assignment-container") && !$(e.target).parents(".add-assignment-container, .addAssignment").length && currentPage >= 0 && $($(".add-assignment-container")[currentPage]).hasClass("active")) {
+                $($(".add-assignment-container")[currentPage]).removeClass("active");
+                unblockClicks();
+            }
+            if (!$(e.target).is("#notificationPanel") && !$(e.target).parents("#notificationPanel").length && $("#notificationPanel").hasClass("active")) {
+                $("#notificationPanel").removeClass("active");
+                unblockClicks();
+            }
+        });
+
+        function blockClicks() {
+            $("#clickBarrier").addClass("blocking");
+        }
+
+        function unblockClicks() {
+            if (!$("#notificationPanel").hasClass("active") &&
+                !$($(".add-assignment-container")[currentPage]).hasClass("active")) {
+                $("#clickBarrier").removeClass("blocking");
+            }
+        }
+
+        $("#clickBarrier").on("click", function (e) {
+            e.stopPropagation();
+        });
+
+        $("#termSwitcher, #GPA-container").hover(function (e) {
+            blockClicks();
+        }, function (e) {
+            setTimeout(unblockClicks, 0); // Forces this to execute after the click is blocked
+        });
+
+        $("#mobile-overview-grid th, #mobile-overview-grid td").on("click", function (e) {
+            let target = $(e.target);
+            if (!target.is(".block")) {
+                target = target.parents(".block");
+            }
+            let index = target[0].id.substring("block".length);
+            showPage(parseInt(index));
+        });
+
+        function checkNewCategory(inputID, messageDivID, index) {
+            let category = $(inputID)[0].value;
+            let icon = $($($(inputID)[0].nextElementSibling)[0].firstElementChild);
+
+            if (messageDivID) {
+                $(messageDivID).addClass("dont-show").removeClass("always-show");
+                icon.attr("class", "fa fa-pulse fa-spinner");
+                $(inputID).removeClass("invalid").addClass("loading");
+
+                if (category.length === 0) {
+                    if (messageDivID) {
+                        $(messageDivID).addClass("dont-show").removeClass("always-show");
+                        icon.attr("class", "");
+                        $(inputID).removeClass("loading").removeClass("invalid");
+                    }
+                    return;
+                }
+
+                if (category in weights[index].weights) {
+                    if (messageDivID) {
+                        $(messageDivID).removeClass("dont-show").addClass("always-show").text(`Category names must be unique`);
+                        icon.attr("class", "fa fa-exclamation-circle");
+                        $(inputID).removeClass("loading").addClass("invalid");
+                    }
+                    return;
+                }
+
+                if (messageDivID) {
+                    $(messageDivID).removeClass("always-show").addClass("dont-show");
+                    icon.attr("class", "fa fa-check-circle");
+                    $(inputID).removeClass("loading").removeClass("invalid");
+                }
+            } else {
+                return icon.attr("class") === `fa fa-check-circle`;
+            }
+        }
+
+        function generateDistinctColor(base, i, n) {
+            const colors = [];
+            const excludedHue = getHueFromHex(base);
+            const step = 360 / n;
+
+            let hue = (step * i) % 360;
+            // Adjust the hue if it's too close to the excluded color's hue
+            if (Math.abs(hue - excludedHue) < step / 2) {
+                hue = (hue + step / 2) % 360;
+            }
+
+            return hslToHex(hue, 70, 50);
+        }
+
+        // Helper function to convert hex color to HSL hue
+        function getHueFromHex(hex) {
+            const r = parseInt(hex.slice(1, 3), 16) / 255;
+            const g = parseInt(hex.slice(3, 5), 16) / 255;
+            const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0; // achromatic
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return Math.round(h * 360);
+        }
+
+        function hslToHex(h, s, l) {
+            l /= 100;
+            const a = s * Math.min(l, 1 - l) / 100;
+            const f = n => {
+                const k = (n + h / 30) % 12;
+                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color).toString(16).padStart(2, '0');
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
+        }

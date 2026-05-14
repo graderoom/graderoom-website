@@ -340,7 +340,7 @@
 }
 
 .block:active, .block:hover {
-    filter: drop-shadow(0 0 2px gray);
+    filter: drop-shadow(0 0 2px var(--clr-text-3));
 }
 
 .left-block .block {
@@ -357,4 +357,15 @@
 
 .backToHome {
     display: none;
+}
+
+/* Footer */
+
+#site-footer {
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: auto;
+    font-size: 0.8rem;
+    color: var(--clr-text-3);
+    opacity: 0.6;
 }

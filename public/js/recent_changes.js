@@ -1,0 +1,319 @@
+    function setupGradeChanges(show = true, force = false) {
+        if (oldSemester) {
+            return;
+        }
+        let changesExist = false;
+        // Clear the container
+        let container = $("#gradeChangesContainer");
+        container.animate({scrollTop: 0}, 100);
+        container.html("");
+
+        let noChangesStreak = 0;
+        let noDataStreak = 0;
+        let psLockedStreak = false;
+        let startDate = "";
+        let endDate = "";
+        let recentChange = false;
+        let firstCardUnCollapsed = false;
+        let gradeHistoryTimestampIndex = updatedGradeHistory.length - 1;
+        for (let i = alerts.lastUpdated.length - 1; i >= 0; i--) {
+            let historyStartIdx = gradeHistoryTimestampIndex;
+            while (gradeHistoryTimestampIndex >= 0 && updatedGradeHistory[gradeHistoryTimestampIndex] > alerts.lastUpdated[i].timestamp) {
+                gradeHistoryTimestampIndex--;
+            }
+
+            if (gradeHistoryTimestampIndex !== historyStartIdx) {
+                if (noChangesStreak) {
+                    let ps_locked = alerts.lastUpdated[i - 1].ps_locked;
+                    startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    container.append(`<hr><span class="timestamp">` + (ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">${school === "basis" ? "Schoology" : "PowerSchool"} was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    noChangesStreak = 0;
+                }
+
+                let hStartDate = new Date(updatedGradeHistory[gradeHistoryTimestampIndex + 1]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                let hEndDate = new Date(updatedGradeHistory[historyStartIdx]).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                let count = historyStartIdx - gradeHistoryTimestampIndex;
+                container.append(`<hr><span class="timestamp"><span class="popup">` + hStartDate + (hStartDate !== hEndDate ? ` - <br>` + hEndDate : ``) + `</span><b>` + (count > 1 ? count + ` History Syncs<br>` : `History Sync`) + `</b></span>`);
+            }
+
+            let changeData = alerts.lastUpdated[i].changeData;
+            let ps_locked = alerts.lastUpdated[i].ps_locked;
+            if (changeData.added === undefined) {
+                if (noChangesStreak) {
+                    startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    container.append(`<hr><span class="timestamp">` + (ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">${school === "basis" ? "Schoology" : "PowerSchool"} was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    noChangesStreak = 0;
+                }
+                // Before changeData storage
+                if (!noDataStreak) {
+                    endDate = alerts.lastUpdated[i].timestamp;
+                }
+                startDate = alerts.lastUpdated[i].timestamp;
+                noDataStreak++;
+                if (i === alerts.lastUpdated.length - 1) {
+                    recentChangeText = "";
+                }
+                if (i === 0) {
+                    startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noDataStreak > 1 ? noDataStreak + ` Syncs<br>` : ``) + `No Data</b></span>`);
+                }
+                continue;
+            }
+            if (noDataStreak) {
+                startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                container.append(`<hr><span class="timestamp"><span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noDataStreak > 1 ? noDataStreak + ` Syncs<br>` : ``) + `No Data</b></span>`);
+                noDataStreak = 0;
+            }
+            let newAssignments = changeData.added;
+            let modifiedAssignments = changeData.modified;
+            let removedAssignments = changeData.removed;
+            let overallChanges = changeData.overall;
+
+            let existentClassNames = data.map(d => d.class_name);
+            let modifiedClasses = [...new Set([...Object.keys(newAssignments), ...Object.keys(modifiedAssignments), ...Object.keys(removedAssignments), ...Object.keys(overallChanges)])].filter(className => existentClassNames.includes(className));
+
+            if (modifiedClasses.length) {
+                changesExist = true;
+            } else {
+                // No changes
+                if (!noChangesStreak) {
+                    psLockedStreak = ps_locked;
+                    endDate = alerts.lastUpdated[i].timestamp;
+                }
+                if (psLockedStreak !== ps_locked) {
+                    startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                    container.append(`<hr><span class="timestamp"><span class="recent-changes-date-holder">` + (!ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">${school === "basis" ? "Schoology" : "PowerSchool"} was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span></span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    noChangesStreak = 0;
+                    psLockedStreak = ps_locked;
+                } else {
+                    startDate = alerts.lastUpdated[i].timestamp;
+                    noChangesStreak++;
+                    if (i === alerts.lastUpdated.length - 1) {
+                        recentChangeText = " No Changes.";
+                    }
+                    if (i === 0) {
+                        startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                        endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                        container.append(`<hr><span class="timestamp"><span class="recent-changes-date-holder">` + (ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">${school === "basis" ? "Schoology" : "PowerSchool"} was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span></span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    }
+                    continue;
+                }
+            }
+            if (noChangesStreak) {
+                startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+                container.append(`<hr><span class="timestamp"><span class="recent-changes-date-holder">` + (ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">${school === "basis" ? "Schoology" : "PowerSchool"} was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span></span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                noChangesStreak = 0;
+            }
+
+            let classNames = data.map(d => d.class_name);
+            let rawDiff = Date.now() - alerts.lastUpdated[i].timestamp;
+            let days = Math.floor(rawDiff / (24 * 3600 * 1000));
+            rawDiff %= 24 * 3600 * 1000;
+            let hours = Math.floor(rawDiff / (3600 * 1000));
+            rawDiff %= 3600 * 1000;
+            let minutes = Math.floor(rawDiff / (60 * 1000));
+            rawDiff %= 60 * 1000;
+            let seconds = Math.floor(rawDiff / 1000);
+            let deltaTime = `<i style="margin-left: 0.5rem;" class="fa fa-info-circle"><span style="padding: 0.5rem" class="popup-right">` + (days ? days + "d " : hours ? hours + "h " : minutes ? minutes + "m " : seconds + "s") + " ago" + `</span></i>`;
+            let actualTime = new Date(alerts.lastUpdated[i].timestamp).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
+
+            let numChanges = 0;
+            modifiedClasses.forEach(c => {
+                if (classNames.indexOf(c) >= 0) {
+                    let numNewChanges = (newAssignments[c] || []).length;
+                    let modifiedChanges = (modifiedAssignments[c] || []).length;
+                    let removedChanges = (removedAssignments[c] || []).length;
+                    let numAssignmentChanges = numNewChanges + modifiedChanges + removedChanges;
+                    if (numAssignmentChanges === 0) {
+                        numChanges += (overallChanges[c] ? 1 : 0);
+                    }
+                    numChanges += numAssignmentChanges;
+                }
+            });
+            if (numChanges === 0) {
+                if (i === alerts.lastUpdated.length - 1) {
+                    recentChangeText = " No Changes.";
+                }
+                noChangesStreak++;
+                continue;
+            }
+            if (i === alerts.lastUpdated.length - 1) {
+                recentChange = true;
+                recentChangeText = " " + numChanges + " Change" + (numChanges > 1 ? "s" : "") + ".";
+            }
+            container.append(`<hr><span class="timestamp change-data-exists"><span class="recent-changes-date-holder">` + (ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">${school === "basis" ? "Schoology" : "PowerSchool"} was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + actualTime + deltaTime + `</span></span><b ` + (firstCardUnCollapsed ? `class="collapsed"` : ``) + ` data-toggle="collapse" data-target="#changeData` + i + `">` + numChanges + ` Change` + (numChanges > 1 ? `s` : ``) + `</b></span>`);
+
+            // Create the class cards
+            let changeCard = `<div id="changeData` + i + `" class="collapse` + (!firstCardUnCollapsed ? ` show` : ``) + `">`;
+            firstCardUnCollapsed = true;
+            for (let j = 0; j < modifiedClasses.length; j++) {
+                let realIndex = classNames.indexOf(modifiedClasses[j]);
+                if (realIndex < 0) {
+                    continue;
+                }
+
+                let card = `<div class="grade-changes-card" id="changes` + realIndex + `"><span class="class-name" style="color: ` + colors[realIndex] + `"><span>` + modifiedClasses[j];
+                if (modifiedClasses[j] in overallChanges) {
+                    if ("overall_percent" in overallChanges[modifiedClasses[j]]) {
+                        let oldPercent = overallChanges[modifiedClasses[j]].overall_percent;
+                        let newPercent = alerts.lastUpdated.find((d, index) => index > i && "overall" in d.changeData && modifiedClasses[j] in d.changeData.overall && "overall_percent" in d.changeData.overall[modifiedClasses[j]]);
+                        if (newPercent) {
+                            newPercent = newPercent.changeData.overall[modifiedClasses[j]].overall_percent;
+                        }
+                        if (!newPercent && newPercent !== 0) {
+                            newPercent = data[realIndex].overall_percent;
+                        }
+                        if (oldPercent !== false && newPercent !== false) {
+                            let delta = newPercent - oldPercent;
+                            if (delta) {
+                                delta = (delta > 0 ? "+" : "") + (Math.round(delta * 1000) / 1000) + "%";
+                                card += ` <span>(` + delta + `)</span>`;
+                            }
+                        }
+                    }
+                    card += `</span><span>`;
+                    if ("overall_letter" in overallChanges[modifiedClasses[j]]) {
+                        let oldLetter = overallChanges[modifiedClasses[j]].overall_letter;
+                        let newLetter = alerts.lastUpdated.find((d, index) => index > i && "overall" in d.changeData && modifiedClasses[j] in d.changeData.overall && "overall_letter" in d.changeData.overall[modifiedClasses[j]]);
+                        if (newLetter) {
+                            newLetter = newLetter.changeData.overall[modifiedClasses[j]].overall_letter;
+                        }
+                        if (!newLetter) {
+                            newLetter = data[realIndex].overall_letter;
+                        }
+                        if (newLetter) {
+                            if (!oldLetter) {
+                                oldLetter = "N/A";
+                            }
+                            card += `<span>(` + oldLetter + `) → (` + newLetter + `)</span>`;
+                        }
+                    }
+                    card += `</span>`;
+                } else {
+                    card += `</span><span></span>`;
+                }
+                card += `</span>`;
+                if (modifiedClasses[j] in newAssignments) {
+                    card += `<div class="grade-changes-section"><div class="grade-changes-section-header">New</div><hr>`;
+                    for (let k = 0; k < newAssignments[modifiedClasses[j]].length; k++) {
+                        let searchID = newAssignments[modifiedClasses[j]][k];
+                        let realAssignmentIndex = data[realIndex].grades.findIndex(g => g.psaid === searchID);
+                        if (realAssignmentIndex === -1) {
+                            card += `<div>[Removed] <span class="score"><span></span></span></div>`;
+                        } else {
+                            let newScore = alerts.lastUpdated.find((d, index) => index > i && "modified" in d.changeData && modifiedClasses[j] in d.changeData.modified && d.changeData.modified[modifiedClasses[j]].filter(s => s.psaid === searchID && ("points_gotten" in s || "points_possible" in s)).length);
+                            if (newScore) {
+                                newScore = newScore.changeData.modified[modifiedClasses[j]].find(g => g.psaid === searchID);
+                                newScore = parseScore(newScore.points_gotten, newScore.points_possible);
+                            }
+                            if (!newScore) {
+                                newScore = parseScore(data[realIndex].grades[realAssignmentIndex].points_gotten, data[realIndex].grades[realAssignmentIndex].points_possible);
+                            }
+                            let newAssignment = data[realIndex].grades[realAssignmentIndex];
+                            let newStatusIcons = ``;
+                            if (newAssignment.missing) newStatusIcons += ` <span class="popup"><i class="fa fa-exclamation-circle" style="color:#e74c3c"><span class="popup-right">Missing</span></i></span>`;
+                            if (newAssignment.late) newStatusIcons += ` <span class="popup"><i class="fa fa-clock-o" style="color:#e67e22"><span class="popup-right">Late</span></i></span>`;
+                            card += `<div><span>` + newStatusIcons + (newStatusIcons ? ` ` : ``) + newAssignment.assignment_name + `</span> <span class="score"><span>(` + newScore + `)</span></span></div>`;
+                        }
+                    }
+                    card += `</div>`;
+                }
+
+                if (modifiedClasses[j] in modifiedAssignments) {
+                    card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Modified</div><hr>`;
+                    for (let k = 0; k < modifiedAssignments[modifiedClasses[j]].length; k++) {
+                        let searchID = modifiedAssignments[modifiedClasses[j]][k].psaid;
+                        let realAssignmentIndex = data[realIndex].grades.findIndex(g => g.psaid === searchID);
+                        if (realAssignmentIndex === -1) {
+                            card += `<div>[Removed] <span class="score"><span></span></span></div>`;
+                        } else {
+                            let nameChange;
+                            let oldName = modifiedAssignments[modifiedClasses[j]][k].assignment_name;
+                            let newName = alerts.lastUpdated.find((d, index) => index > i && "modified" in d.changeData && modifiedClasses[j] in d.changeData.modified && d.changeData.modified[modifiedClasses[j]].filter(s => s.psaid === searchID && "assignment_name" in s).length);
+                            if (newName) {
+                                newName = newName.changeData.modified[modifiedClasses[j]].find(g => g.psaid === searchID).assignment_name;
+                            }
+                            if (!newName) {
+                                newName = data[realIndex].grades[realAssignmentIndex].assignment_name;
+                            }
+                            if (oldName !== newName) {
+                                nameChange = `<span class="score">` + oldName + ` → <span>` + newName + `</span></span>`;
+                            }
+                            if (!nameChange) {
+                                nameChange = `<span>` + newName + `</span>`;
+                            }
+                            let scoreChange;
+                            let oldScore = parseScore(modifiedAssignments[modifiedClasses[j]][k].points_gotten, modifiedAssignments[modifiedClasses[j]][k].points_possible);
+                            let newScore = alerts.lastUpdated.find((d, index) => index > i && "modified" in d.changeData && modifiedClasses[j] in d.changeData.modified && d.changeData.modified[modifiedClasses[j]].filter(s => s.psaid === searchID && ("points_gotten" in s || "points_possible" in s)).length);
+                            if (newScore) {
+                                newScore = newScore.changeData.modified[modifiedClasses[j]].find(g => g.psaid === searchID);
+                                newScore = parseScore(newScore.points_gotten, newScore.points_possible);
+                            }
+                            if (!newScore) {
+                                newScore = parseScore(data[realIndex].grades[realAssignmentIndex].points_gotten, data[realIndex].grades[realAssignmentIndex].points_possible);
+                            }
+                            if (oldScore !== newScore) {
+                                scoreChange = `<span class="score">(` + oldScore + `) → <span>(` + newScore + `)</span></span>`;
+                            }
+                            if (!scoreChange) {
+                                scoreChange = `<span>(` + newScore + `)</span>`;
+                            }
+                            let categoryChange;
+                            let oldCategory = modifiedAssignments[modifiedClasses[j]][k].category;
+                            let newCategory = alerts.lastUpdated.find((d, index) => index > i && "modified" in d.changeData && modifiedClasses[j] in d.changeData.modified && d.changeData.modified[modifiedClasses[j]].filter(s => s.psaid === searchID && "category" in s).length);
+                            if (newCategory) {
+                                newCategory = newCategory.changeData.modified[modifiedClasses[j]].find(g => g.psaid === searchID).category;
+                            }
+                            if (!newCategory) {
+                                newCategory = data[realIndex].grades[realAssignmentIndex].category;
+                            }
+                            if (oldCategory !== newCategory) {
+                                categoryChange = `<br><span class="score">[` + oldCategory + `] → <span>[` + newCategory + `]</span></span>`;
+                            }
+                            let statusIcons = ``;
+                            let oldMissing = modifiedAssignments[modifiedClasses[j]][k].missing;
+                            let oldLate = modifiedAssignments[modifiedClasses[j]][k].late;
+                            let curAssignment = data[realIndex].grades[realAssignmentIndex];
+                            if (!!oldMissing !== !!curAssignment.missing) {
+                                statusIcons += `<span class="popup"><i class="fa fa-exclamation-circle" style="color:#e74c3c"><span class="popup-right">` + (curAssignment.missing ? `Marked missing` : `No longer missing`) + `</span></i></span> `;
+                            }
+                            if (!!oldLate !== !!curAssignment.late) {
+                                statusIcons += `<span class="popup"><i class="fa fa-clock-o" style="color:#e67e22"><span class="popup-right">` + (curAssignment.late ? `Marked late` : `No longer late`) + `</span></i></span> `;
+                            }
+                            card += `<div` + (categoryChange ? ` style="margin-bottom: 1rem"` : ``) + `><span>` + statusIcons + nameChange + (categoryChange || ``) + `</span>` + scoreChange + `</div>`;
+                        }
+                    }
+                    card += `</div>`;
+                }
+
+                if (modifiedClasses[j] in removedAssignments) {
+                    card += `<div class="grade-changes-section"><div class="grade-changes-section-header">Removed</div><hr>`;
+                    for (let k = 0; k < removedAssignments[modifiedClasses[j]].length; k++) {
+                        card += `<div><span>` + removedAssignments[modifiedClasses[j]][k].assignment_name + `</div>`;
+                    }
+                    card += `</div>`;
+                }
+
+                card += `</div>`;
+                changeCard += card;
+            }
+            changeCard += `</div>`;
+            container.append(changeCard);
+        }
+
+        if (show && recentChange || force) {
+            showCard("#gradeChangesCardDisplay");
+        }
+        latestChange = alerts.lastUpdated.filter(d => Object.keys(d.changeData).length && [...new Set([...Object.keys(d.changeData.added), ...Object.keys(d.changeData.modified), ...Object.keys(d.changeData.removed), ...Object.keys(d.changeData.overall)])].length).slice(-1)[0];
+        if (latestChange) {
+            latestChange = latestChange.changeData;
+        } else {
+            latestChange = undefined;
+        }
+    }

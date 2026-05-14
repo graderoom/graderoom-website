@@ -95,7 +95,7 @@
 .card-signin {
     border: 0;
     border-radius: 1rem;
-    box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.5rem 1rem 0 var(--clr-shadow-soft);
 }
 
 .card-signin .card-body {
@@ -1541,12 +1541,12 @@ div.assignment-info > span > span:last-child {
 }
 
 .lateAssignmentSummary {
-    color: orange;
+    color: var(--clr-warning);
     font-weight: bold;
 }
 
 .missingAssignmentSummary {
-    color: red;
+    color: var(--clr-error);
     font-weight: bold;
 }
 
@@ -1589,7 +1589,7 @@ div.unlock-with {
     top: 0;
     bottom: 0;
     backdrop-filter: brightness(10%);
-    color: white;
+    color: #FFFFFF;
 }
 
 div.unlock-with > span {
@@ -1607,7 +1607,7 @@ div.unlock-with > span {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    background-color: #000;
+    background-color: #000000;
     padding: 0 0.3rem;
     border-radius: 0.2rem;
 }
@@ -1727,11 +1727,11 @@ span.previous {
 }
 
 #donationProgress .progress-bar:nth-child(4) {
-    background-color: #303;
+    background-color: #330033;
 }
 
 #donationProgressOverlay .progress-bar:first-child {
-    color: #BBB;
+    color: #BBBBBB;
 }
 
 #donationProgressOverlay .progress-bar:nth-child(2) {
@@ -1800,7 +1800,7 @@ span.previous {
 
 #donationHoverOverlay .popup span span:not(:first-child, .premium-label):before {
     content: "\f00c  ";
-    color: green;
+    color: var(--clr-success);
     font-family: FontAwesome;
 }
 
@@ -1895,7 +1895,7 @@ span.previous {
     position: absolute;
     left: 50%;
     top: 50%;
-    box-shadow: 0 0 20px 1px rgba(51, 51, 51, 0.2), inset 0 0 20px 20000px rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 20px 1px var(--clr-about-shadow), inset 0 0 20px 20000px var(--clr-about-overlay);
     backdrop-filter: blur(10px);
     transform: translateX(-50%) translateY(-50%);
     padding: 1.5rem 2rem;
@@ -1904,7 +1904,7 @@ span.previous {
 #about-container h1 {
     display: flex;
     font-family: "Montserrat", serif;
-    color: #444444;
+    color: var(--clr-about-text);
     font-size: 60px;
     justify-content: left;
     align-items: center;

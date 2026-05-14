@@ -60,12 +60,12 @@
 }
 
 #notificationPanel.announcement::after {
-    background-color: orange;
+    background-color: var(--clr-warning);
     color: black;
 }
 
 #notificationPanel.stable::after {
-    background-color: green;
+    background-color: var(--clr-success);
 }
 
 #notificationPanel.beta::after {
@@ -73,7 +73,7 @@
 }
 
 #notificationPanel.sync::after {
-    background-color: blue;
+    background-color: var(--clr-loading);
 }
 
 #notificationPanel.empty-sync::after {
@@ -81,7 +81,7 @@
 }
 
 #notificationPanel.error::after {
-    background-color: red;
+    background-color: var(--clr-error);
 }
 
 #notificationPanel.donation::after {
@@ -303,21 +303,21 @@
 /* Notification badge colors */
 
 .notification-card.announcement span.notification-badge {
-    background-color: orange;
+    background-color: var(--clr-warning);
 }
 
 div:not(#dismissed-notifications) > .notification-card.important.announcement {
-    box-shadow: 0 0 10px 1px orange;
-    outline: 1px solid orange;
+    box-shadow: 0 0 10px 1px var(--clr-warning);
+    outline: 1px solid var(--clr-warning);
 }
 
 .notification-card.stable span.notification-badge {
-    background-color: green;
+    background-color: var(--clr-success);
 }
 
 div:not(#dismissed-notifications) > .notification-card.important.stable {
-    box-shadow: 0 0 10px 1px green;
-    outline: 1px solid green;
+    box-shadow: 0 0 10px 1px var(--clr-success);
+    outline: 1px solid var(--clr-success);
 }
 
 .notification-card.beta span.notification-badge {
@@ -330,12 +330,12 @@ div:not(#dismissed-notifications) > .notification-card.important.beta {
 }
 
 .notification-card.sync span.notification-badge {
-    background-color: blue;
+    background-color: var(--clr-loading);
 }
 
 div:not(#dismissed-notifications) > .notification-card.important.sync {
-    box-shadow: 0 0 10px 1px blue;
-    outline: 1px solid blue;
+    box-shadow: 0 0 10px 1px var(--clr-loading);
+    outline: 1px solid var(--clr-loading);
 }
 
 .notification-card.empty-sync span.notification-badge {
@@ -348,12 +348,12 @@ div:not(#dismissed-notifications) > .notification-card.important.empty-sync {
 }
 
 .notification-card.error span.notification-badge {
-    background-color: red;
+    background-color: var(--clr-error);
 }
 
 div:not(#dismissed-notifications) > .notification-card.important.error {
-    box-shadow: 0 0 10px 1px red;
-    outline: 1px solid red;
+    box-shadow: 0 0 10px 1px var(--clr-error);
+    outline: 1px solid var(--clr-error);
 }
 
 .notification-card.donation span.notification-badge {

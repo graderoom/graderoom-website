@@ -37,7 +37,7 @@
     --clr-select-track: #555555;
 
     /* Status colors */
-    --clr-success: lime;
+    --clr-success: green;
     --clr-error: orangered;
     --clr-warning: orange;
     --clr-loading: deepskyblue;
@@ -58,6 +58,11 @@
     --img-key: url(/public/resources/dark_mode/key.png);
     --img-graduation: url(/public/resources/dark_mode/graduation.png);
     --img-school: url(/public/resources/dark_mode/school.png);
+
+    /* About */
+    --clr-about-overlay: rgba(0, 0, 0, 0.8);
+    --clr-about-text: #CCCCCC;
+    --clr-about-shadow: rgba(200, 200, 200, 0.2);
 }
 
 .logo-light { display: none !important; }

@@ -155,7 +155,7 @@ select.classic {
 }
 
 select.classic:focus {
-    border-color: grey;
+    border-color: var(--clr-border);
     outline: 0;
     background-image: linear-gradient(45deg, var(--clr-select-arrow) 50%, transparent 50%),
                       linear-gradient(135deg, transparent 50%, var(--clr-select-arrow) 50%),
@@ -287,7 +287,7 @@ select:focus {
     cursor: pointer;
     transition: 0.4s;
     vertical-align: middle;
-    color: #888888;
+    color: var(--clr-text-3);
     border-radius: 0.6rem;
     background-color: var(--clr-input);
 }
@@ -386,7 +386,7 @@ input:disabled + .slider:before {
 
 .form-weights .disabled {
     border-bottom: none !important;
-    color: #999999 !important;
+    color: var(--clr-placeholder) !important;
     pointer-events: none;
 }
 
