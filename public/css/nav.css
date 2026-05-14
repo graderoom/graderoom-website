@@ -119,7 +119,6 @@ nav .navbar-toggler:hover {
 /* Class links */
 
 #classLinks {
-    z-index: 19;
     box-shadow: 0 0 10px 2px var(--clr-shadow-soft);
 }
 
