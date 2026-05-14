@@ -240,6 +240,8 @@ body::-webkit-scrollbar-thumb {
 /* Base elements */
 
 body {
+    display: flex;
+    flex-direction: column;
     padding: 0 0 10rem 0;
     min-height: calc(100vh + 10rem);
     background-color: var(--clr-bg);

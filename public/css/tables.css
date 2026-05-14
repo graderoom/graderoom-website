@@ -252,11 +252,11 @@ tr:hover .toolTab {
 }
 
 .toolTab .fa-check {
-    color: #00FF00;
+    color: var(--clr-success);
 }
 
 .toolTab .fa-trash {
-    color: #FF0000;
+    color: var(--clr-error);
 }
 
 td.toolTab {
@@ -301,7 +301,7 @@ th.toolTab {
 }
 
 .weightsTable input {
-    border-color: lightcoral;
+    border-color: var(--clr-error);
 }
 
 .weightsTable input.text-view {
@@ -362,7 +362,7 @@ th.toolTab {
 
 #weightsCard .disabled {
     border-bottom: none !important;
-    color: #999999 !important;
+    color: var(--clr-placeholder) !important;
 }
 
 #weightsCard input {
@@ -465,7 +465,7 @@ th.toolTab {
 }
 
 .gpa-details-table tr:last-child th:last-child {
-    color: green;
+    color: var(--clr-success);
     font-size: 1rem;
 }
 
@@ -521,7 +521,7 @@ th.toolTab {
 
 #donationWhatYouGet td, #donationWhatYouGet th {
     border: none;
-    box-shadow: inset 0 0 2px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 0 2px 1px var(--clr-shadow-soft);
     padding: 0.2rem 1rem;
 }
 
@@ -543,12 +543,12 @@ th.toolTab {
 }
 
 #donationWhatYouGet td.supported {
-    background-color: green;
+    background-color: var(--clr-success);
     color: white;
 }
 
 #donationWhatYouGet td.previous {
-    background-color: green;
+    background-color: var(--clr-success);
 }
 
 #donationWhatYouGet td:not(.text)::after {
@@ -556,7 +556,7 @@ th.toolTab {
     display: inline-block;
     text-align: center;
     font-family: FontAwesome;
-    color: red;
+    color: var(--clr-error);
     content: "\f00d";
     font-size: 1.5rem;
     opacity: 0.2;

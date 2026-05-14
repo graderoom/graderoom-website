@@ -1260,14 +1260,14 @@ module.exports = function (app, passport) {
 
         let {school: school, valid: validToken, gradeSync: gradeSync} = (await dbClient.checkPasswordResetToken(resetToken)).data;
         if (!validToken) {
-            res.status(404).render("password_reset/reset_password_404.ejs", {
+            renderWithConstants(res.status(404), "password_reset/reset_password_404.ejs", {
                 _appearance: loggedOutAppearance(),
                 page: "password404"
             });
             return;
         }
 
-        res.status(200).render("password_reset/reset_password.ejs", {
+        renderWithConstants(res.status(200), "password_reset/reset_password.ejs", {
             message: req.flash("resetPasswordMsg"),
             token: resetToken,
             gradeSync: gradeSync,
@@ -1289,7 +1289,7 @@ module.exports = function (app, passport) {
         let newPass = req.body.password;
         let resp = await dbClient.resetPassword(resetToken, newPass);
         if (!resp.success && resp.data.message === "Invalid token.") {
-            res.status(404).render("password_reset/reset_password_404.ejs", {
+            renderWithConstants(res.status(404), "password_reset/reset_password_404.ejs", {
                 _appearance: loggedOutAppearance(),
                 page: "password404"
             });
@@ -1315,7 +1315,7 @@ module.exports = function (app, passport) {
         }
 
 
-        res.status(200).render("password_reset/forgot_password.ejs", {
+        renderWithConstants(res, "password_reset/forgot_password.ejs", {
             message: req.flash("forgotPasswordMsg"),
             _appearance: loggedOutAppearance(),
             page: "passwordForgot",

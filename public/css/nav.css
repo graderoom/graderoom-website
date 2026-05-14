@@ -83,7 +83,7 @@ nav .navbar-toggler:hover {
 
 .navbar btn.donate-nav-item:hover, btn.donate-nav-item.active {
     background-color: var(--clr-donate-nav-bg) !important;
-    border-color: blue !important;
+    border-color: var(--clr-donate-nav-bg) !important;
 }
 
 /* Secondary nav (tab-style) */

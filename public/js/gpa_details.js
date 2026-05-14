@@ -1,0 +1,575 @@
+    let gpaButtons = $("#gpaDetailsCard .tablinks");
+
+    function setupGpaDetails(setup = false, show = true) {
+        if (setup) {
+            maxGpaDetailsTab = 0;
+            if (setupSemesterGpaDetails()) {
+                maxGpaDetailsTab++;
+            }
+            if (setupCumulativeGpaDetails()) {
+                maxGpaDetailsTab++;
+            }
+            if (setupUC_CSUGpaDetails()) {
+                maxGpaDetailsTab++;
+            }
+
+            if (appearance.weightedGPA) {
+                $(`.weighted`).show();
+            } else {
+                $(`.weighted`).hide();
+            }
+        }
+        if (show) {
+            showCard('#gpaDetailsCardDisplay');
+        }
+    }
+
+    function setupSemesterGpaDetails() {
+        // Semester GPA
+        // Get table
+        let semesterGpaDetailsTable = $('#semesterGpaDetails table');
+
+        // Remove all rows except the header row
+        semesterGpaDetailsTable.find('tr').remove();
+
+        // Add header row
+        let header = $(`<tr>
+            <th>Course</th>
+            <th>Course Type</th>
+            <th>Grade Earned</th>
+            <th><span class="weighted">Weighted<br></span>GPA Points</th>
+            <th colspan="2"><b>×</b></th>
+            <th>Credits</th>
+            <th colspan="2"><b>=</b></th>
+            <th>Credit Points</th>
+        </tr>`);
+
+        semesterGpaDetailsTable.append(header);
+
+        // Keep track of total points
+        let totalCredits = 0;
+        let totalCreditPoints = 0;
+
+        // Now add the rows
+        for (let i = 0; i < _data.length; i++) {
+            let class_name = _data[i].class_name;
+            let letterGrade = _data[i].overall_letter || getLetterGrade(getOverallGrade(i));
+            if (noGpaLetters.includes(letterGrade)) {
+                continue;
+            }
+            let class_type = relClassData[class_name].classType;
+            if (class_type === "non-academic") {
+                continue;
+            }
+            let addHonors = 0;
+
+            switch (class_type) {
+                case "ap":
+                    class_type = "AP";
+                    addHonors = 1;
+                    break;
+                case "honors":
+                    class_type = "Honors";
+                    addHonors = 1;
+                    break;
+                case "none":
+                    class_type = "Regular";
+                    break;
+                case "non-academic":
+                    class_type = "Non-Academic";
+                    break;
+                default:
+                    class_type = "?";
+                    break;
+            }
+
+            if (!appearance.weightedGPA) {
+                addHonors = 0;
+            }
+
+            let gpaPoints = getGPA(letterGrade) + addHonors;
+            let credits = relClassData[class_name].credits;
+            let terms = relClassData[class_name].terms;
+
+            let creditPoints;
+
+            if (credits && terms) {
+                credits = credits / terms;
+                totalCredits += credits;
+                credits = (Math.round(credits * 100) / 100).toFixed(2);
+                creditPoints = gpaPoints * credits;
+                totalCreditPoints += creditPoints;
+                creditPoints = (Math.round(creditPoints * 100) / 100).toFixed(2);
+            } else {
+                totalCredits += 5;
+                totalCreditPoints += gpaPoints * 5;
+                credits = "5.00?";
+                creditPoints = (Math.round(gpaPoints * 5 * 100) / 100).toFixed(2) + "?";
+            }
+
+            if (addHonors) {
+                gpaPoints = (Math.round((gpaPoints - addHonors) * 10) / 10).toFixed(1) + " <b>(+1.0)</b>";
+            } else {
+                gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
+            }
+
+            creditPoints = `<td>` + gpaPoints + `</td><td colspan="2"><b>×</b></td><td>` + credits + `</td><td colspan="2"><b>=</b></td><td><b>` + creditPoints + `</b></td>`;
+
+            // Create and add row
+            let row = $(`<tr><td>` + class_name + `</td><td>` + class_type + `</td><td>` + letterGrade + `</td>` + creditPoints + `</tr>`);
+            semesterGpaDetailsTable.append(row);
+        }
+
+        // Create footers
+        let quotient = (Math.round((totalCreditPoints / totalCredits) * 1000) / 1000).toFixed(3);
+        totalCreditPoints = (Math.round(totalCreditPoints * 100) / 100).toFixed(2);
+        totalCredits = (Math.round(totalCredits * 100) / 100).toFixed(2);
+
+        let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints +
+            ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
+        semesterGpaDetailsTable.append(totals);
+
+        let final = $(`<tr><th colspan="5"><span class="weighted">Weighted </span>GPA Calculation (Total Credit Points / Total Credits)</th><th>` + totalCreditPoints + `</th><th>/</th><th>` +
+            totalCredits + `</th><th>=</th><th>` + quotient + `</th></tr>`)
+        semesterGpaDetailsTable.append(final);
+
+
+        // Show the button
+        if (_data.length) {
+            $(gpaButtons[0]).show();
+            return true;
+        }
+        $(gpaButtons[0]).hide();
+        return false;
+
+    }
+
+    function setupCumulativeGpaDetails() {
+        if (school === "basis") {
+            return false;
+        }
+
+        let gradYear = personalInfo.graduationYear;
+        let ninth = gradYear - 3;
+        ninth = (ninth - 2001) + "-" + (ninth - 2000);
+        if (!(ninth in gradeHistoryLetters) || !("S1" in gradeHistoryLetters[ninth])) return false;
+
+        // Get table
+        let cumulativeGpaDetailsTable = $('#cumulativeGpaDetails table');
+
+        // Remove all rows except the header row
+        cumulativeGpaDetailsTable.find('tr:not(.gpa-details-table-header)').remove();
+
+        // Keep track of total points
+        let totalCredits = 0;
+        let totalCreditPoints = 0;
+
+        // Now add the rows
+        let years = Object.keys(gradeHistoryLetters).sort((a, b) => a.slice(-2) - b.slice(-2));
+        for (let i = 0; i < years.length; i++) {
+
+            let semesters = Object.keys(gradeHistoryLetters[years[i]]).sort((a, b) => a.slice(-1) - b.slice(-1));
+            for (let j = 0; j < semesters.length; j++) {
+
+                if (gradYear - 3 + i > lastYearWithSummerCredit[school] && semesters[j] === "S3") {
+                    continue;
+                }
+
+                // Add a semester header
+                let semesterHeader = $(`<tr><th colspan="10">` + years[i] + ` | ` + semesters[j] + `</th></tr>`);
+                cumulativeGpaDetailsTable.append(semesterHeader);
+
+                // Add header row
+                let header = $(`<tr>
+                <th>Course</th>
+                <th>Course Type</th>
+                <th>Grade Earned</th>
+                <th><span class="weighted">Weighted<br></span>GPA Points</th>
+                <th colspan="2"><b>×</b></th>
+                <th>Credits</th>
+                <th colspan="2"><b>=</b></th>
+                <th>Credit Points</th>
+                </tr>`);
+
+                cumulativeGpaDetailsTable.append(header);
+
+                for (let k = 0; k < gradeHistoryLetters[years[i]][semesters[j]].length; k++) {
+                    let classObject = gradeHistoryLetters[years[i]][semesters[j]][k];
+                    let class_name = Object.keys(classObject)[0];
+                    let letterGrade = Object.values(classObject)[0] || (term === years[i] && semester === semesters[j] ? getLetterGrade(getOverallGrade(k)) : false);
+                    if (noGpaLetters.includes(letterGrade)) {
+                        continue;
+                    }
+                    let class_type = relClassData[class_name].classType;
+                    if (class_type === "non-academic") {
+                        continue;
+                    }
+                    let addHonors = 0;
+
+                    switch (class_type) {
+                        case "ap":
+                            class_type = "AP";
+                            addHonors = 1;
+                            break;
+                        case "honors":
+                            class_type = "Honors";
+                            addHonors = 1;
+                            break;
+                        case "none":
+                            class_type = "Regular";
+                            break;
+                        default:
+                            class_type = "?";
+                            break;
+                    }
+
+                    if (!appearance.weightedGPA) {
+                        addHonors = 0;
+                    }
+
+                    let gpaPoints = getGPA(letterGrade) + addHonors;
+                    let credits = relClassData[class_name].credits;
+                    let terms = relClassData[class_name].terms;
+
+                    let creditPoints;
+
+                    if (credits && terms) {
+                        credits = credits / terms;
+                        totalCredits += credits;
+                        credits = (Math.round(credits * 100) / 100).toFixed(2);
+                        creditPoints = gpaPoints * credits;
+                        totalCreditPoints += creditPoints;
+                        creditPoints = (Math.round(creditPoints * 100) / 100).toFixed(2);
+                    } else {
+                        totalCredits += 5;
+                        totalCreditPoints += gpaPoints * 5;
+                        credits = "5.00?";
+                        creditPoints = (Math.round(gpaPoints * 5 * 100) / 100).toFixed(2) + "?";
+                    }
+
+                    if (addHonors) {
+                        gpaPoints = (Math.round((gpaPoints - addHonors) * 100) / 100).toFixed(2) + " <b>(+1.0)</b>";
+                    } else {
+                        gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
+                    }
+
+                    creditPoints = `<td>` + gpaPoints + `</td><td colspan="2"><b>×</b></td><td>` + credits + `</td><td colspan="2"><b>=</b></td><td><b>` + creditPoints + `</b></td>`;
+
+                    // Create and add row
+                    let row = $(`<tr><td>` + class_name + `</td><td>` + class_type + `</td><td>` + letterGrade + `</td>` + creditPoints + `</tr>`);
+                    cumulativeGpaDetailsTable.append(row);
+                }
+            }
+        }
+
+        // Create footers
+        let quotient = (Math.round(totalCreditPoints / totalCredits * 1000) / 1000).toFixed(3);
+        totalCreditPoints = (Math.round(totalCreditPoints * 100) / 100).toFixed(2);
+        totalCredits = (Math.round(totalCredits * 100) / 100).toFixed(2);
+
+        let totals = $(`<tr><th colspan="5">TOTALS</th><th colspan="3">` + totalCredits + ` <small>CREDITS</small></th><th colspan="2">` + totalCreditPoints +
+            ` <small style="white-space: nowrap">CREDIT PTS</small></th></tr>`)
+        cumulativeGpaDetailsTable.append(totals);
+
+        let final = $(`<tr><th colspan="5"><span class="weighted">Weighted </span>GPA Calculation (Total Credit Points / Total Credits)</th><th>` + totalCreditPoints + `</th><th>/</th><th>` +
+            totalCredits + `</th><th>=</th><th>` + quotient + `</th></tr>`)
+        cumulativeGpaDetailsTable.append(final);
+
+        // Show the button
+        if (years.length) {
+            $(gpaButtons[1]).show();
+            return true;
+        }
+        $(gpaButtons[1]).hide();
+        return false;
+    }
+
+    function setupUC_CSUGpaDetails() {
+        if (school === "basis") {
+            return false;
+        }
+
+        // Get table
+        let uc_csuGpaDetailsTable = $('#uc_csuGpaDetails table');
+
+        // Remove all rows except the header row
+        uc_csuGpaDetailsTable.find('tr:not(.gpa-details-table-header)').remove();
+
+        // First we need to determine which years are 9-11
+        // We use graduation year for this
+        let gradYear = personalInfo.graduationYear;
+        let ninth = gradYear - 3;
+        let tenth = gradYear - 2;
+        let eleventh = gradYear - 1;
+
+        // Convert years into terms
+        ninth = (ninth - 2001) + "-" + (ninth - 2000);
+        tenth = (tenth - 2001) + "-" + (tenth - 2000);
+        eleventh = (eleventh - 2001) + "-" + (eleventh - 2000);
+
+        if (!(ninth in gradeHistoryLetters) || !("S1" in gradeHistoryLetters[ninth])) return false;
+
+        let numClasses = 0;
+        let basePoints = 0;
+        let tenthHonorsPoints = 0;
+        let eleventhHonorsPoints = 0;
+
+        // Header row
+        let header = `<tr>
+                <th>Course</th>
+                <th>UC Class Type</th>
+                <th>Grade Earned</th>
+                <th>GPA Points</th>
+                <th>Honors Point</th>
+                <th>Total 10<sup>th</sup> Honors Points</th>
+                <th>Total 11<sup>th</sup> Honors Points</th>
+                </tr>`;
+
+        if (gradYear - 3 <= lastYearWithSummerCredit[school] && ninth in gradeHistoryLetters && "S3" in gradeHistoryLetters[ninth]) {
+
+            // Add a header row
+            let semester_header = $(`<tr><th colspan="10">9th grade S3</th></tr>`);
+            uc_csuGpaDetailsTable.append(semester_header);
+            uc_csuGpaDetailsTable.append(header);
+
+            let classes = gradeHistoryLetters[ninth]["S3"];
+            for (let c = 0; c < classes.length; c++) {
+                let classObject = classes[c];
+                let class_name = Object.keys(classObject)[0];
+                let letterGrade = Object.values(classObject)[0] || (term === ninth && semester === "S3" ? getLetterGrade(getOverallGrade(c)) : false);
+                if (noGpaLetters.includes(letterGrade)) {
+                    continue;
+                }
+                let class_type = relClassData[class_name].uc_csuClassType;
+
+                let uc_class_type;
+                let honors_point = "<b>10<sup>th</sup></b>";
+
+                let gpaPoints = getGPA(letterGrade);
+                gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
+
+                switch (class_type) {
+                    case "uc_ap":
+                        uc_class_type = "<b>UC Approved AP</b>";
+                        break;
+                    case "uc_hon":
+                        uc_class_type = "<b>UC Approved Honors</b>";
+                        break;
+                    case "uc":
+                        uc_class_type = "UC Approved Regular";
+                        honors_point = "--";
+                        break;
+                    case "not_uc":
+                        uc_class_type = "Not UC Approved";
+                        honors_point = "--";
+                        gpaPoints = "0.0";
+                        break;
+                    default:
+                        uc_class_type = "?";
+                        honors_point = "--";
+                        break;
+                }
+
+                let uc;
+                [uc, class_type] = class_type.split("_");
+
+                if ((uc === "uc" || uc === "") && !noGpaLetters.includes(letterGrade)) {
+                    numClasses++;
+                    let points = getGPA(letterGrade);
+                    basePoints += points;
+                    if ((["hon", "ap"]).includes(class_type)) {
+                        if (points >= 2 && tenthHonorsPoints < 4) {
+                            tenthHonorsPoints++;
+                        }
+                    }
+                }
+
+                // Create and add row
+                let row = $(`<tr><td>` + class_name + `</td><td>` + uc_class_type + `</td><td>` + letterGrade + `</td><td>` + gpaPoints + `</td><td>` + honors_point + `</td><td>` +
+                    tenthHonorsPoints + `</td><td>--</td></tr>`);
+                uc_csuGpaDetailsTable.append(row);
+            }
+        }
+
+        // Tenth
+        if (tenth in gradeHistoryLetters) {
+            let semesters = Object.keys(gradeHistoryLetters[tenth]).sort((a, b) => a.slice(-1) - b.slice(-1));
+            for (let s = 0; s < semesters.length; s++) {
+                if (gradYear - 2 > lastYearWithSummerCredit[school] && semesters[s] === "S3") continue;
+                let classes = gradeHistoryLetters[tenth][semesters[s]];
+                if (!classes.filter(c => !noGpaLetters.includes(Object.values(c)[0])).length) continue;
+
+                // Add a header row
+                let semester_header = $(`<tr><th colspan="10">10th grade ` + semesters[s] + `</th></tr>`);
+                uc_csuGpaDetailsTable.append(semester_header);
+                uc_csuGpaDetailsTable.append(header);
+
+                for (let c = 0; c < classes.length; c++) {
+                    let classObject = classes[c];
+                    let class_name = Object.keys(classObject)[0];
+                    let letterGrade = Object.values(classObject)[0] || (term === tenth && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
+                    if (noGpaLetters.includes(letterGrade)) {
+                        continue;
+                    }
+                    let class_type = relClassData[class_name].uc_csuClassType;
+
+                    let uc_class_type;
+                    let honors_point = "<b>10<sup>th</sup></b>";
+
+                    let gpaPoints = getGPA(letterGrade);
+                    gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
+                    switch (class_type) {
+                        case "uc_ap":
+                            uc_class_type = "<b>UC Approved AP</b>";
+                            break;
+                        case "uc_hon":
+                            uc_class_type = "<b>UC Approved Honors</b>";
+                            break;
+                        case "uc":
+                            uc_class_type = "UC Approved Regular";
+                            honors_point = "--";
+                            break;
+                        case "not_uc":
+                            uc_class_type = "Not UC Approved";
+                            honors_point = "--";
+                            gpaPoints = "0.0";
+                            break;
+                        default:
+                            uc_class_type = "?";
+                            honors_point = "--";
+                            break;
+                    }
+
+                    let uc;
+                    [uc, class_type] = class_type.split("_");
+
+                    if ((uc === "uc" || uc === "") && !noGpaLetters.includes(letterGrade)) {
+                        numClasses++;
+                        let points = getGPA(letterGrade);
+                        basePoints += points;
+                        if ((["hon", "ap"]).includes(class_type)) {
+                            if (points >= 2 && tenthHonorsPoints < 4) {
+                                tenthHonorsPoints++;
+                            } else {
+                                honors_point = "Max";
+                            }
+                        }
+                    }
+
+                    // Create and add row
+                    let row = $(`<tr><td>` + class_name + `</td><td>` + uc_class_type + `</td><td>` + letterGrade + `</td><td>` + gpaPoints + `</td><td>` + honors_point + `</td><td>` +
+                        tenthHonorsPoints + `</td><td>--</td></tr>`);
+                    uc_csuGpaDetailsTable.append(row);
+                }
+            }
+        }
+
+        // Eleventh
+        if (eleventh in gradeHistoryLetters) {
+            let semesters = Object.keys(gradeHistoryLetters[eleventh]).sort((a, b) => a.slice(-1) - b.slice(-1));
+            for (let s = 0; s < semesters.length; s++) {
+                if (gradYear - 1 > lastYearWithSummerCredit[school] && semesters[s] === "S3") continue;
+                let classes = gradeHistoryLetters[eleventh][semesters[s]];
+                if (!classes.filter(c => !noGpaLetters.includes(Object.values(c)[0])).length) continue;
+
+                // Add a header row
+                let semester_header = $(`<tr><th colspan="10">11th grade ` + semesters[s] + `</th></tr>`);
+                uc_csuGpaDetailsTable.append(semester_header);
+                uc_csuGpaDetailsTable.append(header);
+
+                for (let c = 0; c < classes.length; c++) {
+                    let classObject = classes[c];
+                    let class_name = Object.keys(classObject)[0];
+                    let letterGrade = Object.values(classObject)[0] || (term === eleventh && semester === semesters[s] ? getLetterGrade(getOverallGrade(c)) : false);
+                    if (noGpaLetters.includes(letterGrade)) {
+                        continue;
+                    }
+                    let class_type = relClassData[class_name].uc_csuClassType;
+
+                    let uc_class_type;
+                    let honors_point = "<b>11<sup>th</sup></b>";
+
+                    let gpaPoints = getGPA(letterGrade);
+                    gpaPoints = (Math.round(gpaPoints * 10) / 10).toFixed(1);
+                    switch (class_type) {
+                        case "uc_ap":
+                            uc_class_type = "<b>UC Approved AP</b>";
+                            break;
+                        case "uc_hon":
+                            uc_class_type = "<b>UC Approved Honors</b>";
+                            break;
+                        case "uc":
+                            uc_class_type = "UC Approved Regular";
+                            honors_point = "--";
+                            break;
+                        case "not_uc":
+                            uc_class_type = "Not UC Approved";
+                            honors_point = "--";
+                            gpaPoints = "0.0";
+                            break;
+                        default:
+                            uc_class_type = "?";
+                            honors_point = "--";
+                            break;
+                    }
+
+                    let uc;
+                    [uc, class_type] = class_type.split("_");
+
+                    if ((uc === "uc" || uc === "") && !noGpaLetters.includes(letterGrade)) {
+                        numClasses++;
+                        let points = getGPA(letterGrade);
+                        basePoints += points;
+                        if ((["hon", "ap"]).includes(class_type)) {
+                            if (points >= 2 && eleventhHonorsPoints < 8 - tenthHonorsPoints) {
+                                eleventhHonorsPoints++;
+                            } else {
+                                honors_point = "Max";
+                            }
+                        }
+                    }
+
+                    // Create and add row
+                    let row = $(`<tr><td>` + class_name + `</td><td>` + uc_class_type + `</td><td>` + letterGrade + `</td><td>` + gpaPoints + `</td><td>` + honors_point + `</td><td>` +
+                        tenthHonorsPoints + `</td><td>` + eleventhHonorsPoints + `</td></tr>`);
+                    uc_csuGpaDetailsTable.append(row);
+                }
+            }
+        }
+
+        let totalPoints = basePoints + tenthHonorsPoints + eleventhHonorsPoints;
+
+        let totals = $(`<tr><th colspan="2">TOTAL POINTS</th><th colspan="5">` + basePoints + ` <small>GPA</small> + ` + tenthHonorsPoints + ` <small>10<sup>TH</sup></small> + ` +
+            eleventhHonorsPoints + ` <small>11<sup>TH</sup></small> = ` + totalPoints + ` <small>TOTAL</small></th></tr>`)
+        uc_csuGpaDetailsTable.append(totals);
+
+        let quotient = (Math.round(totalPoints / numClasses * 1000) / 1000).toFixed(3);
+
+        let final = $(`<tr><th colspan="2">GPA Calculation (Total Points / # Semesters of UC Approved Classes)</th><th>` + totalPoints + ` <small>POINTS</small></th><th>/</th><th>` + numClasses +
+            ` <small>CLASSES</small></th><th>=</th><th>` + quotient + `</th></tr>`)
+        uc_csuGpaDetailsTable.append(final);
+
+        // Show the button
+        if (_data.length) {
+            $(gpaButtons[2]).show();
+            return true;
+        }
+        $(gpaButtons[2]).hide();
+        return false;
+    }
+
+    function openGpaDetailsTab(tabIndex) {
+        // Declare all variables
+        let tabName = "#gpaDetails-" + tabIndex;
+
+        // Get all elements with class="tabcontent" and hide them
+        $("#gpaDetailsCardDisplay .tabcontent").hide();
+
+        // Get all elements with class="tablinks" and remove the class "active"
+        $("#gpaDetailsCardDisplay .tablinks").removeClass("active");
+
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        $(tabName).show();
+        $(gpaButtons[tabIndex - 1]).addClass('active');
+        currentGpaDetailsTab = tabIndex;
+    }

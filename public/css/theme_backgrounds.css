@@ -1,6 +1,6 @@
 #theme-background {
     overflow: hidden;
-    background-color: var(--clr-bg, #111111);
+    background-color: var(--clr-bg);
 }
 
 #theme-background::before,
