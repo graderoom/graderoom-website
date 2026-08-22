@@ -52,9 +52,12 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-// ## [Stable 8.0.2] - 
-// ### Added
-// - <a class="changelog-inline-setoff" href="https://microsoftedge.microsoft.com/addons/detail/graderoom/iaogfmdnjddigaclajncbkioienjmnea" target="_blank">Microsoft Edge extension support</a>
+## [Stable 8.0.2] - 2026-08-21
+### Added
+- <a class="changelog-inline-setoff" href="https://microsoftedge.microsoft.com/addons/detail/graderoom/iaogfmdnjddigaclajncbkioienjmnea" target="_blank">Microsoft Edge extension support</a>
+
+### Fixed
+- Error on syncing new semester
 
 ## [Stable 8.0.1] - 2026-05-13
 ### Added

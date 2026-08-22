@@ -42,8 +42,8 @@
 
             if (window.chrome === undefined) {
                 window.open('https://addons.mozilla.org/en-US/firefox/addon/graderoom/', '_blank');
-            // } else if (navigator.userAgent.includes('Edg/')) {
-            //     window.open(`https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`, '_blank');
+            } else if (navigator.userAgent.includes('Edg/')) {
+                window.open(`https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`, '_blank');
             } else {
                 window.open(`https://chrome.google.com/webstore/detail/graderoom/${extensionIDs.chrome}`, '_blank');
             }

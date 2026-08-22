@@ -620,6 +620,8 @@
             donor = totalReceived >= minDonor;
             plus = totalReceived >= minPlus;
             premium = totalReceived >= minPremium;
+
+            if (!donor) createDonationProgressNotification()
         }
     }
 
