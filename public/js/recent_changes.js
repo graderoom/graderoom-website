@@ -24,10 +24,9 @@
 
             if (gradeHistoryTimestampIndex !== historyStartIdx) {
                 if (noChangesStreak) {
-                    let ps_locked = alerts.lastUpdated[i - 1].ps_locked;
                     startDate = new Date(startDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
                     endDate = new Date(endDate).toLocaleString("en-US", {timeZone: "America/Los_Angeles"});
-                    container.append(`<hr><span class="timestamp">` + (ps_locked ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">${school === "basis" ? "Schoology" : "PowerSchool"} was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
+                    container.append(`<hr><span class="timestamp">` + (psLockedStreak ? `<span class="popup"><i class="fa fa-exclamation-circle"><span class="popup-right">${school === "basis" ? "Schoology" : "PowerSchool"} was locked during this sync</span></i></span>` : ``) + `<span class="popup">` + startDate + (startDate !== endDate ? ` - <br>` + endDate : ``) + `</span><b>` + (noChangesStreak > 1 ? noChangesStreak + ` Syncs<br>` : ``) + `No Changes</b></span>`);
                     noChangesStreak = 0;
                 }
 
@@ -140,6 +139,11 @@
                 if (i === alerts.lastUpdated.length - 1) {
                     recentChangeText = " No Changes.";
                 }
+                if (!noChangesStreak) {
+                    psLockedStreak = ps_locked;
+                    endDate = alerts.lastUpdated[i].timestamp;
+                }
+                startDate = alerts.lastUpdated[i].timestamp;
                 noChangesStreak++;
                 continue;
             }

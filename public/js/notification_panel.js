@@ -591,6 +591,3 @@
             }
         });
     }
-
-    if (!donor) createDonationProgressNotification()
-
