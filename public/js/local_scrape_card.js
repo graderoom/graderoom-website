@@ -1,3 +1,7 @@
+    function extensionSupported() {
+        return !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || /EdgA\/|Android.*Firefox\//.test(navigator.userAgent);
+    }
+
     function randToken() {
         return Math.random().toString(36).substring(2);
     }
@@ -40,7 +44,9 @@
         } else {
             openedStore = true;
 
-            if (window.chrome === undefined) {
+            if (/EdgA\//.test(navigator.userAgent)) {
+                document.getElementById('edgeMobileInstructions').style.display = 'block';
+            } else if (window.chrome === undefined) {
                 window.open('https://addons.mozilla.org/en-US/firefox/addon/graderoom/', '_blank');
             } else if (navigator.userAgent.includes('Edg/')) {
                 window.open(`https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`, '_blank');

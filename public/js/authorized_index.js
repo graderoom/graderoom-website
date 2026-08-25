@@ -285,7 +285,7 @@ $.get("/donationProgress", function (data) {
                             setupIncorrectGradeMessages();
                             break;
                         case "Waiting for local scrape...":
-                            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                            if (!extensionSupported()) {
                                 messageDiv.css("display", "none");
                                 break;
                             }
