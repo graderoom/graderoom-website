@@ -1,4 +1,6 @@
     function extensionSupported() {
+        // No Safari
+        if (typeof window.GestureEvent !== 'undefined') return false;
         return !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || /EdgA\/|Android.*Firefox\//.test(navigator.userAgent);
     }
 
@@ -28,10 +30,14 @@
 
     let messagePromises = {};
 
-    function showInstallInstructions(text) {
-        const elem = document.getElementById('mobileInstallInstructions');
-        elem.querySelector('b').textContent = text;
-        elem.style.display = 'block';
+    // Android routes a PWA's window.open into an in-app custom tab, where neither store's
+    // install UI appears. An intent:// URL hands the page to the real browser app instead.
+    function openStore(url, androidPackage) {
+        if (androidPackage && /Android/i.test(navigator.userAgent) && window.matchMedia('(display-mode: standalone)').matches) {
+            window.location.href = `intent://${url.replace(/^https:\/\//, '')}#Intent;scheme=https;package=${androidPackage};end`;
+        } else {
+            window.open(url, '_blank');
+        }
     }
 
     function updateButton() {
@@ -51,18 +57,13 @@
             openedStore = true;
 
             if (/EdgA\//.test(navigator.userAgent)) {
-                window.open('https://microsoftedge.microsoft.com/addons/', '_blank');
+                openStore('https://microsoftedge.microsoft.com/addons/', 'com.microsoft.emmx');
             } else if (window.chrome === undefined) {
-                if (window.matchMedia('(display-mode: standalone)').matches) {
-                    window.location.href = 'intent://addons.mozilla.org/en-US/firefox/addon/graderoom/#Intent;scheme=https;package=org.mozilla.firefox;end';
-                    showInstallInstructions('If Firefox did not open, open Graderoom in the Firefox app and install the extension from there. Then come back to this app.');
-                } else {
-                    window.open('https://addons.mozilla.org/en-US/firefox/addon/graderoom/', '_blank');
-                }
+                openStore('https://addons.mozilla.org/en-US/firefox/addon/graderoom/', 'org.mozilla.firefox');
             } else if (navigator.userAgent.includes('Edg/')) {
-                window.open(`https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`, '_blank');
+                openStore(`https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`);
             } else {
-                window.open(`https://chrome.google.com/webstore/detail/graderoom/${extensionIDs.chrome}`, '_blank');
+                openStore(`https://chrome.google.com/webstore/detail/graderoom/${extensionIDs.chrome}`);
             }
             document.getElementById('extensionInstallBtn').textContent = 'I installed it!';
         }
