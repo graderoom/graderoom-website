@@ -28,6 +28,12 @@
 
     let messagePromises = {};
 
+    function showInstallInstructions(text) {
+        const elem = document.getElementById('mobileInstallInstructions');
+        elem.querySelector('b').textContent = text;
+        elem.style.display = 'block';
+    }
+
     function updateButton() {
         if (openedStore) {
             checkExtensionInstalled().then((installed) => {
@@ -45,9 +51,14 @@
             openedStore = true;
 
             if (/EdgA\//.test(navigator.userAgent)) {
-                document.getElementById('edgeMobileInstructions').style.display = 'block';
+                window.open('https://microsoftedge.microsoft.com/addons/', '_blank');
             } else if (window.chrome === undefined) {
-                window.open('https://addons.mozilla.org/en-US/firefox/addon/graderoom/', '_blank');
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                    window.location.href = 'intent://addons.mozilla.org/en-US/firefox/addon/graderoom/#Intent;scheme=https;package=org.mozilla.firefox;end';
+                    showInstallInstructions('If Firefox did not open, open Graderoom in the Firefox app and install the extension from there. Then come back to this app.');
+                } else {
+                    window.open('https://addons.mozilla.org/en-US/firefox/addon/graderoom/', '_blank');
+                }
             } else if (navigator.userAgent.includes('Edg/')) {
                 window.open(`https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`, '_blank');
             } else {
@@ -229,8 +240,14 @@
                 return false;
             }
 
-            $('.updateGradesMessage .messageTxt').text('You are not logged in. Please log in to PowerSchool in the opened window. Then, click the button below again.');
             $('#localScrapeDiv').find('button').prop('disabled', false).find('div').removeClass('loading');
+
+            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                $('.updateGradesMessage .messageTxt').html('You are not logged in. <a href="https://powerschool.bcp.org/student/idp?_userTypeHint=student" target="_blank" rel="noopener">Log in to PowerSchool</a>, then come back to this tab and tap Sync again.');
+                return false;
+            }
+
+            $('.updateGradesMessage .messageTxt').text('You are not logged in. Please log in to PowerSchool in the opened window. Then, click the button below again.');
 
             if (!loginWindow || loginWindow.closed) {
                 loginWindow = window.open('https://powerschool.bcp.org/student/idp?_userTypeHint=student', null, 'width=600,height=700');
