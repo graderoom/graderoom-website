@@ -28,8 +28,7 @@
             setupDiscord(true);
         }
         if (id === "#localScrapeCardDisplay") {
-            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            if (isMobile) {
+            if (!extensionSupported()) {
                 document.getElementById("mobileExtensionInfo").style.display = "block";
                 document.getElementById("installExtensionInfo").style.display = "none";
                 document.getElementById("localScrapeDiv").style.display = "none";

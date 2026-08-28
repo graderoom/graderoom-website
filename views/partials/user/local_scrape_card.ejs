@@ -28,10 +28,11 @@
                 <h1 class="card-title text-center">Local Scrape</h1>
                 <div id="mobileExtensionInfo" class="card-footer" style="display: none">
                     <p>
-                        <b>Syncing requires the Graderoom Extension, which is only available on desktop browsers.</b>
+                        <b>Syncing requires the Graderoom Extension, which your browser does not support.</b>
                     </p>
                     <p>
-                        <b>Please visit Graderoom on a desktop computer to sync your grades.</b>
+                        <b>Please use a desktop browser, or Microsoft Edge or Firefox on Android, to sync your
+                            grades.</b>
                     </p>
                 </div>
                 <div id="installExtensionInfo" class="card-footer" style="display: none">
@@ -41,6 +42,10 @@
                     <p>
                         <b>This extension allows Graderoom to securely access your grades from PowerSchool without
                             storing your login information on our servers.</b>
+                    </p>
+                    <p id="edgeMobileInstructions" style="display: none">
+                        <b>Open the Edge menu, tap Extensions, then search for &quot;Graderoom&quot; and install
+                            it. Come back here when you&#39;re done.</b>
                     </p>
                     <button id="extensionInstallBtn" class="btn btn-med btn-default" type="button"
                             onclick="updateButton()">
