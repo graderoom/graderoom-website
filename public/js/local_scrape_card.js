@@ -30,20 +30,34 @@
 
     let messagePromises = {};
 
-    // An installed PWA opens links in its own custom tab, where neither store's install UI
-    // works. An intent:// URL hands the page to the browser app, but Android only honors
-    // one from a real link click, not from location.href.
-    function openStore(url, androidPackage) {
-        if (androidPackage && /Android/i.test(navigator.userAgent) && window.matchMedia('(display-mode: standalone)').matches) {
-            const link = document.createElement('a');
-            link.href = `intent://${url.replace(/^https:\/\//, '')}#Intent;scheme=https;package=${androidPackage};end;`;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            return;
-        }
-        window.open(url, '_blank');
+    function androidPwa() {
+        return /Android/i.test(navigator.userAgent) && window.matchMedia('(display-mode: standalone)').matches;
     }
+
+    // pkg is the Android package to escape to; absent where no such handoff applies
+    function storeTarget() {
+        if (/EdgA\//.test(navigator.userAgent)) {
+            return {url: 'https://microsoftedge.microsoft.com/addons/', pkg: 'com.microsoft.emmx'};
+        }
+        if (window.chrome === undefined) {
+            return {url: 'https://addons.mozilla.org/en-US/firefox/addon/graderoom/', pkg: 'org.mozilla.firefox'};
+        }
+        if (navigator.userAgent.includes('Edg/')) {
+            return {url: `https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`};
+        }
+        return {url: `https://chrome.google.com/webstore/detail/graderoom/${extensionIDs.chrome}`};
+    }
+
+    // A PWA opens window.open in an in-app custom tab, where the store's install UI never
+    // appears. Android escapes to the browser app only from an intent:// URL the user taps
+    // directly, so it has to live on the button itself.
+    (function setupInstallButton() {
+        if (!androidPwa()) return;
+        const {url, pkg} = storeTarget();
+        if (!pkg) return;
+        document.getElementById('extensionInstallBtn').href =
+            `intent://${url.replace(/^https:\/\//, '')}#Intent;scheme=https;package=${pkg};end;`;
+    })();
 
     function updateButton() {
         if (openedStore) {
@@ -61,16 +75,13 @@
         } else {
             openedStore = true;
 
-            if (/EdgA\//.test(navigator.userAgent)) {
-                openStore('https://microsoftedge.microsoft.com/addons/', 'com.microsoft.emmx');
-            } else if (window.chrome === undefined) {
-                openStore('https://addons.mozilla.org/en-US/firefox/addon/graderoom/', 'org.mozilla.firefox');
-            } else if (navigator.userAgent.includes('Edg/')) {
-                openStore(`https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`);
-            } else {
-                openStore(`https://chrome.google.com/webstore/detail/graderoom/${extensionIDs.chrome}`);
+            const btn = document.getElementById('extensionInstallBtn');
+            // with an intent href the tap itself already navigated
+            if (!btn.hasAttribute('href')) {
+                window.open(storeTarget().url, '_blank');
             }
-            document.getElementById('extensionInstallBtn').textContent = 'I installed it!';
+            btn.removeAttribute('href');
+            btn.textContent = 'I installed it!';
         }
     }
 
