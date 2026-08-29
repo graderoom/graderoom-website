@@ -30,14 +30,19 @@
 
     let messagePromises = {};
 
-    // Android routes a PWA's window.open into an in-app custom tab, where neither store's
-    // install UI appears. An intent:// URL hands the page to the real browser app instead.
+    // An installed PWA opens links in its own custom tab, where neither store's install UI
+    // works. An intent:// URL hands the page to the browser app, but Android only honors
+    // one from a real link click, not from location.href.
     function openStore(url, androidPackage) {
         if (androidPackage && /Android/i.test(navigator.userAgent) && window.matchMedia('(display-mode: standalone)').matches) {
-            window.location.href = `intent://${url.replace(/^https:\/\//, '')}#Intent;scheme=https;package=${androidPackage};end`;
-        } else {
-            window.open(url, '_blank');
+            const link = document.createElement('a');
+            link.href = `intent://${url.replace(/^https:\/\//, '')}#Intent;scheme=https;package=${androidPackage};end;`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            return;
         }
+        window.open(url, '_blank');
     }
 
     function updateButton() {
