@@ -54,6 +54,7 @@
                 createPinned(version, "Stable", version, changelogMessage(version, _versionMessages[1]), false, false, version.endsWith(".0"), _versionDates[1], false);
             } else if (version.startsWith("Beta")) {
                 if (isBeta) createPinned(version, "Beta", version, changelogMessage(version, _versionMessages[1]), false, false, version.endsWith(".0"), _versionDates[1], false);
+                else i = 1;
             } else if (version.startsWith("Announcement")) {
                 createPinned(version, "Announcement", version, changelogMessage(version, _versionMessages[1]), false, false, true, _versionDates[1], false);
             }
