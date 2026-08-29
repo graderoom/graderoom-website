@@ -52,6 +52,16 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 8.0.4] - 2026-08-28
+### Added
+- <em>[Mobile]</em> Instructions for installing the extension when Graderoom is installed as an app
+
+### Improved
+- <em>[Mobile]</em> Syncing now links to the PowerSchool login instead of opening a popup window
+
+### Fixed
+- Installing the extension is no longer offered in Safari, which cannot run it
+
 ## [Beta 8.0.3] - 2026-08-25
 ### Added
 - <em>[Mobile]</em> Support for syncing when using Edge App on Android

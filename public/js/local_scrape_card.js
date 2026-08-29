@@ -34,30 +34,18 @@
         return /Android/i.test(navigator.userAgent) && window.matchMedia('(display-mode: standalone)').matches;
     }
 
-    // pkg is the Android package to escape to; absent where no such handoff applies
     function storeTarget() {
         if (/EdgA\//.test(navigator.userAgent)) {
-            return {url: 'https://microsoftedge.microsoft.com/addons/', pkg: 'com.microsoft.emmx'};
+            return 'https://microsoftedge.microsoft.com/addons/';
         }
         if (window.chrome === undefined) {
-            return {url: 'https://addons.mozilla.org/en-US/firefox/addon/graderoom/', pkg: 'org.mozilla.firefox'};
+            return 'https://addons.mozilla.org/en-US/firefox/addon/graderoom/';
         }
         if (navigator.userAgent.includes('Edg/')) {
-            return {url: `https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`};
+            return `https://microsoftedge.microsoft.com/addons/detail/graderoom/${extensionIDs.edge}`;
         }
-        return {url: `https://chrome.google.com/webstore/detail/graderoom/${extensionIDs.chrome}`};
+        return `https://chrome.google.com/webstore/detail/graderoom/${extensionIDs.chrome}`;
     }
-
-    // A PWA opens window.open in an in-app custom tab, where the store's install UI never
-    // appears. Android escapes to the browser app only from an intent:// URL the user taps
-    // directly, so it has to live on the button itself.
-    (function setupInstallButton() {
-        if (!androidPwa()) return;
-        const {url, pkg} = storeTarget();
-        if (!pkg) return;
-        document.getElementById('extensionInstallBtn').href =
-            `intent://${url.replace(/^https:\/\//, '')}#Intent;scheme=https;package=${pkg};end;`;
-    })();
 
     function updateButton() {
         if (openedStore) {
@@ -75,13 +63,15 @@
         } else {
             openedStore = true;
 
-            const btn = document.getElementById('extensionInstallBtn');
-            // with an intent href the tap itself already navigated
-            if (!btn.hasAttribute('href')) {
-                window.open(storeTarget().url, '_blank');
+            // A PWA sends every link to an in-app custom tab, where the store's install UI
+            // does not appear, and no intent:// shape escapes it. The extension does work in
+            // the app once installed, so this is a one-time trip to the browser.
+            if (androidPwa()) {
+                alert('Install the extension from Graderoom in your browser. You only need to do this once, then syncing works here in the app.');
+            } else {
+                window.open(storeTarget(), '_blank');
             }
-            btn.removeAttribute('href');
-            btn.textContent = 'I installed it!';
+            document.getElementById('extensionInstallBtn').textContent = 'I installed it!';
         }
     }
 
