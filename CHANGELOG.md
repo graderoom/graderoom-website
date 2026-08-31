@@ -58,6 +58,8 @@
 - A setting for how often your grades sync automatically, in Settings > Advanced > PowerSchool Sync Settings
 - The installed Graderoom Extension version and which browser it came from, in Settings > Advanced
 - A Stay signed in option on the login page, which keeps you signed in without activity for 30 days
+- <em>[Mobile]</em> Syncing on Android, using the Edge or Firefox app
+- <em>[Mobile]</em> Instructions for installing the extension when Graderoom is installed as an app
 
 ### Improved
 - Grades sync on the schedule you choose (default 4h) rather than just when you open Graderoom
@@ -66,6 +68,9 @@
 - You stay signed in as long as you keep using Graderoom, instead of being logged out 4 hours after signing in
 - PowerSchool pop-up window now closes automatically after you've signed in (requires Graderoom Extension v1.7.0+)
 - Checkboxes now follow your theme
+
+### Fixed
+- Installing the extension is no longer offered in Safari, which cannot run it
 
 ### Removed
 - The Local Scrape card, replaced by the navbar sync control
