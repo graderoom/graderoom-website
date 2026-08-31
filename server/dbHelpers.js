@@ -24,7 +24,7 @@ exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
 exports.COSTS_COLLECTION_NAME = 'costs';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 38;
+exports.dbUserVersion = 39;
 exports.dbClassVersion = 4;
 
 exports.minUsersForAverageCalc = 9;
@@ -224,6 +224,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 },
                 loggedIn: [],
                 enableLogging: true,
+                syncPeriod: freeSyncPeriod,
                 donoData: [],
                 api: {},
                 discord: {},
@@ -710,22 +711,34 @@ exports.donoAttributes = function (donos) {
     return exports.donoHelper(totalDonos);
 };
 
+exports.minSyncPeriod = function (donoData) {
+    let {donor, plus, premium} = exports.donoAttributes(donoData);
+    if (premium) {
+        return premiumSyncPeriod;
+    }
+    if (plus) {
+        return plusSyncPeriod;
+    }
+    if (donor) {
+        return donorSyncPeriod;
+    }
+    return freeSyncPeriod;
+};
+
+exports.effectiveSyncPeriod = function (donoData, syncPeriod) {
+    return Math.max(exports.minSyncPeriod(donoData), syncPeriod || 0);
+};
+
+exports.syncPeriodOptions = [15, 30, 60, 120, 240, 480, 720, 1440].map(m => m * 60 * 1000);
+
+exports.defaultSyncPeriod = freeSyncPeriod;
+
 exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
     return Date.now() >= exports.nextSyncWhen(lastSyncTimestamp, donoData);
 };
 
 exports.nextSyncWhen = function (lastSyncTimestamp, donoData) {
-    let {donor, plus, premium} = exports.donoAttributes(donoData);
-    if (premium) {
-        return lastSyncTimestamp + premiumSyncPeriod;
-    }
-    if (plus) {
-        return lastSyncTimestamp + plusSyncPeriod;
-    }
-    if (donor) {
-        return lastSyncTimestamp + donorSyncPeriod;
-    }
-    return lastSyncTimestamp + freeSyncPeriod;
+    return lastSyncTimestamp + exports.minSyncPeriod(donoData);
 }
 
 exports.processClasses = function (classes, forHistory=false) {

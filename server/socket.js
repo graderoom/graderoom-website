@@ -43,6 +43,9 @@ module.exports = {
                     case 'reduceMotion':
                         resp = await dbClient.setReduceMotion(_socketUsernameHelper(socket), value);
                         break;
+                    case 'syncPeriod':
+                        resp = await dbClient.setSyncPeriod(_socketUsernameHelper(socket), value);
+                        break;
                 }
                 if (resp?.success) {
                     socketManager.emitToRoom(_socketUsernameHelper(socket), 'success-settings-change', resp.data);

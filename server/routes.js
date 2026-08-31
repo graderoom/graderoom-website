@@ -4,7 +4,7 @@ const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 
 const https = require("https");
-const {changelog, changelogLegend, latestVersion, donoAttributes} = require("./dbHelpers");
+const {changelog, changelogLegend, latestVersion, donoAttributes, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isApiAuthenticated, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
 
@@ -145,6 +145,9 @@ module.exports = function (app, passport) {
 
                 renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
+                    syncInterval: effectiveSyncPeriod(req.user.donoData, req.user.syncPeriod),
+                    syncMinInterval: minSyncPeriod(req.user.donoData),
+                    _syncPeriodOptions: syncPeriodOptions.filter(o => o >= minSyncPeriod(req.user.donoData)),
                     history: req.query.term || req.query.semester,
                     school: req.user.school,
                     username: req.user.username,
@@ -187,6 +190,9 @@ module.exports = function (app, passport) {
                 let alerts = (await dbClient.getAllAlerts(req.user.username)).data.value;
                 renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
+                    syncInterval: effectiveSyncPeriod(req.user.donoData, req.user.syncPeriod),
+                    syncMinInterval: minSyncPeriod(req.user.donoData),
+                    _syncPeriodOptions: syncPeriodOptions.filter(o => o >= minSyncPeriod(req.user.donoData)),
                     history: false,
                     school: req.user.school,
                     username: req.user.username,
@@ -385,6 +391,7 @@ module.exports = function (app, passport) {
                 sortingData: 1,
                 betaFeatures: 1,
                 donoData: 1,
+                syncPeriod: 1,
                 "api.pairKey": 1,
                 "api.pairKeyExpire": 1,
                 "api.apiKey": 1,
@@ -410,6 +417,9 @@ module.exports = function (app, passport) {
                 }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
                 renderWithConstants(res, "user/authorized_index.ejs", {
                     page: "home",
+                    syncInterval: effectiveSyncPeriod(user.donoData, user.syncPeriod),
+                    syncMinInterval: minSyncPeriod(user.donoData),
+                    _syncPeriodOptions: syncPeriodOptions.filter(o => o >= minSyncPeriod(user.donoData)),
                     history: req.query.term || req.query.semester,
                     school: user.school,
                     username: user.username,

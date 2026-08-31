@@ -847,7 +847,27 @@
                                 </div>
                             </div>
                         </form>
-                        <% if (school !== "bellarmine") { %>
+                        <% if (school === "bellarmine") { %>
+                            <label style="display: flex; font-size: 1rem; align-items: center; gap: 1rem">
+                                Sync my grades automatically every
+                                <select id="syncPeriodPreset" class="minimal"
+                                        onchange="changeSetting('syncPeriod', parseInt(this.value))">
+                                    <% for (const option of _syncPeriodOptions) { %>
+                                        <option value="<%= option %>" <% if (syncInterval === option) { %>selected<% } %>>
+                                            <%= option < 3600000 ? (option / 60000) + " minutes"
+                                                : option === 3600000 ? "hour"
+                                                    : option === 86400000 ? "day"
+                                                        : (option / 3600000) + " hours" %>
+                                        </option>
+                                    <% } %>
+                                </select>
+                            </label>
+                            <small style="opacity: 0.5">Graderoom syncs on its own about every <span
+                                        id="syncPeriodHint"></span>. Your plan allows a sync as often as every
+                                <%= _syncPeriodOptions[0] < 3600000 ? (_syncPeriodOptions[0] / 60000) + " minutes"
+                                    : _syncPeriodOptions[0] === 3600000 ? "hour"
+                                        : (_syncPeriodOptions[0] / 3600000) + " hours" %>.</small>
+                        <% } else { %>
                             <btn style="margin-top: 0; margin-left: 0;" class="btn btn-sm"
                                  onclick="$('#syncGradesDiv').show(); $('#gradeSyncDiv').hide(); showCard('#updateGradesDisplay')">
                                 Change School Password

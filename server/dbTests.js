@@ -40,6 +40,14 @@ module.exports = {
         customAssert((await db.getUser(username, {})).success, true, "Get user");
         customAssert((await db.removeUser("")).success, false, "Invalid user removal");
         customAssert((await db.removeUser(username)).success, true, "Valid user removal");
+    }, testSyncPeriod: async () => {
+        const {effectiveSyncPeriod, minSyncPeriod, nextSyncWhen, defaultSyncPeriod} = require("./dbHelpers");
+        const free = [];
+        customAssert(effectiveSyncPeriod(free, defaultSyncPeriod), defaultSyncPeriod, "Sync period default");
+        customAssert(effectiveSyncPeriod(free, 15 * 60 * 1000), minSyncPeriod(free), "Sync period floors at plan minimum");
+        customAssert(effectiveSyncPeriod(free, 24 * 60 * 60 * 1000), 24 * 60 * 60 * 1000, "Sync period honors longer choice");
+        customAssert(effectiveSyncPeriod(free, undefined), minSyncPeriod(free), "Sync period without a setting");
+        customAssert(nextSyncWhen(0, free), minSyncPeriod(free), "Server allowance ignores syncPeriod");
     }, testBetaKeyFunctions: async () => {
         let res = await db.addBetaKey();
         customAssert(res.success, true, "Add beta key");

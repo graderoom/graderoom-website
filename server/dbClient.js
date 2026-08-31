@@ -54,7 +54,8 @@ const {
     nextSyncAllowed,
     ERRORS_COLLECTION_NAME,
     GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc, SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME, COSTS_COLLECTION_NAME, hash,
-    checkValidTerm, checkValidSemester, processClasses, nextSyncWhen
+    checkValidTerm, checkValidSemester, processClasses, nextSyncWhen, syncPeriodOptions, defaultSyncPeriod,
+    minSyncPeriod
 } = require("./dbHelpers");
 
 const config = async (url, prod, beta, testing = false) => {
@@ -1608,6 +1609,26 @@ const __version37 = async (db, user) => {
     }
 }
 
+const _version39 = async (db, username) => {
+    let res = await getUser(username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version39, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 39`}};
+}
+
+const __version39 = async (db, user) => {
+    if (user.version === 38) {
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {syncPeriod: defaultSyncPeriod, version: 39}
+        });
+    }
+}
+
 const _version38 = async (db, username) => {
     let res = await getUser(username, {version: 1, "appearance.theme": 1});
     if (!res.success) {
@@ -1814,6 +1835,9 @@ const updateUser = async (user) => {
     }
     if (user.version < 38) {
         await safe(_version38, user.username);
+    }
+    if (user.version < 39) {
+        await safe(_version39, user.username);
     }
 };
 
@@ -2766,6 +2790,31 @@ const _setTheme = async (db, username, mode, darkModeStart, darkModeFinish, seas
             log: `Error updating appearance for ${username} with parameters mode=${mode}, darkModeStart=${darkModeStart}, darkModeFinish=${darkModeFinish}, seasonalEffects=${seasonalEffects}, blurEffects=${blurEffects}`
         }
     };
+};
+
+const setSyncPeriod = (username, value) => safe(_setSyncPeriod, lower(username), value);
+const _setSyncPeriod = async (db, username, value) => {
+    if (typeof value === "string") {
+        value = JSON.parse(value);
+    }
+    if (!syncPeriodOptions.includes(value)) {
+        return {success: false, data: {message: "Something went wrong", log: `Invalid syncPeriod value: ${value}`}};
+    }
+    let res = await getUser(username, {donoData: 1});
+    if (!res.success) {
+        return res;
+    }
+    if (value < minSyncPeriod(res.data.value.donoData)) {
+        return {success: false, data: {message: "Something went wrong", log: `syncPeriod ${value} is below the plan minimum for ${username}`}};
+    }
+    res = await _users(db, username).updateOne({username: username}, {$set: {syncPeriod: value}});
+    if (res.matchedCount === 1) {
+        return {
+            success: true,
+            data: {settings: {syncPeriod: value}, log: `Set syncPeriod to ${value} for ${username}`}
+        };
+    }
+    return {success: false, data: {log: `Error setting syncPeriod to ${value} for ${username}`}};
 };
 
 const setShowMaxGPA = (username, value) => safe(_setShowMaxGPA, lower(username), value);
@@ -6188,6 +6237,7 @@ module.exports = {
     setWeightedGPA: setWeightedGPA,
     setTheme: setTheme,
     setShowMaxGPA: setShowMaxGPA,
+    setSyncPeriod: setSyncPeriod,
     setColorPalette: setColorPalette,
     updateCustomColor: updateCustomColor,
     setEnableLogging: setEnableLogging,
