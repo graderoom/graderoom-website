@@ -74,7 +74,7 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
                                             resave: true,
                                             saveUninitialized: true,
                                             cookie: {
-                                                maxAge: 4 * 60 * 60 * 1000, // 4 hours
+                                                maxAge: 8 * 60 * 60 * 1000, // 8 hours
                                                 sameSite: 'strict'
                                             }
                                         });
