@@ -34,27 +34,30 @@
         color: var(--clr-text);
     }
 
-    .popup > i > span {
-        background-color: transparent !important;
+    .popup-top-left, .popup-top, .popup-top-right,
+    .popup-right-top, .popup-right, .popup-right-bottom,
+    .popup-bottom-right, .popup-bottom, .popup-bottom-left,
+    .popup-left-bottom, .popup-left, .popup-left-top {
+        background-color: rgba(from var(--clr-surface-alt) r g b / 0.7) !important;
         backdrop-filter: blur(1rem);
-        border: 2px solid rgba(from currentColor r g b / 0.3) !important;
+        border: 2px solid rgba(from currentColor r g b / 1) !important;
         box-shadow: none;
     }
 
     .popup-top-right::after, .popup-top::after, .popup-top-left::after {
-        border-top: 0.5rem solid rgba(from currentColor r g b / 0.3) !important;
+        border-top: 0.5rem solid rgba(from currentColor r g b / 1) !important;
     }
 
     .popup-bottom-right::after, .popup-bottom::after, .popup-bottom-left::after {
-        border-bottom: 0.5rem solid rgba(from currentColor r g b / 0.3) !important;
+        border-bottom: 0.5rem solid rgba(from currentColor r g b / 1) !important;
     }
 
     .popup-left-top::after, .popup-left::after, .popup-left-bottom::after {
-        border-left: 0.5rem solid rgba(from currentColor r g b / 0.3) !important;
+        border-left: 0.5rem solid rgba(from currentColor r g b / 1) !important;
     }
 
     .popup-right-top::after, .popup-right::after, .popup-right-bottom::after {
-        border-right: 0.5rem solid rgba(from currentColor r g b / 0.3) !important;
+        border-right: 0.5rem solid rgba(from currentColor r g b / 1) !important;
     }
 
     #termSwitcher {
