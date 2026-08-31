@@ -804,98 +804,6 @@
                         <br>
                         <div id="donations"></div>
                     </div>
-                    <div class="card-footer">
-                        <h5>
-                            <% if (school === "basis") { %>Schoology
-                            <% } else { %>PowerSchool
-                            <% } %>
-                            Sync Settings
-                        </h5>
-                        <form id="changeSchoolEmail" class="form-signin"
-                              action="/changeschoolemail" method="post">
-                            <div class="form-group">
-                                <div id="emailChangeMessage"
-                                     class="alert alert-success alert-dismissible font-weight-bold"
-                                     style="display:none">
-                                    <div style="display:none" class="sk-chase-mini">
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                    </div>
-                                    <div class="messageTxt"></div>
-                                    <a class="close" onclick="closeMessage('emailChangeMessage')"
-                                       aria-label="close">X</a>
-                                </div>
-                                <div style="display: flex; flex-flow: row; justify-content: flex-start; align-items: center">
-                                    <div class="input-group" style="margin-bottom: 0">
-                                        <i class="email-bg"></i>
-                                        <label for="school_email">School Email</label>
-                                        <input oninput="checkLabel(this); $($(this)[0].form).find('button').prop('disabled',false)"
-                                               id="school_email" type="text"
-                                               class="form-control"
-                                               name="school_email" required>
-                                    </div>
-                                    <button type="submit"
-                                            onclick="ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true); updateSchoolUsernameDisplay(); "
-                                            class="btn btn-default btn-med"
-                                            style="width: fit-content; width: -moz-fit-content;" disabled>
-                                        Apply
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                        <% if (school === "bellarmine") { %>
-                            <label style="display: flex; font-size: 1rem; align-items: center; gap: 1rem">
-                                Sync my grades automatically every
-                                <select id="syncPeriodPreset" class="minimal"
-                                        onchange="changeSetting('syncPeriod', parseInt(this.value))">
-                                    <% for (const option of _syncPeriodOptions) { %>
-                                        <option value="<%= option %>" <% if (syncInterval === option) { %>selected<% } %>>
-                                            <%= option < 3600000 ? (option / 60000) + " minutes"
-                                                : option === 3600000 ? "hour"
-                                                    : option === 86400000 ? "day"
-                                                        : (option / 3600000) + " hours" %>
-                                        </option>
-                                    <% } %>
-                                </select>
-                            </label>
-                            <small style="opacity: 0.5">Graderoom syncs on its own about every <span
-                                        id="syncPeriodHint"></span>. Your plan allows a sync as often as every
-                                <%= _syncPeriodOptions[0] < 3600000 ? (_syncPeriodOptions[0] / 60000) + " minutes"
-                                    : _syncPeriodOptions[0] === 3600000 ? "hour"
-                                        : (_syncPeriodOptions[0] / 3600000) + " hours" %>.</small>
-                        <% } else { %>
-                            <btn style="margin-top: 0; margin-left: 0;" class="btn btn-sm"
-                                 onclick="$('#syncGradesDiv').show(); $('#gradeSyncDiv').hide(); showCard('#updateGradesDisplay')">
-                                Change School Password
-                            </btn>
-                            <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
-                                <label class="slider-container">
-                                    <label class="switch">
-                                        <input
-                                                id="gradeSyncToggle"
-                                                type="checkbox"
-                                                name="gradeSync"
-                                        <% if (gradeSync) { %>
-                                                checked
-                                                <% } %>
-                                                onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                    <label onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
-                                                class="popup"><i class="fa fa-question-circle"
-                                                                 style="margin-left: 0.4rem"><span
-                                                        class="popup-right-top">When enabled, Graderoom syncs whenever
-                                                you
-                                                login</span></i></span></label>
-                                </label>
-                            </form>
-                        <% } %>
-                    </div>
                     <form id="changePersonalInfo" class="card-footer form-signin" autocomplete="off">
                         <div class="form-group">
                             <h5>Personal Info
@@ -1081,6 +989,101 @@
             </div>
             <div id="settings-3" class="tabcontent">
                 <div class="card-body">
+                    <div class="card-footer">
+                        <h5>
+                            <% if (school === "basis") { %>Schoology
+                            <% } else { %>PowerSchool
+                            <% } %>
+                            Sync Settings
+                        </h5>
+                        <form id="changeSchoolEmail" class="form-signin"
+                              action="/changeschoolemail" method="post">
+                            <div class="form-group">
+                                <div id="emailChangeMessage"
+                                     class="alert alert-success alert-dismissible font-weight-bold"
+                                     style="display:none">
+                                    <div style="display:none" class="sk-chase-mini">
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                    </div>
+                                    <div class="messageTxt"></div>
+                                    <a class="close" onclick="closeMessage('emailChangeMessage')"
+                                       aria-label="close">X</a>
+                                </div>
+                                <div style="display: flex; flex-flow: row; justify-content: flex-start; align-items: center">
+                                    <div class="input-group" style="margin-bottom: 0">
+                                        <i class="email-bg"></i>
+                                        <label for="school_email">School Email</label>
+                                        <input oninput="checkLabel(this); $($(this)[0].form).find('button').prop('disabled',false)"
+                                               id="school_email" type="text"
+                                               class="form-control"
+                                               name="school_email" required>
+                                    </div>
+                                    <button type="submit"
+                                            onclick="ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true); updateSchoolUsernameDisplay(); "
+                                            class="btn btn-default btn-med"
+                                            style="width: fit-content; width: -moz-fit-content;" disabled>
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <% if (school === "bellarmine") { %>
+                            <label style="display: flex; font-size: 1rem; align-items: center; gap: 1rem">
+                                Sync my grades automatically every
+                                <select id="syncPeriodPreset" class="minimal"
+                                        onchange="changeSetting('syncPeriod', parseInt(this.value))">
+                                    <% for (const option of _syncPeriodOptions) { %>
+                                        <option value="<%= option %>" <% if (syncInterval === option) { %>selected<% } %>>
+                                            <%= option < 3600000 ? (option / 60000) + " minutes"
+                                                : option === 3600000 ? "hour"
+                                                    : option === 86400000 ? "day"
+                                                        : (option / 3600000) + " hours" %>
+                                        </option>
+                                    <% } %>
+                                </select>
+                            </label>
+                            <small style="opacity: 0.5; display: block">Graderoom syncs on its own about every <span
+                                        id="syncPeriodHint"></span>. Your plan allows a sync as often as every
+                                <%= _syncPeriodOptions[0] < 3600000 ? (_syncPeriodOptions[0] / 60000) + " minutes"
+                                    : _syncPeriodOptions[0] === 3600000 ? "hour"
+                                        : (_syncPeriodOptions[0] / 3600000) + " hours" %>.</small>
+                            <small style="opacity: 0.5; display: block">Graderoom Extension: <span
+                                        id="extensionVersionDisplay">checking...</span></small>
+                        <% } else { %>
+                            <btn style="margin-top: 0; margin-left: 0;" class="btn btn-sm"
+                                 onclick="$('#syncGradesDiv').show(); $('#gradeSyncDiv').hide(); showCard('#updateGradesDisplay')">
+                                Change School Password
+                            </btn>
+                            <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
+                                <label class="slider-container">
+                                    <label class="switch">
+                                        <input
+                                                id="gradeSyncToggle"
+                                                type="checkbox"
+                                                name="gradeSync"
+                                        <% if (gradeSync) { %>
+                                                checked
+                                                <% } %>
+                                                onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                    <label onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
+                                                class="popup"><i class="fa fa-question-circle"
+                                                                 style="margin-left: 0.4rem"><span
+                                                        class="popup-right-top">When enabled, Graderoom syncs whenever
+                                                you
+                                                login</span></i></span></label>
+                                </label>
+                            </form>
+                        <% } %>
+                    </div>
+
                     <div class="card-footer">
                         <h5>Display<br><small style="opacity: 0.5">Changing these settings will immediately refresh the
                                 page.</small></h5>

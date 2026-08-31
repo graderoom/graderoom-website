@@ -35,6 +35,14 @@
         width: 100% !important;
     }
 
+    .sync-control {
+        margin-top: 0.75rem;
+    }
+
+    #syncControlPopup {
+        display: none !important;
+    }
+
     .dropdown-toggle {
         display: none;
     }

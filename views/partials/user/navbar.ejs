@@ -79,6 +79,21 @@
     <div class="navbar-collapse collapse w-50" id="collapsingNav">
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (page === "home") { %>
+                <% if (school === "bellarmine") { %>
+                    <li id="syncGrades" class="nav-item">
+                        <span class="popup sync-popup">
+                            <div id="syncControl" class="sync-control" data-state="waiting" role="button" tabindex="0"
+                                 onclick="syncControlClick()" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); syncControlClick(); }">
+                                <i class="fa fa-refresh sync-icon" aria-hidden="true"></i>
+                                <span class="sync-text">
+                                    <span id="syncControlLabel" class="sync-label">Sync</span>
+                                    <span id="syncControlSub" class="sync-sub">Checking…</span>
+                                </span>
+                            </div>
+                            <span id="syncControlPopup" class="popup-bottom">Your grades sync automatically</span>
+                        </span>
+                    </li>
+                <% } %>
                 <li class="nav-item popup">
                     <div class="popup-holder-vert">
                         <span id="morePopup"
@@ -152,19 +167,21 @@
                         <% } %>
                     </ul>
                 </li>
-                <li id="syncGrades" class="nav-item popup">
-                    <btn class="btn btn-med"
-                         onclick="<% if (school === "bellarmine") { %>showCard('#localScrapeCardDisplay');<% } else { %>showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')<% } %>">
-                        <i class="fa fa-refresh" aria-hidden="true"></i>
-                        Sync
-                    </btn>
-                    <div class="popup-holder">
-                        <span id="syncPopup"
-                              class="nav-popups popup-bottom tutorial-popup">
-                            Sync your grades with <% if (school === "basis") { %>Schoology<% } else { %>PowerSchool<% } %>
-                        </span>
-                    </div>
-                </li>
+                <% if (school !== "bellarmine") { %>
+                    <li id="syncGrades" class="nav-item popup">
+                        <btn class="btn btn-med"
+                             onclick="showCard('#updateGradesDisplay'); $('#inputPassword').trigger('focus')">
+                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                            Sync
+                        </btn>
+                        <div class="popup-holder">
+                            <span id="syncPopup"
+                                  class="nav-popups popup-bottom tutorial-popup">
+                                Sync your grades with <% if (school === "basis") { %>Schoology<% } else { %>PowerSchool<% } %>
+                            </span>
+                        </div>
+                    </li>
+                <% } %>
             <% } %>
             <% if (page === "home") { %>
                 <li id="settings" class="nav-item popup">
@@ -199,8 +216,11 @@
 <% if (page === "home") { %>
     <%- include('sync_grades_card.ejs', {theme: theme}); %>
 <% } %>
-<% if (page === "home") { %>
-    <%- include('local_scrape_card.ejs', {theme: theme, testExtensionID: testExtensionID}); %>
+<% if (page === "home" && school === "bellarmine") { %>
+    <% if (testExtensionID) { %>
+        <script>let testExtensionID = '<%= testExtensionID %>';</script>
+    <% } %>
+    <script src="/public/js/sync_control.js"></script>
 <% } %>
 <% if (page === "home") { %>
     <%- include('settings_card.ejs', {theme: theme}); %>

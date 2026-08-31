@@ -27,26 +27,7 @@
             setupFeedbackForm();
             setupDiscord(true);
         }
-        if (id === "#localScrapeCardDisplay") {
-            if (!extensionSupported()) {
-                document.getElementById("mobileExtensionInfo").style.display = "block";
-                document.getElementById("installExtensionInfo").style.display = "none";
-                document.getElementById("localScrapeDiv").style.display = "none";
-                $(id).fadeIn(100);
-            } else {
-                checkExtensionInstalled().then((installed) => {
-                    if (installed) {
-                        document.getElementById("installExtensionInfo").style.display = "none";
-                        document.getElementById("localScrapeDiv").style.display = "block";
-                    } else {
-                        document.getElementById("installExtensionInfo").style.display = "block";
-                        document.getElementById("localScrapeDiv").style.display = "none";
-                    }
-                }).then(() => $(id).fadeIn(100));
-            }
-        } else {
-            $(id).fadeIn(100);
-        }
+        $(id).fadeIn(100);
     }
 
     function closeForm(id) {
@@ -90,12 +71,6 @@
                 $("#syncGradesDiv").show();
             }
         }
-        if (id === "localScrapeCardDisplay") {
-            document.getElementById("mobileExtensionInfo").style.display = "none";
-            document.getElementById("installExtensionInfo").style.display = "none";
-            document.getElementById("localScrapeDiv").style.display = "none";
-        }
-
         // Manage theme selection, if it exists
         try {
             $(`input[name=theme]`).prop("checked", false);

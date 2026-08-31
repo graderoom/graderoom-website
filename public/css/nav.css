@@ -247,6 +247,145 @@ nav .navbar-toggler:hover {
     opacity: 0.5;
 }
 
+@property --progress {
+    syntax: "<percentage>";
+    inherits: false;
+    initial-value: 0%;
+}
+
+.sync-popup {
+    position: relative;
+    display: inline-block;
+}
+
+#syncControlPopup {
+    width: 12rem;
+    color: var(--sync-accent, var(--clr-text));
+}
+
+.sync-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0.5rem;
+    padding: 0.35rem 1rem 0.35rem 0.75rem;
+    border: 2px solid var(--sync-accent, var(--clr-text-3));
+    border-radius: 999px;
+    --sync-bg: color-mix(in srgb, var(--sync-accent, var(--clr-text-3)) 12%, var(--clr-surface-alt));
+    background-color: var(--sync-bg);
+    color: var(--clr-text);
+    cursor: default;
+    user-select: none;
+    overflow: hidden;
+    transition: width 250ms ease, --progress 300ms ease, background-color 150ms, box-shadow 150ms;
+}
+
+.sync-icon {
+    flex: none;
+    font-size: 0.9rem;
+    color: var(--sync-accent, currentColor);
+}
+
+.sync-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 5.5rem;
+    overflow: hidden;
+    line-height: 1.15;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.sync-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.sync-sub {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    color: var(--clr-text-2);
+}
+
+.sync-popup:has([data-state="ready"]) {
+    --sync-accent: var(--clr-success);
+}
+
+.sync-popup:has([data-state="login"]),
+.sync-popup:has([data-state="awaiting"]) {
+    --sync-accent: var(--clr-warning);
+}
+
+.sync-popup:has([data-state="install"]),
+.sync-popup:has([data-state="installed"]),
+.sync-popup:has([data-state="reload"]),
+.sync-popup:has([data-state="syncing"]) {
+    --sync-accent: var(--clr-loading);
+}
+
+.sync-popup:has([data-state="error"]) {
+    --sync-accent: var(--clr-error);
+}
+
+.sync-control[data-state="syncing"] {
+    background: linear-gradient(to right,
+        color-mix(in srgb, var(--sync-accent) 25%, var(--sync-bg)) var(--progress, 0%),
+        var(--sync-bg) 0);
+}
+
+.sync-control[data-state="syncing"] .sync-icon,
+.sync-control[data-state="awaiting"] .sync-icon,
+.sync-control[data-state="installed"] .sync-icon {
+    animation: sync-spin 1s linear infinite;
+}
+
+.sync-control[data-state="ready"],
+.sync-control[data-state="login"],
+.sync-control[data-state="install"],
+.sync-control[data-state="reload"],
+.sync-control[data-state="awaiting"],
+.sync-control[data-state="error"] {
+    cursor: pointer;
+}
+
+.sync-control[data-state="ready"]:hover,
+.sync-control[data-state="login"]:hover,
+.sync-control[data-state="install"]:hover,
+.sync-control[data-state="reload"]:hover,
+.sync-control[data-state="awaiting"]:hover,
+.sync-control[data-state="error"]:hover {
+    --sync-bg: color-mix(in srgb, var(--sync-accent) 22%, var(--clr-surface-alt));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--sync-accent) 22%, transparent);
+}
+
+.sync-control[data-state="waiting"],
+.sync-control[data-state="syncing"],
+.sync-control[data-state="installed"],
+.sync-control[data-state="unsupported"] {
+    --sync-bg: var(--clr-surface-alt);
+    opacity: 0.55;
+}
+
+.sync-control[data-state="unsupported"] {
+    opacity: 0.35;
+}
+
+.sync-popup:has([data-state="waiting"]) #syncControlPopup,
+.sync-popup:has([data-state="syncing"]) #syncControlPopup,
+.sync-popup:has([data-state="installed"]) #syncControlPopup,
+.sync-popup:has([data-state="unsupported"]) #syncControlPopup {
+    color: var(--clr-text-3);
+}
+
+@keyframes sync-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* Nav popups visibility */
 
 .nav-popups {

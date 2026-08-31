@@ -27,7 +27,7 @@ redis-server --port 6381            # port 6381 for beta
 node server/graderoom.js            # port 5996 (stable) or 5998 (beta)
 ```
 
-Access at `127.0.0.1:<port>`. Default admin account: `admin` / `Pa5sw0rd`.
+Access at `localhost:<port>`. Default admin account: `admin` / `Pa5sw0rd`.
 
 **Stable vs Beta** is determined solely by port number: 5996 = stable, anything else = beta. This affects which MongoDB database is used and which Redis port is connected.
 
@@ -77,6 +77,32 @@ Two parallel communication paths:
 
 Grade syncing uses the Socket.io path. For Bellarmine, a browser extension on the client scrapes Powerschool and sends grade data to the server via socket. For other schools, the server spawns the Python scraper directly.
 
+Bellarmine has no sync card. Its sync UI is `#syncControl`, a chip first in the navbar row
+(left of More), driven by `public/js/sync_control.js`.
+
+- States set `data-state`: `waiting`, `ready`, `syncing`, `login`, `awaiting`, `install`,
+  `installed`, `reload`, `unsupported`, `error`. Clickable: `ready`, `login`, `awaiting`,
+  `install`, `reload`, `error`. `STICKY_STATES` is a separate list of states that hold until
+  something resolves them — `syncControl(null)` will not clear one, `syncReset()` will.
+- `--progress` (registered) fills the interior left to right during a sync, from the extension's
+  `status` messages via `syncStatus()`; those messages are also the sub-line. The wait until the
+  next sync is text only.
+- `fitSyncControl()` pins an explicit px width so it can animate, and refits once per state, so
+  status messages ellipsize rather than resize the chip. The nav row is `justify-content: end`,
+  so the chip grows leftward and the buttons after it do not move.
+- `.updateGradesMessage` is a last-synced + change-count readout only; `setupLastUpdated()` in
+  `sync_grades_card.js` is its sole writer for Bellarmine. `syncMessage()` / `syncFailed()` in
+  `authorized_index.js` route status and failures to the chip. Other schools keep the old pill
+  behaviour through the same two helpers.
+- After the store opens, `watchForInstall()` polls for the extension and syncs on its own once
+  it appears. Firefox cannot detect it without a page load, so it gets the `reload` state.
+- Auto-sync is attempted after every `info-initialstatus` via `maybeAutoSync()`, gated on
+  `autoSyncDue()`. Extension 1.7.0+ reports a
+  PowerSchool login from a content script on `powerschool.bcp.org/guardian/*` over the existing
+  external port; a `.closed` poll on the login popup is the fallback.
+- Sessions are rolling: `sessionIdlePeriod` (8h) of inactivity, or `sessionRememberPeriod` (30d) with
+  the login page's Stay signed in box. The extension holds the PowerSchool credentials, not the server.
+
 ### Frontend
 
 No build pipeline. EJS templates in `views/` with inline JavaScript. Static assets served from `public/`.
@@ -108,7 +134,16 @@ Additional CSS: `blur.css`, `responsive_blur.css`, `theme_backgrounds.css`, `fad
 
 Users have tiers (free, donor, plus, premium) that affect:
 - Rate limits (30/40/60/100 req/min)
-- Sync intervals (4h/2h/1h/15min)
+- Minimum sync intervals (4h/2h/1h/15min), the only thing the server gates on
+  (`nextSyncAllowed()` / `nextSyncWhen()` in `dbHelpers.js`).
+- `syncPeriod` (Settings > Advanced > PowerSchool Sync Settings, default 4h) is the user's
+  auto-sync preference. `effectiveSyncPeriod()` = `max(tier minimum, syncPeriod)`, rendered as
+  `syncInterval`; the tier minimum is rendered as `syncMinInterval`. The chip is clickable on
+  `syncMinInterval`; its sub-line reads `syncMinInterval` while waiting ("Auto in 2h" when an
+  auto-sync fires at the end of it, "Available in 2h" otherwise) and `syncInterval` once
+  clickable ("Auto in 4h").
+- `sync-limit` calls `syncBlocked(timestamp)`, pinning the chip to the server's deadline.
+- `syncPeriod` must be in the `deserializeUser` projection in `passport.js` to reach a render.
 - Theme access:
   - **Free:** dark, light, oled-dark
   - **Plus:** midnight-blue, forest, rose, solarized-light, terminal

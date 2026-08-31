@@ -52,6 +52,25 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.1.0] - 2026-08-31
+### Added
+- A sync control in the navbar showing whether you are synced, syncing, or need to sign in, with progress while your grades are fetched and a countdown to the next sync
+- A setting for how often your grades sync automatically, in Settings > Advanced > PowerSchool Sync Settings
+- The installed Graderoom Extension version and which browser it came from, in Settings > Advanced
+- A Stay signed in option on the login page, which keeps you signed in without activity for 30 days
+
+### Improved
+- Grades sync on the schedule you choose (default 4h) rather than just when you open Graderoom
+- You can sync manually as soon as your plan allows, even if you chose a longer automatic interval
+- Signing in to PowerSchool, installing the extension, and retrying a failed sync are each one click from the navbar
+- You stay signed in as long as you keep using Graderoom, instead of being logged out 4 hours after signing in
+- PowerSchool pop-up window now closes automatically after you've signed in (requires Graderoom Extension v1.7.0+)
+- Checkboxes now follow your theme
+
+### Removed
+- The Local Scrape card, replaced by the navbar sync control
+- The Sync button in the Sync Log
+
 ## [Beta 8.0.4] - 2026-08-28
 ### Added
 - <em>[Mobile]</em> Instructions for installing the extension when Graderoom is installed as an app

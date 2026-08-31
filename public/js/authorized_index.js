@@ -116,6 +116,12 @@ $.get("/donationProgress", function (data) {
                                 enableLogging = settings[key];
                                 $("#enableLoggingToggle").prop("checked", enableLogging);
                                 break;
+                            case "syncPeriod":
+                                syncInterval = settings[key];
+                                $("#syncPeriodPreset").val(syncInterval);
+                                setupSyncPeriodHint();
+                                if (school === "bellarmine") syncControl(null);
+                                break;
                             case "animateWhenUnfocused":
                                 appearance.animateWhenUnfocused = settings[key];
                                 $("#animateWhenUnfocused").prop("checked", appearance.animateWhenUnfocused);
@@ -263,46 +269,32 @@ $.get("/donationProgress", function (data) {
                     break;
 
                 case "fail-settings-change":
+                    console.error("Settings change failed:", data?.message ?? data);
                     break;
 
                 case "info-initialstatus":
                     let status = data.message;
                     switch (status) {
                         case `Your ${school === "basis" ? "Schoology" : "PowerSchool"} account is no longer active.`:
-                            messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
+                            syncMessage(status);
                             accountInactive = true;
                             showChangelog(false, true);
                             setupIncorrectGradeMessages();
                             break;
                         case `Could not connect to ${school === "basis" ? "Schoology" : "PowerSchool"}.`:
-                            messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
+                            syncMessage(status, true);
                             showChangelog(false, true);
                             setupIncorrectGradeMessages();
                             break;
                         case `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.`:
-                            messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
+                            syncMessage(status);
                             showChangelog(false, true);
                             setupIncorrectGradeMessages();
                             break;
                         case "Waiting for local scrape...":
-                            if (!extensionSupported()) {
-                                messageDiv.css("display", "none");
-                                break;
-                            }
-                            checkExtensionInstalled().then(installed => {
-                                if (!installed) {
-                                    showCard('#localScrapeCardDisplay');
-                                } else {
-                                    syncPresent(false).then((success) => {
-                                        if (success === false) {
-                                            showCard('#localScrapeCardDisplay');
-                                        }
-                                    });
-                                }
-                            });
                         case "You need to wait before syncing again.":
                         case "Syncing history...":
-                            messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(status);
+                            syncMessage(status);
                             break;
                         case "Did not sync":
                             clearTimeout(checkLastUpdated);
@@ -326,21 +318,24 @@ $.get("/donationProgress", function (data) {
                             break;
                     }
                     if (status.startsWith("Sync Failed.")) {
-                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(status);
+                        syncMessage(status, true);
                         showChangelog(false, true);
                         setupIncorrectGradeMessages();
+                    }
+                    if (school === "bellarmine" && !accountInactive) {
+                        maybeAutoSync();
                     }
                     break;
                 case "sync-progress":
                     clearTimeout(checkLastUpdated);
                     let {progress, message} = data;
                     progressDiv.css("opacity", "0.5").css("width", `${progress}%`);
-                    messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(message);
+                    syncMessage(message);
                     break;
                 case "sync-progress-history":
                     clearTimeout(checkLastUpdated);
                     progressDiv.hide();
-                    messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text('Syncing Grade History...');
+                    syncMessage('Syncing Grade History...');
                     break;
                 case "sync-success":
                     let formMessagesDiv = $(".updateGradesMessage.alert .messageTxt");
@@ -356,11 +351,11 @@ $.get("/donationProgress", function (data) {
                         return;
                     }
                     if (data.message && (data.message === "No class data." || data.message === "Powerschool is locked.")) {
-                        $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+                        syncFailed(data.message);
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
                         setupLastUpdated();
                     } else if (data.message && data.message === `Could not connect to ${(school === "basis") ? "Schoology" : "PowerSchool"}.`) {
-                        $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+                        syncFailed(data.message);
                         $(formMessagesDiv).find(".sk-chase-mini").hide();
                         setupLastUpdated();
                     } else if (!data.message) {
@@ -371,15 +366,18 @@ $.get("/donationProgress", function (data) {
                         clearTimeout(checkLastUpdated);
                         if (!updateData(newData).updated) {
                             $(formMessagesDiv).find(".messageTxt").text("Refresh to see the latest updates.");
-                            $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
+                            if (school !== "bellarmine") $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-danger").addClass("alert-success");
                             setTimeout(() => window.reload(), 400);
                         } else {
                             alerts.lastUpdated.push(JSON.parse(data.updateData));
+                            if (school === "bellarmine") syncBlocked(null);
                             setupGradeChanges();
                             showChangelog(false, true);
                             refreshWithoutReload(undefined, true);
                             setupLastUpdated();
-                            setTimeout(() => closeForm(school === "bellarmine" ? "localScrapeCardDisplay" : "updateGradesDisplay"), 250);
+                            if (school !== "bellarmine") {
+                                setTimeout(() => closeForm("updateGradesDisplay"), 250);
+                            }
                             if (school === "bellarmine") {
                                 disconnectPort();
                             }
@@ -413,8 +411,9 @@ $.get("/donationProgress", function (data) {
                     break;
                 case "sync-limit":
                     clearTimeout(checkLastUpdated);
+                    if (school === "bellarmine") syncBlocked(data.timestamp);
                     $(".updateGradesMessage > span").css("opacity", "");
-                    messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(getLimitMessage(data.timestamp));
+                    syncMessage(getLimitMessage(data.timestamp));
                     $("#gradeSyncForm, #syncGradesForm").find("button").prop("disabled", false).find("div").removeClass("loading");
                     $("#loadingDisplay").hide();
                     $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
@@ -441,12 +440,12 @@ $.get("/donationProgress", function (data) {
                     }
                     $(".fa-refresh").removeClass("fa-spin").css("opacity", "");
                     if (data.message === `No ${school === "basis" ? "Schoology" : "PowerSchool"} grades found for this term.` || data.message === `Your ${school === "basis" ? "Schoology" : "PowerSchool"} account is no longer active.`) {
-                        messageDiv.removeClass("alert-danger").removeClass("alert-success").addClass("alert-info").find(".messageTxt").text(data.message);
+                        syncMessage(data.message);
                     } else if (data.message === "Incorrect login details.") {
-                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(`Incorrect ${school === "basis" ? "Schoology" : "PowerSchool"} password.`);
+                        syncMessage(`Incorrect ${school === "basis" ? "Schoology" : "PowerSchool"} password.`, true);
                         $("#inputPassword").trigger("focus");
                     } else {
-                        messageDiv.removeClass("alert-info").removeClass("alert-success").addClass("alert-danger").find(".messageTxt").text(data.message);
+                        syncMessage(data.message, true);
                     }
                     showChangelog(false, true);
                     shortcutsEnabled = true;
@@ -502,7 +501,7 @@ $.get("/donationProgress", function (data) {
                     donoData.push(data);
                     old = {donor, premium, plus};
                     setupDonos();
-                    if (old.premium !== premium || old.plus !== plus) {
+                    if (old.donor !== donor || old.plus !== plus || old.premium !== premium) {
                         window.reload();
                     }
                     break;
@@ -511,12 +510,32 @@ $.get("/donationProgress", function (data) {
                     donoData.splice(toRemove, 1);
                     old = {donor, premium, plus};
                     setupDonos();
-                    if (old.premium !== premium || old.plus !== plus) {
+                    if (old.donor !== donor || old.plus !== plus || old.premium !== premium) {
                         window.reload();
                     }
                     break;
             }
         });
+
+        function syncMessage(text, danger = false) {
+            if (school === "bellarmine") {
+                if (danger) syncError(text);
+                return setupLastUpdated();
+            }
+            $(".updateGradesMessage").removeClass("alert-info alert-success alert-danger")
+                .addClass(danger ? "alert-danger" : "alert-info").find(".messageTxt").text(text);
+        }
+
+        function syncFailed(message) {
+            if (school === "bellarmine") {
+                return syncError(message);
+            }
+            $(".updateGradesMessage").removeClass("alert-info").removeClass("alert-success").addClass("alert-danger");
+        }
+
+        function setupSyncPeriodHint() {
+            $("#syncPeriodHint").text($("#syncPeriodPreset option:selected").text().trim());
+        }
 
         function getLimitMessage(timestamp) {
             let date = new Date(timestamp);
@@ -839,6 +858,7 @@ $.get("/donationProgress", function (data) {
 
         setupDonos();
         setupNotificationPanel();
+        setupSyncPeriodHint();
 
         if (data.length) {
             setupGradeChanges(false);
@@ -1120,12 +1140,6 @@ $.get("/donationProgress", function (data) {
                 return 0;
             }
             return value.toString().includes(".") ? value.toString().split(".")[1].length : 0;
-        }
-
-        function matchDecimals(value, reference) {
-            let decimals = countDecimals(reference);
-            let factor = Math.pow(10, decimals);
-            return Math.round(value * factor) / factor;
         }
 
         function setupUC_CSU_GPA() {
