@@ -15,7 +15,7 @@ const redis = require("redis");
 const session = require("express-session");
 const passport = require("passport");
 const fs = require("fs");
-const {watchChangelog, readChangelog, donoAttributes} = require("./dbHelpers");
+const {watchChangelog, readChangelog, donoAttributes, sessionIdlePeriod} = require("./dbHelpers");
 const {Constants} = require("./enums");
 
 module.exports.beta = isBetaServer;
@@ -72,9 +72,10 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
                                             store: store,
                                             secret: process.env.SECRET, // session secret
                                             resave: true,
+                                            rolling: true,
                                             saveUninitialized: true,
                                             cookie: {
-                                                maxAge: 8 * 60 * 60 * 1000, // 8 hours
+                                                maxAge: sessionIdlePeriod,
                                                 sameSite: 'strict'
                                             }
                                         });

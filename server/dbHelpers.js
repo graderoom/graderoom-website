@@ -27,6 +27,9 @@ exports.COSTS_COLLECTION_NAME = 'costs';
 exports.dbUserVersion = 39;
 exports.dbClassVersion = 4;
 
+exports.sessionIdlePeriod = 8 * 60 * 60 * 1000;
+exports.sessionRememberPeriod = 30 * 24 * 60 * 60 * 1000;
+
 exports.minUsersForAverageCalc = 9;
 
 const minDonoAmount = 3;

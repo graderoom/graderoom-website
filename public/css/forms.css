@@ -236,6 +236,18 @@ select:focus {
 
 /* Toggle slider */
 
+input[type="checkbox"] {
+    accent-color: var(--clr-btn);
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:disabled {
+    accent-color: var(--clr-disabled);
+    cursor: not-allowed;
+}
+
 .switch {
     display: block;
     margin: 0 0 0 0.5rem;

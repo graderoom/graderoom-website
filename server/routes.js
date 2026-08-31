@@ -4,7 +4,7 @@ const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 
 const https = require("https");
-const {changelog, changelogLegend, latestVersion, donoAttributes, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions} = require("./dbHelpers");
+const {changelog, changelogLegend, latestVersion, donoAttributes, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isApiAuthenticated, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
 
@@ -808,10 +808,14 @@ module.exports = function (app, passport) {
 
     // process the login form
     app.post("/login", passport.authenticate("local-login", {
-        successRedirect: "/",
         failureRedirect: "/",
         failureFlash: true
-    }));
+    }), (req, res) => {
+        if (req.body.rememberMe) {
+            req.session.cookie.maxAge = sessionRememberPeriod;
+        }
+        res.redirect("/");
+    });
 
     // SIGNUP =================================
     // show the signup form
