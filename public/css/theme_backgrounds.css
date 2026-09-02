@@ -310,6 +310,12 @@
     animation-play-state: paused !important;
 }
 
+body:has(#notificationPanel.active) #theme-background,
+body:has(#notificationPanel.active) #theme-background::before,
+body:has(#notificationPanel.active) #theme-background::after {
+    animation-play-state: paused !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
     #theme-background.background-hologlass,
     #theme-background.background-hologlass::before,
