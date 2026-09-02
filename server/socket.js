@@ -133,37 +133,27 @@ module.exports = {
             }
         });
         socket.on('discord-verify', async (data) => {
-            let verificationCode = data.verificationCode;
-            let resp = await dbClient.discordVerify(_socketUsernameHelper(socket), verificationCode);
-            await dbClient.deleteNotification(_socketUsernameHelper(socket), 'discord-verify');
+            let username = _socketUsernameHelper(socket);
+            let resp = await dbClient.discordVerify(username, data.verificationCode);
+            await dbClient.deleteNotification(username, 'discord-verify');
+
+            // createNotification stores as well as emits, so this survives the
+            // reload the client does to redraw Settings. It also refuses an id
+            // that is already there, hence the delete on a second attempt
+            let id = resp.success ? 'discord-verified' : 'discord-fail';
+            await dbClient.deleteNotification(username, id);
+            await dbClient.createNotification(
+                username,
+                id,
+                resp.success ? 'discord' : 'error',
+                resp.success ? 'Discord Verified!' : 'Verification Failed',
+                resp.success ? `${resp.data.chip ?? "Your Discord account"} is now connected to your Graderoom account. Run <span class="mono">/roles</span> in Discord to get your roles!` : resp.data.message,
+                true, false, false, true, true, Date.now()
+            );
+
             if (resp.success) {
-                let notification = {
-                    id: 'discord-verified',
-                    type: 'discord',
-                    title: 'Discord Verified!',
-                    message: `Your Discord account was successfully connected to your Graderoom account. Run <span class="mono">/roles</span> in Discord to get your roles!`,
-                    dismissible: true,
-                    dismissed: false,
-                    important: true,
-                    pinnable: false,
-                    pinned: true,
-                    createdDate: Date.now(),
-                };
-                socketManager.emitToRoom(_socketUsernameHelper(socket), 'notification-new', notification);
-            } else {
-                let notification = {
-                    id: 'discord-fail',
-                    type: 'error',
-                    title: 'Verification Failed',
-                    message: resp.data.message,
-                    dismissible: true,
-                    dismissed: false,
-                    important: true,
-                    pinnable: false,
-                    pinned: true,
-                    createdDate: Date.now(),
-                };
-                socketManager.emitToRoom(_socketUsernameHelper(socket), 'notification-new', notification);
+                // Lets Settings repaint the linked account without a reload
+                socketManager.emitToRoom(username, 'discord-linked', resp.data.display);
             }
         });
     },

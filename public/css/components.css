@@ -71,6 +71,16 @@
     color: var(--clr-card-footer-link);
 }
 
+/* The rule above outranks .btn, so a button-shaped link in a footer would wear
+   the link color on the button background and only become legible on hover */
+.card-footer a.btn {
+    color: var(--clr-btn-text);
+}
+
+.card-footer a.btn:hover {
+    color: var(--clr-btn);
+}
+
 .card-no-bg {
     background: none !important;
     box-shadow: none !important;
@@ -1926,4 +1936,31 @@ span.previous {
 
 .editClassColor.visible {
     display: inline;
+}
+
+/* The linked Discord account, in Settings > Account and in the Discord panel */
+.discord-avatar {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    vertical-align: text-bottom;
+}
+
+.discord-avatar-lg {
+    width: 3rem;
+    height: 3rem;
+    vertical-align: middle;
+}
+
+.discord-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.discord-link-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
 }

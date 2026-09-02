@@ -494,6 +494,10 @@ $.get("/donationProgress", function (data) {
                 case "notification-new":
                     createNotificationFromServer(data, true);
                     break;
+                case "discord-linked":
+                    discord = data;
+                    setupDiscord();
+                    break;
                 case "notification-delete":
                     deleteById(data.id, true);
                     break;
@@ -898,7 +902,20 @@ $.get("/donationProgress", function (data) {
 
         let discordLoaded = false;
 
+        // Paints whichever of the two Discord panels the account is in, and
+        // the popup behind it. Cheap enough to just call after any change
         function setupDiscord(initial = false) {
+            $("#discordLinked").toggle(!!discord);
+            $("#discordJoin").toggle(!discord);
+            if (discord) {
+                $("#discordBtnName").text(discord.name ?? "");
+                $("#discordName").text(discord.name ?? "Linked account");
+                $("#discordID").text(discord.id);
+                $("#discordBtnAvatar, #discordAvatar")
+                    .attr("src", discord.avatar ?? "")
+                    .toggle(!!discord.avatar);
+            }
+
             if (discordLoaded || !initial) return;
 
             $(".discord-iframe").attr("src", `https://discord.com/widget?id=897624313136578590&theme=${darkMode ? "dark" : "light"}`);

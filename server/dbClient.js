@@ -45,6 +45,9 @@ const {
     betaFeatureKeys,
     isNotToday,
     dbUserVersion,
+    discordChip,
+    discordDisplay,
+    fetchDiscordUser,
     dbClassVersion,
     latestVersion,
     buildStarterNotifications,
@@ -1744,126 +1747,62 @@ const _updateAllUsers = async () => {
     return {success: true};
 };
 
+const _version41 = async (db, username) => {
+    // Without a token every lookup fails, so leave the migration pending for the
+    // next boot rather than marking the user done with nothing filled in
+    if (!process.env.DISCORD_TOKEN) {
+        return {success: false, data: {log: `Skipped version 41 for ${username}, no DISCORD_TOKEN`}};
+    }
+
+    let res = await getUser(username, {version: 1, discord: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version41, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 41`}};
+}
+
+const __version41 = async (db, user) => {
+    if (user.version === 40) {
+        let update = {version: 41};
+        // Accounts linked before Graderoomba sent a name have neither it nor an
+        // avatar. A failed lookup is fine, opening the Discord panel refetches
+        if (user.discord?.discordID) {
+            let info = await fetchDiscordUser(user.discord.discordID);
+            if (info) {
+                update["discord.discordName"] = info.name;
+                update["discord.avatar"] = info.avatar;
+            }
+        }
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: update
+        });
+    }
+}
+
+// _versionN brings a user from N-1 up to N, so the list is indexed by N-1.
+// Adding a migration means writing it above and appending it here
+const versionUpdaters = [
+    _version1, _version2, _version3, _version4, _version5, _version6, _version7, _version8,
+    _version9, _version10, _version11, _version12, _version13, _version14, _version15,
+    _version16, _version17, _version18, _version19, _version20, _version21, _version22,
+    _version23, _version24, _version25, _version26, _version27, _version28, _version29,
+    _version30, _version31, _version32, _version33, _version34, _version35, _version36,
+    _version37, _version38, _version39, _version40, _version41
+];
+
+if (versionUpdaters.length !== dbUserVersion) {
+    throw new Error(`dbUserVersion is ${dbUserVersion} but there are ${versionUpdaters.length} version updaters`);
+}
+
 const updateUser = async (user) => {
-    if (user.version < 1) {
-        await safe(_version1, user.username);
-    }
-    if (user.version < 2) {
-        await safe(_version2, user.username);
-    }
-    if (user.version < 3) {
-        await safe(_version3, user.username);
-    }
-    if (user.version < 4) {
-        await safe(_version4, user.username);
-    }
-    if (user.version < 5) {
-        await safe(_version5, user.username);
-    }
-    if (user.version < 6) {
-        await safe(_version6, user.username);
-    }
-    if (user.version < 7) {
-        await safe(_version7, user.username);
-    }
-    if (user.version < 8) {
-        await safe(_version8, user.username);
-    }
-    if (user.version < 9) {
-        await safe(_version9, user.username);
-    }
-    if (user.version < 10) {
-        await safe(_version10, user.username);
-    }
-    if (user.version < 11) {
-        await safe(_version11, user.username);
-    }
-    if (user.version < 12) {
-        await safe(_version12, user.username);
-    }
-    if (user.version < 13) {
-        await safe(_version13, user.username);
-    }
-    if (user.version < 14) {
-        await safe(_version14, user.username);
-    }
-    if (user.version < 15) {
-        await safe(_version15, user.username);
-    }
-    if (user.version < 16) {
-        await safe(_version16, user.username);
-    }
-    if (user.version < 17) {
-        await safe(_version17, user.username);
-    }
-    if (user.version < 18) {
-        await safe(_version18, user.username);
-    }
-    if (user.version < 19) {
-        await safe(_version19, user.username);
-    }
-    if (user.version < 20) {
-        await safe(_version20, user.username);
-    }
-    if (user.version < 21) {
-        await safe(_version21, user.username);
-    }
-    if (user.version < 22) {
-        await safe(_version22, user.username);
-    }
-    if (user.version < 23) {
-        await safe(_version23, user.username);
-    }
-    if (user.version < 24) {
-        await safe(_version24, user.username);
-    }
-    if (user.version < 25) {
-        await safe(_version25, user.username);
-    }
-    if (user.version < 26) {
-        await safe(_version26, user.username);
-    }
-    if (user.version < 27) {
-        await safe(_version27, user.username);
-    }
-    if (user.version < 28) {
-        await safe(_version28, user.username);
-    }
-    if (user.version < 29) {
-        await safe(_version29, user.username);
-    }
-    if (user.version < 30) {
-        await safe(_version30, user.username);
-    }
-    if (user.version < 31) {
-        await safe(_version31, user.username);
-    }
-    if (user.version < 32) {
-        await safe(_version32, user.username);
-    }
-    if (user.version < 33) {
-        await safe(_version33, user.username);
-    }
-    if (user.version < 34) {
-        await safe(_version34, user.username);
-    }
-    if (user.version < 35) {
-        await safe(_version35, user.username);
-    }
-    if (user.version < 36) {
-        await safe(_version36, user.username);
-    }
-    if (user.version < 37) {
-        await safe(_version37, user.username);
-    }
-    if (user.version < 38) {
-        await safe(_version38, user.username);
-    }
-    if (user.version < 39) {
-        await safe(_version39, user.username);
-    }
-    if (user.version < 40) {
-        await safe(_version40, user.username);
+    for (let i = 0; i < versionUpdaters.length; i++) {
+        if (user.version < i + 1) {
+            await safe(versionUpdaters[i], user.username);
+        }
     }
 };
 
@@ -5920,7 +5859,18 @@ const _discordVerify = async (db, username, verificationCode) => {
     });
     await _usernames(db).updateOne({username: username}, {$set: {"discord.discordID": user.discord.unverifiedDiscordID}});
 
-    return {success: true, data: {message: "Successfully linked Discord account"}};
+    let discord = {
+        discordID: user.discord.unverifiedDiscordID,
+        discordName: user.discord.discordName,
+        avatar: user.discord.avatar
+    };
+    return {
+        success: true, data: {
+            message: "Successfully linked Discord account",
+            chip: discordChip(discord),
+            display: discordDisplay(discord)
+        }
+    };
 };
 
 const discordUnverify = (username) => safe(_discordUnverify, lower(username));
@@ -5933,7 +5883,7 @@ const _discordUnverify = async (db, username) => {
     if (res.data.value.discord.discordID) {
         await _users(db, username).updateOne({username: username}, {
             $unset: {
-                "discord.discordID": ""
+                "discord.discordID": "", "discord.discordName": "", "discord.avatar": ""
             }
         });
         await _usernames(db).updateOne({username: username}, {$unset: {"discord.discordID": ""}});
@@ -5943,6 +5893,22 @@ const _discordUnverify = async (db, username) => {
 
     return {success: false, data: {message: "No linked Discord account"}};
 }
+
+const setDiscordInfo = (username, discordName, avatar) => safe(_setDiscordInfo, lower(username), discordName, avatar);
+/**
+ * Caches the display name and avatar hash for an already-linked Discord account
+ * @param db
+ * @param {string} username - Graderoom username
+ * @param {string|null} discordName - Discord display name
+ * @param {string|null} avatar - Discord avatar hash
+ */
+const _setDiscordInfo = async (db, username, discordName, avatar) => {
+    // The filter keeps this from writing onto an account that is not linked
+    await _users(db, username).updateOne({username: username, "discord.discordID": {$exists: true}}, {
+        $set: {"discord.discordName": discordName ?? null, "discord.avatar": avatar ?? null}
+    });
+    return {success: true};
+};
 
 const internalApiAuthenticate = (apiKey) => safe(_internalApiAuthenticate, apiKey);
 const _internalApiAuthenticate = async (db, apiKey) => {
@@ -5956,14 +5922,16 @@ const _internalApiAuthenticate = async (db, apiKey) => {
     return {success: false};
 };
 
-const internalApiDiscordConnect = (username, discordID) => safe(_internalApiDiscordConnect, lower(username), discordID);
+const internalApiDiscordConnect = (username, discordID, discordName, avatar) => safe(_internalApiDiscordConnect, lower(username), discordID, discordName, avatar);
 /**
  * API Function to start a link between a Graderoom account and a Discord ID
  * @param db
  * @param {string} username - Graderoom username to link to
  * @param {string} discordID - Discord ID to link to
+ * @param {string} [discordName] - Discord display name, for showing the link in Settings
+ * @param {string} [avatar] - Discord avatar hash, for showing the link in Settings
  */
-const _internalApiDiscordConnect = async (db, username, discordID) => {
+const _internalApiDiscordConnect = async (db, username, discordID, discordName, avatar) => {
     if (typeof discordID !== "string") {
         // Case where the Discord ID is invalid
         return {success: false, data: {errorCode: 1}};
@@ -5994,13 +5962,14 @@ const _internalApiDiscordConnect = async (db, username, discordID) => {
     let verificationCode = numbers.slice(1)[Math.floor(Math.random() * 9)] * 10 + numbers[Math.floor(Math.random() * 10)];
 
     // Create a verification notification to send to clients
+    let chip = discordChip({discordID: discordID, discordName: discordName, avatar: avatar});
     let now = Date.now();
     let expires = now + 2 * 60 * 1000; // 2 minutes from now
     let notification = {
         id: "discord-verify",
         type: "discord",
         title: "Connect Discord",
-        message: `Enter the 2-Digit Code sent by Graderoomba ${notificationTextField("discord-verify", `sendData("discord-verify", {verificationCode: $("#discord-verify")[0].valueAsNumber})`, "number", "2-Digit Code", "10", "99", "1")}`,
+        message: `Connecting ${chip ?? "your Discord account"}. Enter the 2-Digit Code sent by Graderoomba ${notificationTextField("discord-verify", `sendData("discord-verify", {verificationCode: $("#discord-verify")[0].valueAsNumber})`, "number", "2-Digit Code", "10", "99", "1")}`,
         dismissible: false,
         dismissed: false,
         important: true,
@@ -6018,7 +5987,9 @@ const _internalApiDiscordConnect = async (db, username, discordID) => {
     await _users(db, username).updateOne({username: username}, {
         $set: {
             discord: {
-                verificationCode: verificationCode, expires: expires, unverifiedDiscordID: discordID
+                verificationCode: verificationCode, expires: expires, unverifiedDiscordID: discordID,
+                discordName: typeof discordName === "string" ? discordName : null,
+                avatar: typeof avatar === "string" ? avatar : null
             }
         }, $push: {"alerts.notifications": notification}
     });
@@ -6196,6 +6167,7 @@ module.exports = {
     // Sorta API stuff
     discordVerify: discordVerify,
     discordUnverify: discordUnverify,
+    setDiscordInfo: setDiscordInfo,
 
     // INTERNAL API STUFF (DANGEROUS)
     internalApiAuthenticate: internalApiAuthenticate,

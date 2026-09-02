@@ -957,24 +957,14 @@
                             </button>
                         </div>
                     </form>
-                    <% if (!_betaFeatures.active || (_alerts.lastUpdated?.length ?? 0) > 0 || discordID) { %>
+                    <% if (!_betaFeatures.active) { %>
                         <div class="card-footer">
-                            <% if (!_betaFeatures.active) { %>
-                                <button class="btn btn-sm" style="margin: 0.1rem"
-                                        onclick="showCard('#activateBetaDisplay');">
-                                    <label style="margin: 0; cursor: pointer;">Enable Experiments
-                                        <span class="fa fa-external-link-square"></span>
-                                    </label>
-                                </button>
-                            <% } %>
-                            <% if (discordID) { %>
-                                <button id="discordCardBtn" class="btn btn-sm" style="margin: 0.1rem"
-                                        onclick="showCard('#discordCardDisplay');">
-                                    <label style="margin: 0; cursor: pointer;">Open Discord Panel
-                                        <span class="fa fa-external-link-square"></span>
-                                    </label>
-                                </button>
-                            <% } %>
+                            <button class="btn btn-sm" style="margin: 0.1rem"
+                                    onclick="showCard('#activateBetaDisplay');">
+                                <label style="margin: 0; cursor: pointer;">Enable Experiments
+                                    <span class="fa fa-external-link-square"></span>
+                                </label>
+                            </button>
                         </div>
                     <% } %>
                 </div>
@@ -1207,14 +1197,33 @@
                         </form>
                     </div>
                     <div class="card-footer">
-                        <h5 style="padding-bottom: 12px">Join Our Discord Server</h5>
-                        <iframe class="discord-iframe"
-                                allowtransparency="true"
-                                sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
-                        </iframe>
-                        <span></span>
-                        <br><br>
-                        <p>You can also <a href="https://discord.gg/qqbmUWvTwZ">click here</a> to join.</p>
+                        <div id="discordLinked" <% if (!_discord) { %>style="display: none"<% } %>>
+                            <h5 style="padding-bottom: 12px">Your Discord Account</h5>
+                            <div class="discord-link-row">
+                                <img id="discordBtnAvatar" class="discord-avatar" alt=""
+                                     <% if (_discord?.avatar) { %>src="<%= _discord.avatar %>"<% } else { %>style="display: none"<% } %>>
+                                <b id="discordBtnName"><%= _discord?.name ?? "" %></b>
+                                <a href="#" id="discordCardBtn"
+                                   onclick="showCard('#discordCardDisplay'); return false;">Not you?</a>
+                            </div>
+                            <br>
+                            <a class="btn btn-sm" style="margin: 0.1rem"
+                               href="https://discord.gg/9wQtABsaaA" target="_blank">
+                                <label style="margin: 0; cursor: pointer;">Open Discord Server
+                                    <span class="fa fa-external-link-square"></span>
+                                </label>
+                            </a>
+                        </div>
+                        <div id="discordJoin" <% if (_discord) { %>style="display: none"<% } %>>
+                            <h5 style="padding-bottom: 12px">Join Our Discord Server</h5>
+                            <iframe class="discord-iframe"
+                                    allowtransparency="true"
+                                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+                            </iframe>
+                            <span></span>
+                            <br><br>
+                            <p>You can also <a href="https://discord.gg/9wQtABsaaA" target="_blank">click here</a> to join.</p>
+                        </div>
                     </div>
                     <div class="card-footer">
                         <h5>Email Us</h5>

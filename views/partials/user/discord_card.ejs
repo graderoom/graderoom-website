@@ -13,8 +13,17 @@
                 </h1>
                 <br>
                 <div class="card-footer">
-                    <p>Your Graderoom account is currently linked to the following Discord ID: <b><span id="discordID"><%= discordID %></span></b>.</p>
-                    <p>If this is incorrect, or you want to link to a different account, use the button below and restart the verification process in Discord.</p>
+                    <p class="discord-identity">
+                        <% if (_discord?.avatar) { %>
+                            <img id="discordAvatar" class="discord-avatar discord-avatar-lg"
+                                 src="<%= _discord.avatar %>" alt="">
+                        <% } %>
+                        <span>
+                            <b id="discordName"><%= _discord?.name ?? "Linked account" %></b><br>
+                            <span class="mono" id="discordID"><%= _discord?.id %></span>
+                        </span>
+                    </p>
+                    <p>If this is not you, or you want to link to a different account, use the button below and restart the verification process in Discord.</p>
                     <p>This will NOT remove roles from the currently linked account, but the account will no longer be able to add more roles.</p>
                     <button class="btn btn-med" onclick="unlinkDiscord()">Unlink Discord Account</button>
                 </div>
@@ -24,9 +33,23 @@
 </div>
 
 <script>
+    <% if (_discord) { %>
+    // Names and avatars can change
+    $(function () {
+        $(document).one("click", "#discordCardBtn", function () {
+            $.post("/discord-refresh", function (data) {
+                discord = data;
+                setupDiscord();
+            });
+        });
+    });
+    <% } %>
+
     function unlinkDiscord() {
-        $.post("/discord-disconnect");
-        $("#discordCardBtn").hide();
-        closeForm("discordCardDisplay");
+        $.post("/discord-disconnect", function () {
+            discord = null;
+            setupDiscord();
+            closeForm("discordCardDisplay");
+        });
     }
 </script>

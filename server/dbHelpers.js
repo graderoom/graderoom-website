@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const md5 = require('md5');
 const readline = require('readline');
+const https = require('https');
 const {Schools, Constants} = require('./enums');
 
 exports.CLASSES_COLLECTION_NAME = 'classes';
@@ -24,7 +25,7 @@ exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
 exports.COSTS_COLLECTION_NAME = 'costs';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 40;
+exports.dbUserVersion = 41;
 exports.dbClassVersion = 4;
 
 exports.sessionIdlePeriod = 8 * 60 * 60 * 1000;
@@ -68,6 +69,67 @@ exports.removeId = (value) => {
         }
     }
     return value;
+};
+
+// Looks up a Discord user. Resolves null on any
+// failure, which leaves the account page showing the ID it already had
+exports.fetchDiscordUser = (discordID) => {
+    return new Promise((resolve) => {
+        if (!process.env.DISCORD_TOKEN || !/^\d+$/.test(discordID)) {
+            return resolve(null);
+        }
+        const options = {
+            hostname: "discord.com",
+            path: `/api/v10/users/${discordID}`,
+            method: "GET",
+            headers: {Authorization: `Bot ${process.env.DISCORD_TOKEN}`}
+        };
+        const req = https.request(options, (res) => {
+            let data = "";
+            res.on("data", (chunk) => data += chunk);
+            res.on("end", () => {
+                if (res.statusCode !== 200) {
+                    return resolve(null);
+                }
+                try {
+                    let user = JSON.parse(data);
+                    resolve({name: user.global_name || user.username || null, avatar: user.avatar || null});
+                } catch {
+                    resolve(null);
+                }
+            });
+        });
+        req.on("error", () => resolve(null));
+        req.end();
+    });
+};
+
+// Avatar and name as one inline chip, for the notification messages, which are
+// rendered as HTML. The name is whatever the person set on Discord, so escape it
+exports.discordChip = (discord) => {
+    let display = this.discordDisplay(discord);
+    if (!display?.name) {
+        return null;
+    }
+    let img = display.avatar ? `<img class="discord-avatar" src="${_.escape(display.avatar)}" alt=""> ` : '';
+    return `${img}<b>${_.escape(display.name)}</b>`;
+};
+
+exports.discordDisplay = (discord) => {
+    let id = discord?.discordID;
+    if (!id) {
+        return null;
+    }
+    // https://discord.com/developers/docs/reference#image-formatting
+    let avatar;
+    if (discord.avatar) {
+        avatar = `https://cdn.discordapp.com/avatars/${id}/${discord.avatar}.${discord.avatar.startsWith('a_') ? 'gif' : 'png'}?size=64`;
+    } else if (/^\d+$/.test(id)) {
+        avatar = `https://cdn.discordapp.com/embed/avatars/${(BigInt(id) >> 22n) % 6n}.png`;
+    } else {
+        avatar = null;
+    }
+    return {id: id, name: discord.discordName ?? null, avatar: avatar};
 };
 
 exports.makeKey = (length) => {

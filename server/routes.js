@@ -4,7 +4,7 @@ const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 
 const https = require("https");
-const {changelog, changelogLegend, latestVersion, donoAttributes, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod} = require("./dbHelpers");
+const {changelog, changelogLegend, latestVersion, donoAttributes, discordDisplay, fetchDiscordUser, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
 
@@ -72,7 +72,7 @@ async function buildUserPayload(req, term, semester, gradeSync, history) {
         _appearance: user.appearance,
         _alerts: hasTerm ? (await dbClient.getTrimmedAlerts(user.username, term, semester)).data.value : (await dbClient.getAllAlerts(user.username)).data.value,
         _updatedGradeHistory: user.updatedGradeHistory,
-        discordID: user.discord.discordID,
+        _discord: discordDisplay(user.discord),
         gradeSync: gradeSync,
         _gradeData: gradeData,
         _weightData: hasTerm ? (await dbClient.getSemesterWeights(user.username, term, semester)).data.value : {},
@@ -345,6 +345,8 @@ module.exports = function (app, passport) {
                 donoData: 1,
                 syncPeriod: 1,
                 "discord.discordID": 1,
+                "discord.discordName": 1,
+                "discord.avatar": 1,
                 updatedGradeHistory: 1
             };
             user = (await dbClient.getUser(req.query.usernameToRender, projection)).data.value;
@@ -378,7 +380,7 @@ module.exports = function (app, passport) {
                     _appearance: user.appearance,
                     _alerts: trimmedAlerts,
                     _updatedGradeHistory: user.updatedGradeHistory,
-                    discordID: user.discord.discordID,
+                    _discord: discordDisplay(user.discord),
                     gradeSync: user.school === Schools.BELL || user.schoolPassword,
                     _gradeData: user.grades[term][semester],
                     _weightData: user.weights[term][semester],
@@ -416,7 +418,7 @@ module.exports = function (app, passport) {
                     _appearance: user.appearance,
                     _alerts: user.alerts,
                     _updatedGradeHistory: user.updatedGradeHistory,
-                    discord: user.discord.discordID,
+                    _discord: discordDisplay(user.discord),
                     gradeSync: user.school === Schools.BELL || user.schoolPassword,
                     _gradeData: [],
                     _weightData: {},
@@ -1266,6 +1268,20 @@ module.exports = function (app, passport) {
         res.redirect("/forgot_password");
     });
 
+    // Fills in the name and avatar for accounts linked before the bot sent them
+    app.post("/discord-refresh", [isLoggedIn], async (req, res) => {
+        let discordID = req.user.discord?.discordID;
+        if (!discordID) {
+            return res.sendStatus(400);
+        }
+        let info = await fetchDiscordUser(discordID);
+        if (!info) {
+            return res.sendStatus(502);
+        }
+        await dbClient.setDiscordInfo(req.user.username, info.name, info.avatar);
+        res.json(discordDisplay({discordID: discordID, discordName: info.name, avatar: info.avatar}));
+    });
+
     app.post("/discord-disconnect", [isLoggedIn], async (req, res) => {
         let resp = await dbClient.discordUnverify(req.user.username);
         if (!resp.success) {
@@ -1323,8 +1339,8 @@ module.exports = function (app, passport) {
     });
 
     app.post("/api/internal/discord/connect", [isInternalApiAuthenticated], async (req, res) => {
-        let {username, discordID} = req.body;
-        let resp = await dbClient.internalApiDiscordConnect(username, discordID);
+        let {username, discordID, discordName, avatar} = req.body;
+        let resp = await dbClient.internalApiDiscordConnect(username, discordID, discordName, avatar);
         if (!resp.success) {
             res.status(400).send(resp.data);
         } else {
