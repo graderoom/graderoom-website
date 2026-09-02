@@ -6,7 +6,7 @@ const _ = require("lodash");
 const https = require("https");
 const {changelog, changelogLegend, latestVersion, donoAttributes, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
-const {checkReturnTo, isLoggedIn, isAdmin, isApiAuthenticated, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
+const {checkReturnTo, isLoggedIn, isAdmin, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
 
 function verifyRecaptcha(token) {
     return new Promise((resolve) => {
@@ -392,9 +392,6 @@ module.exports = function (app, passport) {
                 betaFeatures: 1,
                 donoData: 1,
                 syncPeriod: 1,
-                "api.pairKey": 1,
-                "api.pairKeyExpire": 1,
-                "api.apiKey": 1,
                 "discord.discordID": 1,
                 updatedGradeHistory: 1
             };
@@ -453,9 +450,6 @@ module.exports = function (app, passport) {
                     premium: premium,
                     _: _,
                     enableLogging: true,
-                    pairKey: user.api.pairKey ?? "",
-                    pairKeyExpire: user.api.pairKeyExpire ?? "",
-                    apiKey: user.api.apiKey ?? "",
                 });
             } else {
                 let {plus, premium} = donoAttributes(user.donoData);
@@ -494,9 +488,6 @@ module.exports = function (app, passport) {
                     premium: premium,
                     _: _,
                     enableLogging: true,
-                    pairKey: user.api.pairKey ?? "",
-                    pairKeyExpire: user.api.pairKeyExpire ?? "",
-                    apiKey: user.api.apiKey ?? "",
                 });
             }
             return;
@@ -689,33 +680,6 @@ module.exports = function (app, passport) {
             res.status(200).send(resp.data.value);
         } else {
             res.sendStatus(400);
-        }
-    });
-
-    app.get("/createPairingKey", [isLoggedIn], async (req, res) => {
-        let resp = await dbClient.createPairingKey(req.user.username);
-        if (resp.success) {
-            res.status(200).send(resp.data.value);
-        } else {
-            res.status(400).send(resp.data.message);
-        }
-    });
-
-    app.post("/deletePairingKey", [isLoggedIn], async (req, res) => {
-        let resp = await dbClient.deletePairingKey(req.user.username);
-        if (resp.success) {
-            res.sendStatus(200);
-        } else {
-            res.status(400).send(resp.data.message);
-        }
-    });
-
-    app.post("/deleteApiKey", [isLoggedIn], async (req, res) => {
-        let resp = await dbClient.deleteApiKey(req.user.username);
-        if (resp.success) {
-            res.sendStatus(200);
-        } else {
-            res.status(400).send(resp.data.message);
         }
     });
 
@@ -1359,22 +1323,6 @@ module.exports = function (app, passport) {
         }
     });
 
-    // Actual api stuff
-    app.post("/api/pair", async (req, res) => {
-        let pairingKey = req.body.pairingKey;
-        let resp = await dbClient.apiPair(pairingKey);
-        apiRespond(res, resp);
-    });
-
-    app.get("/api/info", [isApiAuthenticated], async (req, res) => {
-        let resp = await dbClient.apiInfo(req.apiKey);
-        apiRespond(res, resp);
-    });
-
-    app.get("/api/grades/slim", [isApiAuthenticated], async (req, res) => {
-        let resp = await dbClient.apiGradesSlim(req.apiKey);
-        apiRespond(res, resp);
-    });
 
     app.post("/api/internal/discord/connect", [isInternalApiAuthenticated], async (req, res) => {
         let {username, discordID} = req.body;
@@ -1410,15 +1358,6 @@ module.exports = function (app, passport) {
         res.redirect(req.headers.referer ?? "/");
     });
 };
-
-function apiRespond(res, resp) {
-    if (!resp.success) {
-        res.status(400).send(resp.data.message);
-    } else {
-        res.status(200).send(resp.data.value);
-    }
-}
-
 
 function sortHelper(sortQuery) {
     let _sort = {};

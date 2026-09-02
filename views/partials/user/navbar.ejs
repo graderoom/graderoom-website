@@ -249,9 +249,6 @@
 <% if (page === "home") { %>
     <%- include('class_info.ejs', {theme: theme}); %>
 <% } %>
-<% if (page === "home" && _alerts.lastUpdated && _alerts.lastUpdated.length > 0) { %>
-    <%- include('api_key_card.ejs', {theme: theme}); %>
-<% } %>
 <% if (page === "home") { %>
     <%- include('discord_card.ejs', {theme: theme}); %>
 <% } %>

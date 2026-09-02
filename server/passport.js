@@ -31,7 +31,6 @@ module.exports = function (passport) {
             betaFeatures: 1,
             enableLogging: 1,
             syncPeriod: 1,
-            api: 1,
             'discord.discordID': 1,
             sortingData: 1,
             updatedGradeHistory: 1,

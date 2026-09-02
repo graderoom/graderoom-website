@@ -276,7 +276,6 @@ const __addUser = async (db, user) => {
         await _usernames(db).insertOne({
             username: user.username,
             schoolUsername: user.schoolUsername,
-            api: user.api,
             discord: user.discord,
             hash: hash(user.username)
         });
@@ -1609,26 +1608,6 @@ const __version37 = async (db, user) => {
     }
 }
 
-const _version39 = async (db, username) => {
-    let res = await getUser(username, {version: 1});
-    if (!res.success) {
-        return res;
-    }
-
-    let user = res.data.value;
-    await safe(__version39, user);
-
-    return {success: true, data: {log: `Updated ${username} to version 39`}};
-}
-
-const __version39 = async (db, user) => {
-    if (user.version === 38) {
-        await _users(db, user.username).updateOne({username: user.username}, {
-            $set: {syncPeriod: defaultSyncPeriod, version: 39}
-        });
-    }
-}
-
 const _version38 = async (db, username) => {
     let res = await getUser(username, {version: 1, "appearance.theme": 1});
     if (!res.success) {
@@ -1651,6 +1630,50 @@ const __version38 = async (db, user) => {
 
         await _users(db, user.username).updateOne({username: user.username}, {
             $set: update
+        });
+    }
+}
+
+const _version39 = async (db, username) => {
+    let res = await getUser(username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version39, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 39`}};
+}
+
+const __version39 = async (db, user) => {
+    if (user.version === 38) {
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: {syncPeriod: defaultSyncPeriod, version: 39}
+        });
+    }
+}
+
+const _version40 = async (db, username) => {
+    let res = await getUser(username, {version: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version40, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 40`}};
+}
+
+const __version40 = async (db, user) => {
+    if (user.version === 39) {
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $unset: {"api": ""},
+            $set: {version: 40}
+        });
+        await _usernames(db).updateOne({username: user.username}, {
+            $unset: {"api": ""}
         });
     }
 }
@@ -1838,6 +1861,9 @@ const updateUser = async (user) => {
     }
     if (user.version < 39) {
         await safe(_version39, user.username);
+    }
+    if (user.version < 40) {
+        await safe(_version40, user.username);
     }
 };
 
@@ -5850,74 +5876,6 @@ const _getGradeSync = async (db, username) => {
     return {success: true, data: {value: res.success}};
 }
 
-const createPairingKey = (username) => safe(_createPairingKey, lower(username));
-const _createPairingKey = async (db, username) => {
-    let res = await getUser(username, {"alerts.lastUpdated": {$slice: -1}});
-    if (!res.success) {
-        return res;
-    }
-    let valid = res.data.value.alerts.lastUpdated.length > 0;
-    if (!valid) {
-        return {success: false, data: {message: "You must sync once successfully to use the API"}};
-    }
-    let pairKey;
-    do {
-        pairKey = makeKey(6);
-    } while ((await apiPairExists(pairKey)).success);
-    let pairKeyExpire = Date.now() + 1000 * 60 * 10;
-    await _users(db, username).updateOne({username: username}, {
-        $unset: {
-            "api.apiKey": "", "api.apiKeyCreated": ""
-        }, $set: {"api.pairKey": pairKey, "api.pairKeyExpire": pairKeyExpire}
-    });
-    await _usernames(db).updateOne({username: username}, {
-        $unset: {
-            "api.apiKey": "",
-        }, $set: {"api.pairKey": pairKey}
-    })
-    return {success: true, data: {value: {pairKey: pairKey, pairKeyExpire: pairKeyExpire}}};
-};
-
-const deletePairingKey = (username) => safe(_deletePairingKey, lower(username));
-const _deletePairingKey = async (db, username) => {
-    let res = await userExists({username: username});
-    if (!res.success) {
-        return res;
-    }
-
-    await _users(db, username).updateOne({username: username}, {
-        $unset: {
-            "api.pairKey": "", "api.pairKeyExpire": ""
-        }
-    });
-    await _usernames(db).updateOne({username: username}, {
-        $unset: {
-            "api.pairKey": "",
-        }
-    });
-    return {success: true};
-};
-
-const deleteApiKey = (username) => safe(_deleteApiKey, lower(username));
-const _deleteApiKey = async (db, username) => {
-    let res = await userExists({username: username});
-    if (!res.success) {
-        return res;
-    }
-
-    await _users(db, username).updateOne({username: username}, {
-        $unset: {
-            "api.apiKey": "", "api.apiKeyCreated": ""
-        }
-    });
-    await _usernames(db).updateOne({username: username}, {
-        $unset: {
-            "api.apiKey": ""
-        }
-    });
-    return {success: true};
-};
-
 const discordVerify = (username, verificationCode) => safe(_discordVerify, lower(username), verificationCode);
 /**
  * Function to link a Discord ID to a Graderoom account if the code is correct
@@ -5985,93 +5943,6 @@ const _discordUnverify = async (db, username) => {
 
     return {success: false, data: {message: "No linked Discord account"}};
 }
-
-const apiPair = (pairKey) => safe(_apiPair, pairKey);
-const _apiPair = async (db, pairKey) => {
-    if (typeof pairKey !== "string" && !(pairKey instanceof String) || pairKey.length !== 6) {
-        return {success: false, data: {message: "Invalid pairing key"}};
-    }
-    let res = await _usernames(db).findOne({"api.pairKey": pairKey}, {projection: {username: 1}});
-    if (!res) {
-        return {success: false, data: {message: "Invalid pairing key"}};
-    }
-    let user = await _users(db, res.username).findOne({"api.pairKey": pairKey});
-    if (user.api.pairKeyExpire > Date.now()) {
-        let apiKey;
-        do {
-            apiKey = makeKey(24);
-        } while ((await apiAuthenticate(apiKey)).success);
-        await _users(db, res.username).updateOne({"api.pairKey": pairKey}, {
-            $unset: {
-                "api.pairKey": "", "api.pairKeyExpire": ""
-            }, $set: {"api.apiKey": apiKey, "api.apiKeyCreated": Date.now()}
-        });
-        await _usernames(db).updateOne({username: res.username}, {$set: {"api.apiKey": apiKey}});
-        return {success: true, data: {value: apiKey}};
-    }
-    return {success: false, data: {message: "This pairing key has expired"}};
-};
-
-const apiPairExists = (pairKey) => safe(_apiPairExists, pairKey);
-const _apiPairExists = async (db, pairKey) => {
-    let res = await _usernames(db).findOne({"api.pairKey": pairKey}, {projection: {username: 1}});
-    if (!res) {
-        return {success: false, data: {message: "Invalid pairing key"}};
-    }
-    let user = await _users(db, res.username).findOne({"api.pairKey": pairKey});
-    if (user) {
-        return {success: true};
-    }
-    return {success: false};
-};
-
-const apiAuthenticate = (apiKey) => safe(_apiAuthenticate, apiKey);
-const _apiAuthenticate = async (db, apiKey) => {
-    if (typeof apiKey !== "string" && !(apiKey instanceof String) || apiKey.length !== 24) {
-        return {success: false, data: {message: "Invalid API key"}};
-    }
-    let res = await _usernames(db).findOne({"api.apiKey": apiKey}, {projection: {username: 1}});
-    if (!res) {
-        return {success: false, data: {message: "Invalid pairing key"}};
-    }
-    let user = await _users(db, res.username).findOne({"api.apiKey": apiKey});
-    if (user) {
-        return {success: true};
-    }
-    return {success: false};
-};
-
-const apiGetUser = (apiKey, projection) => safe(_apiGetUser, apiKey, projection);
-const _apiGetUser = async (db, apiKey, projection) => {
-    let query = {"api.apiKey": apiKey};
-    if (!!projection) {
-        projection["api.apiKey"] = 1;
-    }
-
-    let res = await _usernames(db).findOne(query, {projection: {username: 1}});
-    if (!res) {
-        return {success: false, data: {message: "Invalid api key"}};
-    }
-    let user = await _users(db, res.username).findOne(query, {projection: projection});
-    if (!user) {
-        return {
-            success: false, data: {log: `No user found with given parameters: apiKey=${apiKey}`}
-        };
-    }
-    return {success: true, data: {value: user}};
-};
-
-const apiInfo = (apiKey) => safe(_apiInfo, apiKey);
-const _apiInfo = async (db, apiKey) => {
-    let user = (await apiGetUser(apiKey, {username: 1, school: 1, donoData: 1})).data.value;
-    let {premium} = donoAttributes(user.donoData);
-    return {success: true, data: {value: {username: user.username, school: user.school, premium: premium}}};
-};
-
-const apiGradesSlim = (apiKey) => safe(_apiGradesSlim, apiKey);
-const _apiGradesSlim = async (db, apiKey) => {
-
-};
 
 const internalApiAuthenticate = (apiKey) => safe(_internalApiAuthenticate, apiKey);
 const _internalApiAuthenticate = async (db, apiKey) => {
@@ -6323,19 +6194,8 @@ module.exports = {
     getGradeSync: getGradeSync,
 
     // Sorta API stuff
-    createPairingKey: createPairingKey,
-    deletePairingKey: deletePairingKey,
-    deleteApiKey: deleteApiKey,
     discordVerify: discordVerify,
     discordUnverify: discordUnverify,
-
-    // API STUFF
-    apiPair: apiPair,
-    apiPairExists: apiPairExists,
-    apiAuthenticate: apiAuthenticate,
-    apiGetUser: apiGetUser,
-    apiInfo: apiInfo,
-    apiGradesSlim: apiGradesSlim,
 
     // INTERNAL API STUFF (DANGEROUS)
     internalApiAuthenticate: internalApiAuthenticate,

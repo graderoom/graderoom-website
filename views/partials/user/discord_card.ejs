@@ -1,15 +1,15 @@
-<div class="blurred-login" id="discordDisplay"
+<div class="blurred-login" id="discordCardDisplay"
      style="">
     <div class="blurred-background"></div>
     <div class="col-sm-8 col-md-7 col-lg-5 mx-auto">
-        <div id="apiKeyCard" class="card card-signin my-5">
-            <btn class="btn btn-md" onclick="closeForm('discordDisplay')"
+        <div id="discordCard" class="card card-signin my-5">
+            <btn class="btn btn-md" onclick="closeForm('discordCardDisplay')"
                  style="display:table; width: fit-content; width: -moz-fit-content; margin-bottom:0">
                 <i class="fa fa-close" aria-hidden="true"></i> Close
             </btn>
             <div class="card-body">
                 <h1 class="card-title text-center popup" style="margin: 0;"><i class="fa fa-address-book"></i>
-                    API
+                    Discord
                 </h1>
                 <br>
                 <div class="card-footer">
@@ -27,6 +27,6 @@
     function unlinkDiscord() {
         $.post("/discord-disconnect");
         $("#discordCardBtn").hide();
-        closeForm("discordDisplay");
+        closeForm("discordCardDisplay");
     }
 </script>

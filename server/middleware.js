@@ -107,14 +107,6 @@ module.exports = {
             return next();
         }
         res.redirect("/");
-    }, isApiAuthenticated: async function (req, res, next) {
-        let apiKey = req.headers['x-api-key'];
-        let resp = await dbClient.apiAuthenticate(apiKey);
-        if (resp.success) {
-            req.apiKey = apiKey;
-            return next();
-        }
-        res.sendStatus(401);
     }, isInternalApiAuthenticated:
         async function (req, res, next) {
             let apiKey = req.headers['x-internal-api-key'];
