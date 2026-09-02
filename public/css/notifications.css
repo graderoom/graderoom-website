@@ -572,10 +572,3 @@ div:not(#dismissed-notifications) > .notification-card.important.discord {
     background: #5865F2;
     color: white;
 }
-
-/* Keeps the buttons together on the right of a notification's field row */
-.notification-text-field .notification-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
