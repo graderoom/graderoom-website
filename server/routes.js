@@ -40,6 +40,65 @@ function verifyRecaptcha(token) {
     });
 }
 
+// Every key authorized_index.ejs renders with. Also served as JSON to the app
+async function buildUserPayload(req, term, semester, gradeSync, history) {
+    let user = req.user;
+    let {plus, premium} = donoAttributes(user.donoData);
+    let hasTerm = !!(term && semester);
+
+    let grades = hasTerm ? (await dbClient.getAllGrades(user.username)).data.value : {};
+    let relevantClassData = hasTerm ? (await dbClient.getRelevantClassData(user.username, term, semester)).data.value : {};
+    let gradeData = hasTerm ? grades[term][semester] : [];
+
+    let termsAndSemesters = Object.keys(grades).map(term => {
+        let semesters = Object.keys(grades[term]);
+        let sortedSemesters = semesters.sort((a, b) => {
+            return a.substring(1) < b.substring(1) ? -1 : 1;
+        });
+        return [term, sortedSemesters];
+    }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
+
+    return {
+        page: "home",
+        syncInterval: effectiveSyncPeriod(user.donoData, user.syncPeriod),
+        syncMinInterval: minSyncPeriod(user.donoData),
+        _syncPeriodOptions: syncPeriodOptions.filter(o => o >= minSyncPeriod(user.donoData)),
+        history: hasTerm ? history : false,
+        school: user.school,
+        username: user.username,
+        schoolUsername: user.schoolUsername,
+        isAdmin: user.isAdmin,
+        _personalInfo: user.personalInfo,
+        _appearance: user.appearance,
+        _alerts: hasTerm ? (await dbClient.getTrimmedAlerts(user.username, term, semester)).data.value : (await dbClient.getAllAlerts(user.username)).data.value,
+        _updatedGradeHistory: user.updatedGradeHistory,
+        discordID: user.discord.discordID,
+        gradeSync: gradeSync,
+        _gradeData: gradeData,
+        _weightData: hasTerm ? (await dbClient.getSemesterWeights(user.username, term, semester)).data.value : {},
+        _addedWeights: hasTerm ? (await dbClient.getSemesterAddedWeights(user.username, term, semester)).data.value : {},
+        nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => gradeData.find(c => c.class_name === k) && v.classType === "non-academic").length,
+        _addedAssignments: hasTerm ? (await dbClient.getSemesterAddedAssignments(user.username, term, semester)).data.value : {},
+        _editedAssignments: hasTerm ? (await dbClient.getSemesterEditedAssignments(user.username, term, semester)).data.value : {},
+        _gradeHistory: hasTerm ? (await dbClient.getGradeHistoryLetters(user.username, term, semester)).data.value : [],
+        _relevantClassData: relevantClassData,
+        _donoData: user.donoData,
+        _sortingData: user.sortingData,
+        sessionTimeout: Date.parse(req.session.cookie._expires),
+        beta: server.beta,
+        _betaFeatures: user.betaFeatures,
+        _SchoolAbbr: SchoolAbbr,
+        _noGpaLetters: Constants.noGpaLetters,
+        term: hasTerm ? term : "",
+        semester: hasTerm ? semester : "",
+        _termsAndSemesters: termsAndSemesters,
+        _: _,
+        premium: premium,
+        plus: plus,
+        enableLogging: user.enableLogging,
+    };
+}
+
 const allowedBackgrounds = Constants.themes.backgrounds.names.all;
 
 function getDailyLoggedOutBackground() {
@@ -123,114 +182,7 @@ module.exports = function (app, passport) {
 
             let gradeSync = (await dbClient.getGradeSync(req.user.username)).data.value;
 
-            if (term && semester) {
-                let {plus, premium} = donoAttributes(req.user.donoData);
-                let relevantClassData = (await dbClient.getRelevantClassData(req.user.username, term, semester)).data.value;
-                let gradeHistoryLetters = (await dbClient.getGradeHistoryLetters(req.user.username, term, semester)).data.value;
-                let trimmedAlerts = (await dbClient.getTrimmedAlerts(req.user.username, term, semester)).data.value;
-
-                let grades = (await dbClient.getAllGrades(req.user.username)).data.value;
-                let weights = (await dbClient.getSemesterWeights(req.user.username, term, semester)).data.value;
-                let addedAssignments = (await dbClient.getSemesterAddedAssignments(req.user.username, term, semester)).data.value;
-                let editedAssignments = (await dbClient.getSemesterEditedAssignments(req.user.username, term, semester)).data.value;
-                let addedWeights = (await dbClient.getSemesterAddedWeights(req.user.username, term, semester)).data.value;
-
-                let termsAndSemesters = Object.keys(grades).map(term => {
-                    let semesters = Object.keys(grades[term]);
-                    let sortedSemesters = semesters.sort((a, b) => {
-                        return a.substring(1) < b.substring(1) ? -1 : 1;
-                    });
-                    return [term, sortedSemesters];
-                }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
-
-                renderWithConstants(res, "user/authorized_index.ejs", {
-                    page: "home",
-                    syncInterval: effectiveSyncPeriod(req.user.donoData, req.user.syncPeriod),
-                    syncMinInterval: minSyncPeriod(req.user.donoData),
-                    _syncPeriodOptions: syncPeriodOptions.filter(o => o >= minSyncPeriod(req.user.donoData)),
-                    history: req.query.term || req.query.semester,
-                    school: req.user.school,
-                    username: req.user.username,
-                    schoolUsername: req.user.schoolUsername,
-                    isAdmin: req.user.isAdmin,
-                    _personalInfo: req.user.personalInfo,
-                    _appearance: req.user.appearance,
-                    _alerts: trimmedAlerts,
-                    _updatedGradeHistory: req.user.updatedGradeHistory,
-                    discordID: req.user.discord.discordID,
-                    gradeSync: gradeSync,
-                    _gradeData: grades[term][semester],
-                    _weightData: weights,
-                    _addedWeights: addedWeights,
-                    nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => grades[term][semester].find(c => c.class_name === k) && v.classType === "non-academic").length,
-                    _addedAssignments: addedAssignments,
-                    _editedAssignments: editedAssignments,
-                    _gradeHistory: gradeHistoryLetters,
-                    _relevantClassData: relevantClassData,
-                    _donoData: req.user.donoData,
-                    _sortingData: req.user.sortingData,
-                    sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: server.beta,
-                    _betaFeatures: req.user.betaFeatures,
-                    _SchoolAbbr: SchoolAbbr,
-                    _noGpaLetters: Constants.noGpaLetters,
-                    term: term,
-                    semester: semester,
-                    _termsAndSemesters: termsAndSemesters,
-                    _: _,
-                    premium: premium,
-                    enableLogging: req.user.enableLogging,
-                    pairKey: req.user.api.pairKey ?? "",
-                    pairKeyExpire: req.user.api.pairKeyExpire ?? "",
-                    apiKey: req.user.api.apiKey ?? "",
-                    plus: plus
-                });
-            } else {
-                let {plus, premium} = donoAttributes(req.user.donoData);
-                let alerts = (await dbClient.getAllAlerts(req.user.username)).data.value;
-                renderWithConstants(res, "user/authorized_index.ejs", {
-                    page: "home",
-                    syncInterval: effectiveSyncPeriod(req.user.donoData, req.user.syncPeriod),
-                    syncMinInterval: minSyncPeriod(req.user.donoData),
-                    _syncPeriodOptions: syncPeriodOptions.filter(o => o >= minSyncPeriod(req.user.donoData)),
-                    history: false,
-                    school: req.user.school,
-                    username: req.user.username,
-                    schoolUsername: req.user.schoolUsername,
-                    isAdmin: req.user.isAdmin,
-                    _personalInfo: req.user.personalInfo,
-                    _appearance: req.user.appearance,
-                    _alerts: alerts,
-                    _updatedGradeHistory: req.user.updatedGradeHistory,
-                    discordID: req.user.discord.discordID,
-                    gradeSync: gradeSync,
-                    _gradeData: [],
-                    _weightData: {},
-                    _addedWeights: {},
-                    nonAcademicCount: 0,
-                    _addedAssignments: {},
-                    _editedAssignments: {},
-                    _gradeHistory: [],
-                    _relevantClassData: {},
-                    _donoData: req.user.donoData,
-                    _sortingData: req.user.sortingData,
-                    sessionTimeout: Date.parse(req.session.cookie._expires),
-                    beta: server.beta,
-                    _betaFeatures: req.user.betaFeatures,
-                    _SchoolAbbr: SchoolAbbr,
-                    _noGpaLetters: Constants.noGpaLetters,
-                    term: "",
-                    semester: "",
-                    _termsAndSemesters: [],
-                    _: _,
-                    premium: premium,
-                    plus: plus,
-                    enableLogging: req.user.enableLogging,
-                    pairKey: req.user.api.pairKey ?? "",
-                    pairKeyExpire: req.user.api.pairKeyExpire ?? "",
-                    apiKey: req.user.api.apiKey ?? "",
-                });
-            }
+            renderWithConstants(res, "user/authorized_index.ejs", await buildUserPayload(req, term, semester, gradeSync, req.query.term || req.query.semester));
             return;
         }
         renderWithConstants(res, "viewer/index.ejs", {
@@ -1323,6 +1275,52 @@ module.exports = function (app, passport) {
         }
     });
 
+    // JSON login for the app. POST /login 302s either way, which the app can't tell apart
+    app.post("/api/app/login", (req, res, next) => {
+        passport.authenticate("local-login", (err, user, info) => {
+            if (err) return next(err);
+            if (!user) {
+                // info is whatever req.flash("loginMessage", ...) returned
+                let message = (Array.isArray(info) ? info.join(" ") : info?.message) || "Invalid Credentials";
+                return res.status(401).json({message: message.replace(/<[^>]*>/g, "")});
+            }
+            // The app only syncs by scraping PowerSchool, so other schools have nothing to drive
+            if (user.school !== Schools.BELL) {
+                return res.status(403).json({
+                    message: `The Graderoom app currently supports ${PrettySchools.BELL} accounts only. Please use the website.`
+                });
+            }
+            req.logIn(user, (err) => {
+                if (err) return next(err);
+                if (req.body.rememberMe) {
+                    req.session.cookie.maxAge = sessionRememberPeriod;
+                }
+                res.json({username: user.username, school: user.school});
+            });
+        })(req, res, next);
+    });
+
+    // The app's read path. Not isLoggedIn, that 302s to "/" and does a referer check the app would trip
+    app.get("/api/app/data", async (req, res) => {
+        if (!req.isAuthenticated()) return res.sendStatus(401);
+        req.session.touch();
+
+        let {term, semester} = (await dbClient.getMostRecentTermData(req.user.username)).data.value;
+        if (req.query.term && req.query.semester) {
+            if (!(await dbClient.userHasSemester(req.user.username, req.query.term, req.query.semester)).data.value) {
+                return res.status(404).json({message: "No such semester"});
+            }
+            term = req.query.term;
+            semester = req.query.semester;
+        }
+
+        let gradeSync = (await dbClient.getGradeSync(req.user.username)).data.value;
+        let payload = await buildUserPayload(req, term, semester, gradeSync, false);
+        delete payload._;           // lodash, for EJS only
+        delete payload._SchoolAbbr; // static enum, app has its own copy
+        delete payload.page;
+        res.json(payload);
+    });
 
     app.post("/api/internal/discord/connect", [isInternalApiAuthenticated], async (req, res) => {
         let {username, discordID} = req.body;
