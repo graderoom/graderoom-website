@@ -758,11 +758,11 @@ exports.notificationButton = function (onclickString, innerText) {
     return `<br><span class="notification-button" onclick="${onclickString}"><b><i class=\"fa fa-external-link-square\"></i> ${innerText}</b></span>`;
 };
 
-exports.notificationTextField = function (id, onsubmitString, inputType, placeholderText, min = '', max = '', step = '') {
+exports.notificationTextField = function (id, onsubmitString, inputType, placeholderText, min = '', max = '', step = '', secondary = '') {
     return `<br>
             <div class="form-group notification-text-field">
             <input id='${id}' type='${inputType}' placeholder='${placeholderText}' min='${min}' max='${max}' step='${step}' class="form-control">
-            <btn onclick='${onsubmitString}' class="btn btn-sm">Submit</btn>
+            <span class="notification-actions">${secondary}<btn onclick='${onsubmitString}' class="btn btn-sm">Submit</btn></span>
             </div>`;
 };
 

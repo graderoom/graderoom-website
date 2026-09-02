@@ -13,6 +13,20 @@
     color: var(--clr-btn);
 }
 
+/* Outline rather than filled, so it reads as the lesser of two actions.
+   Not .btn-secondary, which Bootstrap already defines */
+.btn-quiet {
+    background: none;
+    outline: 1px solid var(--clr-btn);
+    color: var(--clr-btn);
+}
+
+.btn-quiet:hover {
+    background-color: var(--clr-btn);
+    color: var(--clr-btn-text);
+    outline-color: var(--clr-btn);
+}
+
 .btn:focus {
     box-shadow: none;
 }

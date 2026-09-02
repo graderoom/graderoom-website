@@ -900,11 +900,11 @@ $.get("/donationProgress", function (data) {
             }
         }
 
-        let discordLoaded = false;
+        let discordCardOpened = false;
 
         // Paints whichever of the two Discord panels the account is in, and
         // the popup behind it. Cheap enough to just call after any change
-        function setupDiscord(initial = false) {
+        function setupDiscord(cardOpened = false) {
             $("#discordLinked").toggle(!!discord);
             $("#discordJoin").toggle(!discord);
             if (discord) {
@@ -916,10 +916,15 @@ $.get("/donationProgress", function (data) {
                     .toggle(!!discord.avatar);
             }
 
-            if (discordLoaded || !initial) return;
+            // The widget is a third-party iframe, so it stays unloaded until a
+            // card that shows it has been opened at least once
+            discordCardOpened = discordCardOpened || cardOpened;
+            if (!discordCardOpened) return;
 
-            $(".discord-iframe").attr("src", `https://discord.com/widget?id=897624313136578590&theme=${darkMode ? "dark" : "light"}`);
-            discordLoaded = true;
+            $(".discord-iframe").each(function () {
+                if (this.src || (discord && $(this).closest("#discordJoin").length)) return;
+                this.src = `https://discord.com/widget?id=897624313136578590&theme=${darkMode ? "dark" : "light"}`;
+            });
         }
 
         function setAutoTheme() {
