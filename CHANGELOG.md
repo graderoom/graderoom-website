@@ -52,6 +52,13 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.1.1] - 2026-09-01
+### Improved
+- Updated catalog
+
+### Fixed
+- Sign-in layout on mobile
+
 ## [Stable 8.1.0] - 2026-08-31
 ### Added
 - A sync control in the navbar showing whether you are synced, syncing, or need to sign in, with progress while your grades are fetched and a countdown to the next sync
