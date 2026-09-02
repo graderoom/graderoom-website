@@ -572,3 +572,18 @@ div:not(#dismissed-notifications) > .notification-card.important.discord {
     background: #5865F2;
     color: white;
 }
+
+/* Secondary action in a notification, deliberately quieter than the submit
+   button it sits under */
+.notification-message span.notification-dismiss {
+    display: inline-block;
+    margin-top: 0.4rem;
+    color: var(--clr-text-3);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.notification-message span.notification-dismiss:hover {
+    color: var(--clr-text-2);
+}
