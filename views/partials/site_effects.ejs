@@ -26,6 +26,14 @@
         background: rgba(0, 0, 0, 0.6);
         color: white;
     }
+
+    #build {
+        font-family: monospace;
+        font-size: 0.7rem;
+        pointer-events: none;
+        color: var(--clr-text);
+        opacity: 0.4;
+    }
 </style>
 <% if (background !== "default") { %>
 <link id="themeBackgroundBaseStyle" rel="stylesheet" type="text/css" href="/public/css/theme_backgrounds.css">
@@ -41,6 +49,9 @@
 <% const lightsMonth = 11; /* 11 is December */ %>
 <% if (_appearance.showFps) { %>
 <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
+<% } %>
+<% if (typeof buildLabel !== "undefined" && buildLabel) { %>
+<span style="z-index: 999; position: fixed; bottom: 10px; right: 10px;" id="build"><%= buildLabel %></span>
 <% } %> <% const winterStart = 10; %> <% const winterEnd = 2; %>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-dateFormat/1.0/jquery.dateFormat.min.js"></script>

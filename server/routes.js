@@ -8,6 +8,24 @@ const {changelog, changelogLegend, latestVersion, donoAttributes, discordDisplay
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
 
+// Read once
+const commitHash = (() => {
+    if (server.beta) {
+        try {
+            return require("child_process").execSync("git rev-parse --short HEAD").toString().trim();
+        } catch {
+            return "";
+        }
+    }
+    return "";
+})();
+
+// Only need commit hash on beta
+function buildLabel() {
+    let version = latestVersion(server.beta);
+    return server.beta && commitHash ? `${version} ${commitHash}` : version;
+}
+
 function verifyRecaptcha(token) {
     return new Promise((resolve) => {
         const params = new URLSearchParams({
@@ -147,7 +165,7 @@ function appearanceForRender(appearance, attrs = {}) {
 }
 
 function renderWithConstants(res, view, data = {}) {
-    const renderData = Object.assign({_themeConstants: Constants.themes, testExtensionID: process.env.TEST_EXTENSION_ID || ''}, data);
+    const renderData = Object.assign({_themeConstants: Constants.themes, testExtensionID: process.env.TEST_EXTENSION_ID || '', buildLabel: buildLabel()}, data);
     if (renderData._appearance) {
         renderData._appearance = appearanceForRender(renderData._appearance, {plus: renderData.plus === true, premium: renderData.premium === true});
     }
