@@ -291,7 +291,6 @@ $.get("/donationProgress", function (data) {
                             showChangelog(false, true);
                             setupIncorrectGradeMessages();
                             break;
-                        case "Waiting for local scrape...":
                         case "You need to wait before syncing again.":
                         case "Syncing history...":
                             syncMessage(status);

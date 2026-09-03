@@ -52,13 +52,26 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.1.3] - 2026-09-02
+### Improved
+- The Connect Discord notification can now be dismissed, for when someone else started the link
+- Settings > Help now shows the name and profile picture of your linked Discord account, instead of only its ID
+- The Connect Discord notifications now show which Discord account is being linked
+
+### Fixed
+- Syncing could get stuck on Starting and only recover after refreshing the page (requires Graderoom Extension v1.7.1+)
+- The Discord account card in Settings was titled API
+
+### Removed
+- <em>[API]</em> The public API, along with the pairing and API keys in Settings > Account
+
 ## [Beta 8.1.2] - 2026-09-02
 ### Added
 - <em>[Mobile]</em> Support for the new Graderoom app, which signs in with your Graderoom account and syncs your grades from your phone<ul>
 - Bellarmine accounts only for now</ul>
-- The Connect Discord notification can now be dismissed, for when someone else started the link
 
 ### Improved
+- The Connect Discord notification can now be dismissed, for when someone else started the link
 - Settings > Help now shows the name and profile picture of your linked Discord account, instead of only its ID
 - The Connect Discord notifications now show which Discord account is being linked
 

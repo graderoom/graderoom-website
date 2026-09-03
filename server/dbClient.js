@@ -1783,6 +1783,31 @@ const __version41 = async (db, user) => {
     }
 }
 
+const _version42 = async (db, username) => {
+    let res = await getUser(username, {version: 1, updatedInBackground: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version42, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 42`}};
+}
+
+const __version42 = async (db, user) => {
+    if (user.version === 41) {
+        let update = {version: 42};
+        // "local" meant the server was telling the client to sync on login
+        if (user.updatedInBackground === "local") {
+            update.updatedInBackground = SyncStatus.NOT_SYNCING;
+        }
+        await _users(db, user.username).updateOne({username: user.username}, {
+            $set: update
+        });
+    }
+}
+
 // _versionN brings a user from N-1 up to N, so the list is indexed by N-1.
 // Adding a migration means writing it above and appending it here
 const versionUpdaters = [
@@ -1791,7 +1816,7 @@ const versionUpdaters = [
     _version16, _version17, _version18, _version19, _version20, _version21, _version22,
     _version23, _version24, _version25, _version26, _version27, _version28, _version29,
     _version30, _version31, _version32, _version33, _version34, _version35, _version36,
-    _version37, _version38, _version39, _version40, _version41
+    _version37, _version38, _version39, _version40, _version41, _version42
 ];
 
 if (versionUpdaters.length !== dbUserVersion) {
@@ -4381,16 +4406,14 @@ const _getSyncStatus = async (db, username) => {
             success: false,
             data: {message: `Your ${user.school === Schools.BISV ? "Schoology" : "PowerSchool"} account is no longer active.`}
         };
-    } else if (syncStatus === SyncStatus.NOT_SYNCING) {
-        return {success: false, data: {message: "Not syncing"}};
     } else if (syncStatus === SyncStatus.LIMIT) {
         return {success: false, data: {message: "You need to wait before syncing again."}}
-    } else if (syncStatus === SyncStatus.LOCAL) {
-        return {success: false, data: {message: "Waiting for local scrape..."}};
     } else if (syncStatus.startsWith(`${SyncStatus.FAILED}-`)) {
         let errorCode = parseInt(syncStatus.substring(SyncStatus.FAILED.length + 1));
         return {success: false, data: {message: `Sync Failed. Error ${errorCode}.`}};
     }
+    // NOT_SYNCING, and anything unrecognized, is nothing in progress.
+    return {success: false, data: {message: "Not syncing"}};
 };
 
 const setSyncStatus = (username, value) => safe(_setSyncStatus, lower(username), value);

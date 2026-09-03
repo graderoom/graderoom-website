@@ -9,7 +9,6 @@ module.exports.SyncStatus = {
     ACCOUNT_INACTIVE: "account-inactive",
     LIMIT: "limit",
     NOT_SYNCING: "",
-    LOCAL: "local"
 }
 
 module.exports.Schools = {

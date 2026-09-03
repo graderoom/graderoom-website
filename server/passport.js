@@ -86,7 +86,6 @@ module.exports = function (passport) {
                             return done(null, user);
                         }
                     }
-                    await dbClient.setSyncStatus(user.username, SyncStatus.LOCAL);
                 } else if ('schoolPassword' in user) {
                     await dbClient.setSyncStatus(user.username, SyncStatus.UPDATING);
                     let resp = await dbClient.decryptAndGetSchoolPassword(user.username, password);
