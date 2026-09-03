@@ -53,6 +53,9 @@
 - None
 
 ## [Stable 8.1.3] - 2026-09-02
+### Added
+- The version you are running, in the bottom right corner, so it is visible in screenshots
+
 ### Improved
 - The Connect Discord notification can now be dismissed, for when someone else started the link
 - Settings > Help now shows the name and profile picture of your linked Discord account, instead of only its ID
