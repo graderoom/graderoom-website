@@ -52,7 +52,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Stable 8.1.3] - 2026-09-02
+## [Beta 8.2.0] - 2026-09-02
 ### Added
 - The version you are running, in the bottom right corner, so it is visible in screenshots
 
@@ -64,6 +64,7 @@
 ### Fixed
 - Syncing could get stuck on Starting and only recover after refreshing the page (requires Graderoom Extension v1.7.1+)
 - The Discord account card in Settings was titled API
+- Discord accounts linked a while ago were saved with a corrupted ID. Those have been repaired where the account could be identified, and the rest unlinked
 
 ### Removed
 - <em>[API]</em> The public API, along with the pairing and API keys in Settings > Account

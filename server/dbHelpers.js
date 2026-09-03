@@ -25,7 +25,7 @@ exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
 exports.COSTS_COLLECTION_NAME = 'costs';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 42;
+exports.dbUserVersion = 43;
 exports.dbClassVersion = 4;
 
 exports.sessionIdlePeriod = 8 * 60 * 60 * 1000;
@@ -71,8 +71,9 @@ exports.removeId = (value) => {
     return value;
 };
 
-// Looks up a Discord user. Resolves null on any
-// failure, which leaves the account page showing the ID it already had
+// Looks up a Discord user. Resolves false when Discord says the ID belongs to no one, and null
+// on any other failure, which leaves the account page showing the ID it already had. Callers that
+// only care whether it worked can keep testing truthiness
 exports.fetchDiscordUser = (discordID) => {
     return new Promise((resolve) => {
         if (!process.env.DISCORD_TOKEN || !/^\d+$/.test(discordID)) {
@@ -82,12 +83,16 @@ exports.fetchDiscordUser = (discordID) => {
             hostname: "discord.com",
             path: `/api/v10/users/${discordID}`,
             method: "GET",
+            timeout: 10000,
             headers: {Authorization: `Bot ${process.env.DISCORD_TOKEN}`}
         };
         const req = https.request(options, (res) => {
             let data = "";
             res.on("data", (chunk) => data += chunk);
             res.on("end", () => {
+                if (res.statusCode === 404) {
+                    return resolve(false);
+                }
                 if (res.statusCode !== 200) {
                     return resolve(null);
                 }
@@ -99,6 +104,7 @@ exports.fetchDiscordUser = (discordID) => {
                 }
             });
         });
+        req.on("timeout", () => req.destroy()); // fires the error handler below, so null
         req.on("error", () => resolve(null));
         req.end();
     });

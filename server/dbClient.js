@@ -1808,6 +1808,45 @@ const __version42 = async (db, user) => {
     }
 }
 
+const _version43 = async (db, username) => {
+    // Same reason as version 41, a lookup that cannot run is not proof the link is dead
+    if (!process.env.DISCORD_TOKEN) {
+        return {success: false, data: {log: `Skipped version 43 for ${username}, no DISCORD_TOKEN`}};
+    }
+
+    let res = await getUser(username, {version: 1, discord: 1});
+    if (!res.success) {
+        return res;
+    }
+
+    let user = res.data.value;
+    await safe(__version43, user);
+
+    return {success: true, data: {log: `Updated ${username} to version 43`}};
+}
+
+const __version43 = async (db, user) => {
+    if (user.version !== 42) {
+        return;
+    }
+
+    let update = {$set: {version: 43}};
+    if (user.discord?.discordID) {
+        // IDs were stored as numbers for a while, which rounded the end off the snowflake. Those
+        // point at nobody, so drop the link and let the user redo it
+        let info = await fetchDiscordUser(user.discord.discordID);
+        if (info === null) {
+            // Some other error
+            return;
+        }
+        if (info === false) {
+            update.$unset = {"discord.discordID": "", "discord.discordName": "", "discord.avatar": ""};
+            await _usernames(db).updateOne({username: user.username}, {$unset: {"discord.discordID": ""}});
+        }
+    }
+    await _users(db, user.username).updateOne({username: user.username}, update);
+}
+
 // _versionN brings a user from N-1 up to N, so the list is indexed by N-1.
 // Adding a migration means writing it above and appending it here
 const versionUpdaters = [
@@ -1816,7 +1855,7 @@ const versionUpdaters = [
     _version16, _version17, _version18, _version19, _version20, _version21, _version22,
     _version23, _version24, _version25, _version26, _version27, _version28, _version29,
     _version30, _version31, _version32, _version33, _version34, _version35, _version36,
-    _version37, _version38, _version39, _version40, _version41, _version42
+    _version37, _version38, _version39, _version40, _version41, _version42, _version43
 ];
 
 if (versionUpdaters.length !== dbUserVersion) {
