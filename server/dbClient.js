@@ -2151,9 +2151,29 @@ const _getAllUsers = async (db, projection, query, sort, page, count) => {
     }
 
     let value = await db.collection(`${USERS_COLLECTION_NAME}_0`).aggregate(aggregation).toArray();
+
+    // estimatedDocumentCount ignores the filter, so a filtered request has to be counted
+    let total;
+    if (Object.keys(query).length > 0) {
+        let countAggregation = [{$match: query}, {$project: {_id: 1}}];
+        for (let section of sections) {
+            countAggregation.push({
+                $unionWith: {
+                    coll: `${USERS_COLLECTION_NAME}_${section}`,
+                    pipeline: [{$match: query}, {$project: {_id: 1}}]
+                }
+            });
+        }
+        countAggregation.push({$count: "total"});
+        let counted = await db.collection(`${USERS_COLLECTION_NAME}_0`).aggregate(countAggregation).toArray();
+        total = counted[0]?.total ?? 0;
+    } else {
+        total = await _usernames(db).estimatedDocumentCount();
+    }
+
     return {
         success: true,
-        data: {value: value, actualCount: value.length, total: await _usernames(db).estimatedDocumentCount()}
+        data: {value: value, actualCount: value.length, total: total}
     };
 };
 
@@ -2334,7 +2354,9 @@ const _getAllArchivedUsers = async (db, projection, query, sort, page, count) =>
         data: {
             value: value,
             actualCount: value.length,
-            total: await db.collection(ARCHIVED_USERS_COLLECTION_NAME).estimatedDocumentCount()
+            total: Object.keys(query).length > 0
+                   ? await db.collection(ARCHIVED_USERS_COLLECTION_NAME).countDocuments(query)
+                   : await db.collection(ARCHIVED_USERS_COLLECTION_NAME).estimatedDocumentCount()
         }
     };
 };

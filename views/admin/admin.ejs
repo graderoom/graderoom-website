@@ -81,7 +81,7 @@
         </h6>
         <span class="form-group">
             <input oninput="searchByNameOrUsername()" class="form-control" name="searchByNameOrUsername"
-                   placeholder="Search...">
+                   placeholder="Search name or username...">
         </span>
         <br>
         <div id="users" style="max-height: 100vh; overflow: auto">
@@ -293,7 +293,7 @@
             query["donoData"] = {$exists: true, $ne: []};
         }
         if (search.length >= 3) {
-            query["username"] = {$regex: search};
+            query["search"] = search;
         }
 
         return JSON.stringify(query);

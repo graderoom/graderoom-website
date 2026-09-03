@@ -1452,6 +1452,19 @@ function queryHelper(queryQuery) {
                         _query[key] = query[key];
                     }
                     break;
+                case "search":
+                    if (typeof query[key] === "string" && query[key].trim()) {
+                        let terms = query[key].trim().split(/\s+/).slice(0, 5)
+                                              .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+                        _query["$and"] = terms.map(term => ({
+                            $or: [
+                                {username: {$regex: term, $options: "i"}},
+                                {"personalInfo.firstName": {$regex: term, $options: "i"}},
+                                {"personalInfo.lastName": {$regex: term, $options: "i"}}
+                            ]
+                        }));
+                    }
+                    break;
                 case "donoData":
                     // Queries those that have donations of any amount
                     _query[key] = {$ne: []};
