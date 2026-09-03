@@ -52,7 +52,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 8.2.0] - 2026-09-02
+## [Stable 8.2.0] - 2026-09-02
 ### Added
 - The version you are running, in the bottom right corner, so it is visible in screenshots
 
