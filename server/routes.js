@@ -1084,13 +1084,23 @@ module.exports = function (app, passport) {
             semester = req.query.semester;
         }
 
-        let {classData, catalogData} = (await dbClient.getAllClassData(school, term, semester)).data;
+        let classPage = Math.max(1, parseInt(req.query.classPage) || 1);
+        let classCount = Math.min(50, Math.max(1, parseInt(req.query.classCount) || 20));
+        let classSearch = req.query.classSearch || "";
+        let {classData, catalogData, total: classTotal} = (await dbClient.getAllClassData(school, term, semester, classPage, classCount, classSearch)).data;
+        let classMaxPage = Math.max(1, Math.ceil(classTotal / classCount));
+        if (classPage > classMaxPage) classPage = classMaxPage;
 
-        renderWithConstants(res, "admin/classes.ejs", {
+        let renderData = {
             username: req.user.username,
             page: "classes",
             classData: classData,
             catalogData: catalogData,
+            classPage: classPage,
+            classCount: classCount,
+            classTotal: classTotal,
+            classMaxPage: classMaxPage,
+            classSearch: classSearch,
             sessionTimeout: Date.parse(req.session.cookie._expires),
             _appearance: req.user.appearance,
             beta: server.beta,
@@ -1102,7 +1112,13 @@ module.exports = function (app, passport) {
             _: _,
             plus: plus,
             premium: premium
-        });
+        };
+
+        if (req.query.fragment) {
+            renderWithConstants(res, "admin/partials/class_results.ejs", renderData);
+        } else {
+            renderWithConstants(res, "admin/classes.ejs", renderData);
+        }
     });
 
     app.get("/charts", async (req, res) => {

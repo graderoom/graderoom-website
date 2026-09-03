@@ -4988,12 +4988,22 @@ const _dbContainsClass = async (db, school, term, semester, className, teacherNa
     return {success: res !== null, data: {value: res}};
 };
 
-const getAllClassData = (school, term, semester) => safe(_getAllClassData, lower(school), term, semester);
-const _getAllClassData = async (db, school, term, semester) => {
+const getAllClassData = (school, term, semester, page, count, search) => safe(_getAllClassData, lower(school), term, semester, page, count, search);
+const _getAllClassData = async (db, school, term, semester, page, count, search) => {
     if (!Object.values(Schools).includes(school)) {
         return {success: false, data: {log: `Invalid school ${school}`}};
     }
-    let res = await db.collection(classesCollection(school)).find({term: term, semester: semester}).toArray();
+    let query = {term: term, semester: semester};
+    if (search) {
+        let escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        query.className = {$regex: escaped, $options: 'i'};
+    }
+    let total = await db.collection(classesCollection(school)).countDocuments(query);
+    let cursor = db.collection(classesCollection(school)).find(query);
+    if (page && count) {
+        cursor = cursor.sort({className: 1}).skip((page - 1) * count).limit(count);
+    }
+    let res = await cursor.toArray();
     let classNames = [];
     let allData = {};
     for (let data of res) {
@@ -5016,7 +5026,7 @@ const _getAllClassData = async (db, school, term, semester) => {
         delete data._id;
         delete catalogData[data.class_name].class_name;
     }
-    return {success: true, data: {classData: allData, catalogData: catalogData}};
+    return {success: true, data: {classData: allData, catalogData: catalogData, total: total}};
 };
 
 const getTermsAndSemestersInClassDb = (school) => safe(_getTermsAndSemestersInClassDb, lower(school));

@@ -23,6 +23,7 @@
     <link rel="stylesheet" type="text/css" href="/public/css/base.css">
     <link rel="stylesheet" type="text/css" href="/public/css/nav.css">
     <link rel="stylesheet" type="text/css" href="/public/css/forms.css">
+    <link rel="stylesheet" type="text/css" href="/public/css/tables.css">
     <link rel="stylesheet" type="text/css" href="/public/css/layout.css">
     <link rel="stylesheet" type="text/css" href="/public/css/components.css">
     <link rel="stylesheet" type="text/css" href="/public/css/responsive.css">
@@ -32,6 +33,10 @@
     >
     <link id="blur_responsive" rel="stylesheet" type="text/css" href="/public/css/responsive_blur.css"
           <% if (!_appearance.blurEffects) { %>disabled
+            <% } %>
+    >
+    <link id="reduceMotion" rel="stylesheet" type="text/css" href="/public/css/reduce_motion.css"
+          <% if (!_appearance.reduceMotion) { %>disabled
             <% } %>
     >
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
@@ -73,379 +78,177 @@
                 <option value="<%= schools[i] %>" <% if (schools[i] === school) { %>selected<% } %>><%= schools[i] %></option>
             <% } %>
         </select> | <%= term %> | <%= semester %> </h5>
-    <span class="accordion" id="bigAccordionForms">
-        <hr>
-        <% for (let i = 0; i < Object.keys(classData).length; i++) { %>
-            <% let className = Object.keys(classData)[i]; %>
-            <label style="display: flex; cursor: pointer" class="accordion-label collapsed" data-toggle="collapse"
-                   href="#accordionForms<%= i %>">
-                <h5 style="font-size: 1.5rem !important;"><%= className %>
-                    <% let type = ""; %>
-                    <% switch (classData[className].classType) {
-                        case "":
-                            break;
-                        case "non-academic":
-                            type = "NA";
-                            break;
-                        case "none":
-                            type = "NONE";
-                            break;
-                        case "ap":
-                            type = "AP";
-                            break;
-                        case "honors":
-                            type = "HONORS";
-                            break;
-                        default:
-                            break;
-                    } %>
-                    <% let ucType; %>
-                    <% switch (classData[className].uc_csuClassType) {
-                        case "":
-                            ucType = "NOTUC"
-                            break;
-                        case "uc":
-                            ucType = "UC";
-                            break;
-                        case "uc_ap":
-                            ucType = "UCAP";
-                            break;
-                        case "uc_hon":
-                            ucType = "UCHONORS";
-                            break;
-                        default:
-                            break;
-                    } %>
-                    <div style="display: inline-flex; flex-flow: column-reverse; align-items: center; justify-content: center">
-                        <span style="font-size: 0.5rem"><%= type %></span>
-                        <span style="font-size: 0.5rem"><%= ucType %></span>
-                    </div>
-                    <i class="fa" aria-hidden="true"></i>
-                </h5>
-                <% if (!Object.entries(classData[className]).find(([c, t]) => _.isObject(t) && !Array.isArray(t) && classData[className][c]["weights"] && Object.keys(classData[className][c]["weights"]).length)) { %>
-                    <i class="fa fa-exclamation-circle"
-                       style="padding-top: 8px; margin-bottom: 0.5rem; margin-left: 0.5rem; margin-right: 0.5rem; font-size: 1.1rem; line-height: 1.2rem"></i>
+    <div id="class-pagination" style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 0.5rem 0; flex-wrap: wrap;">
+        <span id="classTotalLabel"></span>
+        <span class="form-group" style="display: flex; align-items: center; gap: 0.25rem; margin: 0;">
+            <input id="classSearchInput" class="form-control" name="classSearch" type="text" placeholder="Search classes..." value="<%= classSearch %>">
+        </span>
+        <span style="display: flex; align-items: center; gap: 0.25rem;">
+            <select id="classCountSelect" class="minimal" onchange="updateClassPage()">
+                <% for (let n of [10, 20, 30, 50]) { %>
+                    <option value="<%= n %>" <% if (n === classCount) { %>selected<% } %>><%= n %></option>
                 <% } %>
-                <span id="classMessage<%= i %>" class="alert alert-success font-weight-bold"
-                      style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
-                    <div style="display: none" class="sk-chase-mini">
-                        <div class="sk-chase-dot mini"></div>
-                        <div class="sk-chase-dot mini"></div>
-                        <div class="sk-chase-dot mini"></div>
-                        <div class="sk-chase-dot mini"></div>
-                        <div class="sk-chase-dot mini"></div>
-                        <div class="sk-chase-dot mini"></div>
-                    </div>
-                    <span class="messageTxt"></span>
-                </span>
-            </label>
-
-            <span class="accordion collapse collapse-underline" id="accordionForms<%= i %>"
-                  data-parent="#bigAccordionForms">
-                <form id="classTypeForm<%= i %>" class="form-ajax form-weights form-signin" action="/updateclasstype"
-                      method="post" style="display: flex; justify-content: right;">
-                    <div>
-                        <label>Class Type:</label>
-                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#classMessage<%= i %>',true); $('#classTypeForm<%= i %>').trigger('submit')"
-                                class="minimal" style="margin: 0; padding: 0 1.7rem 0 0.5rem"
-                                id="classType<%= i %>">
-                            <option value="null"
-                            <% if (classData[className].classType === null) { %> selected
-                                    <% } %>
-                            >
-                                Not Selected
-                            </option>
-                            <option value="non-academic"
-                            <% if (classData[className].classType === "non-academic") { %> selected
-                                    <% } %>
-                            >
-                                Non-Academic
-                            </option>
-                            <option value="none"
-                            <% if (classData[className].classType === "none") { %> selected
-                                    <% } %>
-                            >
-                                None
-                            </option>
-                            <option value="ap"
-                            <% if (classData[className].classType === "ap") { %> selected
-                                    <% } %>
-                            >
-                                AP
-                            </option>
-                            <option value="honors"
-                            <% if (classData[className].classType === "honors") { %> selected
-                                    <% } %>
-                            >
-                                Honors
-                            </option>
-                        </select>
-                        <label>In catalog: <% switch(catalogData[className]?.classType) {
-                                case null:
-                                    %>Not in catalog<%
-                                    break;
-                                case "none":
-                                    %>None<%
-                                    break;
-                                case "non-academic":
-                                    %>Non-Academic<%
-                                    break;
-                                case "ap":
-                                    %>AP<%
-                                    break;
-                                case "honors":
-                                    %>Honors<%
-                                    break;
-                                default:
-                                    %>Invalid<%
-                                    break;
-                            }%></label>
-                    </div>
-                </form>
-                <div style="width: 100%"></div>
-                <form id="ucClassType<%= i %>" class="form-ajax form-weights form-signin" action="/updateuccsuclasstype"
-                      method="post" style="display: flex; justify-content: right;">
-                    <div>
-                        <label>UC Class Type:</label>
-                        <select oninput="ajaxPostWeightsDatabaseForm('<%= i %>',null,null,[],'#classMessage<%= i %>',true,true); $('#ucClassType<%= i %>').trigger('submit')"
-                                class="minimal" style="margin: 0; padding: 0 1.7rem 0 0.5rem"
-                                id="ucClassType<%= i %>">
-                            <option value="null"
-                            <% if (classData[className].uc_csuClassType === null) { %> selected
-                                    <% } %>
-                            >
-                                Not Selected
-                            </option>
-                            <option value="not_uc"
-                            <% if (classData[className].uc_csuClassType === "not_uc") { %> selected
-                                    <% } %>
-                            >
-                                Not UC Approved
-                            </option>
-                            <option value="uc"
-                            <% if (classData[className].uc_csuClassType === "uc") { %> selected
-                                    <% } %>
-                            >
-                                UC Approved
-                            </option>
-                            <option value="uc_ap"
-                            <% if (classData[className].uc_csuClassType === "uc_ap") { %> selected
-                                    <% } %>
-                            >
-                                UC Approved AP
-                            </option>
-                            <option value="uc_hon"
-                            <% if (classData[className].uc_csuClassType === "uc_hon") { %> selected
-                                    <% } %>
-                            >
-                                UC Approved Honors
-                            </option>
-                        </select>
-                        <label>In catalog: <% switch(catalogData[className]?.uc_csuClassType) {
-                            case null:
-                            %>Not in catalog<%
-                                break;
-                            case "not_uc":
-                            %>Not UC Approved<%
-                                break;
-                            case "uc":
-                            %>UC Approved<%
-                                break;
-                            case "uc_ap":
-                            %>UC Approved AP<%
-                                break;
-                            case "uc_hon":
-                            %>UC Approved Honors<%
-                                break;
-                            default:
-                            %>Invalid<%
-                                break;
-                            }%></label>
-                    </div>
-                </form>
-                <% for (let j = 0; j < Object.keys(classData[className]).length; j++) { %>
-                    <% let teacherName = Object.keys(classData[className])[j]; %>
-                    <% if (_.isObject(classData[className][teacherName]) && !Array.isArray(classData[className][teacherName])) { %>
-                        <div class="break"></div>
-                        <label class="accordion-label" data-toggle="collapse" href="#collapse-<%= i %>-<%= j %>"
-                               style="display: flex; margin: 0 0 0 2rem; cursor: pointer">
-                            <h5 style="cursor: pointer" class="weightname" id="<%= teacherName %>">
-                                <%= teacherName %>
-                                <i style="text-indent: 0 !important;" class="fa" aria-hidden="true"></i>
-                            </h5>
-
-                            <span id="suggestionMessage-<%= i %>-<%= j %>" class="alert alert-success font-weight-bold"
-                                  style="margin: auto 0 auto 0.75rem; width: fit-content; display:none; justify-content: center; padding: 0.1rem;">
-                                <div style="display: none" class="sk-chase-mini">
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                    <div class="sk-chase-dot mini"></div>
-                                </div>
-                                <span class="messageTxt"></span>
-                            </span>
-                        </label>
-                        <div class="break"></div>
-                        <span class="collapse collapse-underline show" id="collapse-<%= i %>-<%= j %>"
-                              data-parent="#accordionForms<%= i %>">
-                            <!-- Loops through all suggestions + 1 for the actual weights -->
-                            <% for (let z = -1; z < classData[className][teacherName]["suggestions"].length; z++ ) {
-                                let weights;
-                                let hasWeights;
-                                let marginLeft;
-                                if (z === -1) {
-                                    weights = classData[className][teacherName]["weights"];
-                                    hasWeights = classData[className][teacherName]["hasWeights"];
-                                    marginLeft = 4;
-                                } else {
-                                    weights = classData[className][teacherName]["suggestions"][z]["weights"];
-                                    hasWeights = classData[className][teacherName]["suggestions"][z]["hasWeights"];
-                                    marginLeft = 6;
-                                }
-                            if (z === 0) { %>
-                                <h5 id="suggestion-header-<%= i %>-<%= j %>" style="margin: 0 0 0.5rem 4rem;">
-                                    Suggestions:
-                                </h5>
-                            <% } %>
-                            <form id="suggestion-<%= i %>-<%= j %>-<%= z %>" class="form-ajax form-weights form-signin"
-                                  action="/updateclassweights" method="post"
-                                  style="margin: 0 0 0 <%= marginLeft %>rem; width: 100%">
-                                <suggestionIndex style="display: none;"><%= z %></suggestionIndex>
-                                <div>
-                                    <% if (z == -1) { %>
-                                        <span class="fa fa-plus disableable"
-                                              onclick="addCategory(this,'<%= i %>','<%= j %>','<%= z %>')"
-                                              style="display: inline-flex; cursor: pointer;color: green"></span>
-                                    <% } %>
-                                    <% for (let k = 0; k < Object.keys(weights).length; k++) {
-                                        let name = Object.keys(weights)[k];
-                                        let value = weights[name] %>
-
-                                    <div class="form-group" id="category-<%= i %>-<%= j %>-<%= z %>-<%= k %>"
-                                         style="margin-bottom: 0.5rem; display:inline-flex; align-items: flex-end;">
-                                        <input style="font-size: 0.9rem; margin-right: 0 !important; width: auto; white-space: nowrap; margin-bottom: 0;"
-                                               value="<%= name %>"
-                                               class="form-control text-view disableable"
-                                               size="<%= Math.max(2, name.length + 1) %>"
-                                        <% if (z == -1) { %>
-                                               oninput="this.classList.remove('text-view'); showSubmitButton(this); resizeInput(this)"
-                                                <% } %>
-                                               required
-                                        <% if (z != -1) { %> disabled
-                                                <% } %>
-                                        >
-                                        :
-                                        <input style="margin: 0;"
-                                        <% if(!isNaN(value)) { %>
-                                               value="<%= value %>"
-                                                <% } %>
-                                               type="number"
-                                               min="0"
-                                               step="0.01"
-                                               class="form-control text-view disableable"
-                                               name="<%= name %>"
-                                        <% if (z == -1) { %>
-                                               oninput="this.classList.remove('text-view'); showSubmitButton(this); "
-                                                <% } %>
-                                        <% if (z != -1) { %> disabled
-                                                <% } %>
-                                        >
-                                        <% if (z == -1) { %>
-                                            <span class="fa fa-minus disableable" onclick="removeCategory(this)"
-                                                  style="text-indent: 1rem; color: red; cursor: pointer; margin-bottom: 2px"></span>
-                                        <% } %>
-                                    </div>
-                                    <% } %>
-                                </div>
-                                <div class="break"></div>
-                                <div class="form-group"
-                                     style="margin-bottom: 0.5rem; display: flex; align-items: flex-end;">
-                                    <label class="checkbox-label"
-                                           style="font-size: 0.9rem; white-space: nowrap; margin-bottom: 0;">
-                                        Point Based?
-                                    </label>
-                                    <input
-                                            id="check-<%= i %>-<%= j %>-<%= z %>"
-                                            style="margin-top: auto; margin-bottom: auto!important;"
-                                            type="checkbox"
-                                            class="form-control"
-                                            name="hasWeights"
-                                    <% try { if (!hasWeights) { %>
-                                            checked
-                                            <% }} catch (e) {
-                                            } %>
-                                    <% if (z == -1) { %>
-                                            onchange="showSubmitButton(this); disableInput('check-<%= i %>-<%= j %>-<%= z %>','collapse-<%= i %>-<%= j %>-<%= z %>');"
-                                            <% } %>
-                                    <% if (z != -1) { %> disabled
-                                            <% } %>
-                                    >
-                                    <script>
-                                        function disableInput(checkBoxID, id) {
-                                            $("#" + id).find(".disableable").each(function () {
-                                                if ($("#" + checkBoxID).is(":checked")) {
-                                                    $(this).addClass("disabled");
-                                                    $(this).attr("disabled", "disabled");
-                                                } else {
-                                                    $(this).removeClass("disabled");
-                                                    $(this).removeAttr("disabled");
-                                                }
-                                            });
-                                        }
-
-                                        disableInput('check-<%= i %>-<%= j %>-<%= z %>', 'collapse-<%= i %>-<%= j %>-<%= z %>');
-                                    </script>
-                                </div>
-                                <% if (z == -1) { %>
-                                    <div class="formSubmitButton" style="width: 100%; display: none">
-                                        <button type="submit" class="btn btn-default btn-med"
-                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#suggestionMessage-<%= i %>-<%= j %>',true);">
-                                            <i class="fa fa-refresh" aria-hidden="true"></i>
-                                            Update
-                                        </button>
-                                    </div>
-                                <% } else { %>
-                                    <div class="formSubmitButton" style="width: 100%; display: block;">
-                                        <button type="submit" class="btn btn-default btn-med approve_btn"
-                                                onclick="ajaxPostWeightsDatabaseForm('<%= i %>','<%= j %>','<%= z %>',[],'#suggestionMessage-<%= i %>-<%= j %>',true);">
-                                            <i class="fa fa-check" aria-hidden="true"></i>
-                                            Approve
-                                        </button>
-                                        <i style="display:inline-block; vertical-align: middle; padding:.2rem .2rem; margin: 0 0 1rem;">
-                                            <%= classData[className][teacherName]["suggestions"][z]["usernames"].length %>
-                                            user(s)
-                                        </i>
-                                    </div>
-                                <% } %>
-                            </form>
-                            <% } %>
-                        </span>
-                    <% } %>
-                <% } %>
-            </span>
-            <hr>
-        <% } %>
-    </span>
+            </select>
+            per page
+        </span>
+        <span style="display: flex; align-items: center; gap: 0.25rem;">
+            <button id="classPrev" class="btn btn-sm admin" onclick="stepClassPage(-1)">&laquo;</button>
+            <select id="classPageSelect" class="minimal" onchange="updateClassPage()"></select>
+            of <span id="classMaxPageLabel"></span>
+            <button id="classNext" class="btn btn-sm admin" onclick="stepClassPage(1)">&raquo;</button>
+        </span>
+    </div>
+    <div id="classResults">
+        <%- include('partials/class_results.ejs'); %>
+    </div>
 </div>
 </body>
 
 <!-- Custom JavaScript -->
 <script>
-    let classes = <%- JSON.stringify(classData) %>;
-    let catalog = <%- JSON.stringify(catalogData) %>;
+    let classes, catalog;
+
+    let classPage = 1;
+    let classMaxPage = 1;
+
+    function readClassData() {
+        let data = JSON.parse($("#classDataJson").text());
+        classes = data.classData;
+        catalog = data.catalogData;
+        classPage = data.classPage;
+        classMaxPage = data.classMaxPage;
+        renderPagination(data);
+    }
+
+    // the pagination bar is outside the swapped fragment, so it is redrawn here
+    function renderPagination(data) {
+        $("#classTotalLabel").text(data.classTotal + (data.classTotal === 1 ? " class" : " classes"));
+        $("#classMaxPageLabel").text(data.classMaxPage);
+        $("#classCountSelect").val(String(data.classCount));
+
+        let pageSelect = $("#classPageSelect");
+        let options = "";
+        for (let p = 1; p <= data.classMaxPage; p++) {
+            options += `<option value="${p}"${p === data.classPage ? " selected" : ""}>${p}</option>`;
+        }
+        pageSelect.html(options);
+
+        $("#classPrev").prop("disabled", data.classPage <= 1);
+        $("#classNext").prop("disabled", data.classPage >= data.classMaxPage);
+    }
+
+    function stepClassPage(delta) {
+        goToClassPage(Math.min(Math.max(classPage + delta, 1), classMaxPage));
+    }
+
+    readClassData();
     let term = "<%= term %>";
     let semester = "<%= semester %>";
 
     $("#termSwitcher").addClass("hover");
     setTimeout(() => $("#termSwitcher").removeClass("hover"), 2000);
 
+    let searchTimeout;
+    let classesSeq = 0;
+
+    // Swaps just the results fragment. Cancels a pending search first, so a debounce
+    // armed before a click can't fire afterwards and throw away the newer request, and
+    // ignores any response a newer request has already superseded.
+    function navigate(params) {
+        clearTimeout(searchTimeout);
+        let seq = ++classesSeq;
+        let qs = params.toString();
+        $("#classResults").css("opacity", "0.5");
+
+        $.get("/classes?" + qs + "&fragment=1").done(function (html) {
+            if (seq !== classesSeq) {
+                return;
+            }
+            if (typeof html === "string" && html.startsWith("<!")) { // logged out
+                window.location.href = "/classes?" + qs;
+                return;
+            }
+            $("#classResults").html(html);
+            readClassData();
+            history.pushState({}, "", "/classes?" + qs);
+        }).fail(function () {
+            if (seq === classesSeq) {
+                window.location.href = "/classes?" + qs; // fall back to a full load
+            }
+        }).always(function () {
+            if (seq === classesSeq) {
+                $("#classResults").css("opacity", "");
+            }
+        });
+    }
+
+    window.addEventListener("popstate", function () {
+        let seq = ++classesSeq;
+        $.get("/classes" + window.location.search + (window.location.search ? "&" : "?") + "fragment=1").done(function (html) {
+            if (seq !== classesSeq) {
+                return;
+            }
+            $("#classResults").html(html);
+            readClassData();
+        });
+    });
+
+    function buildClassParams() {
+        return new URLSearchParams(window.location.search);
+    }
+
+    function applySearchParam(params) {
+        let search = $("#classSearchInput").val().trim();
+        if (search) {
+            params.set("classSearch", search);
+        } else {
+            params.delete("classSearch");
+        }
+    }
+
     function switchSchool() {
-        let selectedSchool = $("#school-select option:selected").val();
-        let currentParams = new URL(window.location.href).searchParams;
-        currentParams.append("school", selectedSchool);
-        window.location.href = "/classes?" + currentParams.toString();
+        clearTimeout(searchTimeout);
+        let params = buildClassParams();
+        params.set("school", $("#school-select option:selected").val());
+        params.delete("classPage");
+        params.delete("classSearch");
+        window.location.href = "/classes?" + params.toString(); // term switcher is outside the fragment
+    }
+
+    function updateClassPage() {
+        let params = buildClassParams();
+        params.set("classCount", $("#classCountSelect").val());
+        params.set("classPage", $("#classPageSelect").val());
+        applySearchParam(params);
+        navigate(params);
+    }
+
+    function goToClassPage(p) {
+        let params = buildClassParams();
+        params.set("classPage", p);
+        navigate(params);
+    }
+
+    $("#classSearchInput").on("input", function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function () {
+            let params = buildClassParams();
+            applySearchParam(params);
+            params.set("classPage", "1");
+            navigate(params);
+        }, 500);
+    });
+
+    function updateNoWeightsIcon(classIndex) {
+        let className = Object.keys(classes)[classIndex];
+        let hasAnyWeights = Object.entries(classes[className]).some(([key, val]) =>
+            val && typeof val === 'object' && !Array.isArray(val) && val.weights && Object.keys(val.weights).length > 0
+        );
+        if (hasAnyWeights) {
+            $("#noWeightsIcon" + classIndex).hide();
+        } else {
+            $("#noWeightsIcon" + classIndex).show();
+        }
     }
 
     // TODO restructure! this is not good code
@@ -568,6 +371,16 @@
                     } catch (error) {
                         console.error(error);
                     }
+                }
+
+                if (teacherIndex && weights) {
+                    let className = Object.keys(classes)[classIndex];
+                    let teacherName = Object.keys(classes[className])[teacherIndex];
+                    if (classes[className][teacherName]) {
+                        classes[className][teacherName].weights = weights;
+                        classes[className][teacherName].hasWeights = hasWeights;
+                    }
+                    updateNoWeightsIcon(parseInt(classIndex));
                 }
 
             }).fail(function (response) {

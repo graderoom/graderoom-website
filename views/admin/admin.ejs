@@ -284,6 +284,8 @@
     let donor = false;
     let username = "<%= username %>";
     let search = "";
+    let searchTimeout;
+    let setupSeq = 0;
 
     function queryHelper() {
         let query = {};
@@ -316,11 +318,15 @@
     setup();
 
     function setup() {
+        let seq = ++setupSeq;
         $.ajax({
             type: "POST",
             url: "/users",
             data: {page: page, count: count, query: queryHelper(), sort: sortHelper(), archived: archived}
         }).done(function (response) {
+            if (seq !== setupSeq) {
+                return; // a newer request superseded this one
+            }
             if (!response.success) {
                 page = response.maxPage;
                 setup();
@@ -504,12 +510,13 @@
     }
 
     function searchByNameOrUsername() {
-        search = $("input[name=searchByNameOrUsername]").val().toLowerCase();
-        if (search.length >= 3) {
-            setup();
-        } else if (search.length === 0) {
-            setup();
-        }
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function () {
+            search = $("input[name=searchByNameOrUsername]").val().toLowerCase();
+            if (search.length >= 3 || search.length === 0) {
+                setup();
+            }
+        }, 300);
     }
 
     function checkLabel(input) {
@@ -585,6 +592,9 @@
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();
             } else {
+                if (!users[userIndex] || users[userIndex].username !== username) {
+                    return; // row moved; server already saved it
+                }
                 let donation = $($(".add-donation-container")[userIndex]);
                 donation.removeClass("active");
                 users[userIndex].donoData.push(donationObject);
@@ -602,6 +612,9 @@
                 $(".session-timeout").show();
                 $("body").find("*").not(".session-timeout").remove();
             } else {
+                if (!users[userIndex] || users[userIndex].username !== username) {
+                    return; // row moved; server already saved it
+                }
                 users[userIndex].donoData.splice(donoIndex, 1);
                 setupDonations(userIndex);
             }
@@ -722,13 +735,18 @@
         }, 100);
     }
 
+    let costsSeq = 0;
     loadCosts();
 
     function loadCosts() {
+        let seq = ++costsSeq;
         $.ajax({
             type: "GET",
             url: "/getCosts",
             success: function (costs) {
+                if (seq !== costsSeq) {
+                    return; // a newer refresh superseded this one
+                }
                 let tbody = $("#costsTable tbody");
                 tbody.empty();
                 let monthlyTotal = 0;
@@ -778,6 +796,9 @@
                     type: "GET",
                     url: "/donationProgress",
                     success: function (data) {
+                        if (seq !== costsSeq) {
+                            return; // a newer refresh superseded this one
+                        }
                         let balance = data.totalReceived - data.totalCosts;
                         $("#costsTotalIncurred").text(`$${data.totalCosts.toFixed(2)}`);
                         $("#costsTotalDonated").text(`$${data.totalReceived.toFixed(2)}`);

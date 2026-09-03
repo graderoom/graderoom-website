@@ -365,7 +365,8 @@ th.toolTab {
     color: var(--clr-placeholder) !important;
 }
 
-#weightsCard input {
+/* the page's search box is not a weights field */
+#weightsCard input:not([name=classSearch]) {
     font-size: 0.9rem;
     margin-right: 1rem;
     padding: .1rem .1rem;

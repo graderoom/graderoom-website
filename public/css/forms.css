@@ -49,7 +49,8 @@
     background: var(--img-school) no-repeat left/28px 26px !important;
 }
 
-.form-group input[name=searchByNameOrUsername] {
+.form-group input[name=searchByNameOrUsername],
+.form-group input[name=classSearch] {
     background-color: var(--clr-input) !important;
 }
 
@@ -532,11 +533,18 @@ input:disabled + .slider:before {
 
 /* Search */
 
-input[name=searchByNameOrUsername] {
+input[name=searchByNameOrUsername],
+input[name=classSearch] {
     width: 100%;
     border-radius: 0.5rem;
     padding: 0.5rem;
     margin-bottom: 0.5rem;
+}
+
+input[name=classSearch] {
+    width: 200px;
+    flex-shrink: 0;
+    margin-bottom: 0;
 }
 
 #filters {
