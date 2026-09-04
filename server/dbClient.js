@@ -3376,7 +3376,7 @@ const _updateGradesFromUser = async (db, username, data) => {
         let oldToNewIndex = oldGrades.map(o => newGrades.findIndex(n => n.class_name === o.class_name));
         added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [
             newGrades[index].class_name,
-            newPSAIDs[index].filter(psaid => newToOldIndex[index] === -1 ? false : !oldPSAIDs[newToOldIndex[index]].includes(psaid))
+            newPSAIDs[index].filter(psaid => newToOldIndex[index] === -1 ? true : !oldPSAIDs[newToOldIndex[index]].includes(psaid))
         ]).filter(data => data[1].length));
         modified = Object.fromEntries(oldGrades.map((classData, index) => [
             classData.class_name,
@@ -3607,7 +3607,7 @@ const _updateGrades = async (db, username, schoolPassword, userPassword, gradeSy
                 let oldToNewIndex = oldGrades.map(o => newGrades.findIndex(n => n.class_name === o.class_name));
                 added = Object.fromEntries(newPSAIDs.map((classPSAIDs, index) => [
                     newGrades[index].class_name,
-                    newPSAIDs[index].filter(psaid => newToOldIndex[index] === -1 ? false : !oldPSAIDs[newToOldIndex[index]].includes(psaid))
+                    newPSAIDs[index].filter(psaid => newToOldIndex[index] === -1 ? true : !oldPSAIDs[newToOldIndex[index]].includes(psaid))
                 ]).filter(data => data[1].length));
                 const normAssignment = (a) => a ? {...a, missing: !!a.missing, late: !!a.late} : a;
                 modified = Object.fromEntries(oldGrades.map((classData, index) => [
