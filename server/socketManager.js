@@ -5,6 +5,10 @@ module.exports = {
         io = _io;
     },
     emitToRoom: function (username, event, ...args) {
+        // scripts and tests load dbClient without a socket server
+        if (!io) {
+            return;
+        }
         keepTrying(() => getRoom(username), 1000, 5, (socket) => socket.emit(event, ...args), () => console.log(`Failed to send ${event} to ${username} with data ${[...args].join(" | ")}`));
     },
     count: () => getCount(),
