@@ -306,6 +306,8 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
     });
 };
 
+exports.isRealTeacher = (teacherName) => typeof teacherName === "string" && teacherName.trim().length > 0;
+
 exports.makeClass = (term, semester, className, teacherName) => {
     return {
         department: null,
@@ -313,7 +315,7 @@ exports.makeClass = (term, semester, className, teacherName) => {
         terms: null,
         uc_csuClassType: null,
         classType: null,
-        teachers: [this.makeTeacher(teacherName)],
+        teachers: this.isRealTeacher(teacherName) ? [this.makeTeacher(teacherName)] : [],
         term: term,
         semester: semester,
         className: className,

@@ -31,6 +31,7 @@ const {
     isCustom,
     fixWeights,
     makeTeacher,
+    isRealTeacher,
     makeClass,
     COMMON_DATABASE_NAME,
     CATALOG_COLLECTION_NAME,
@@ -4746,7 +4747,7 @@ const _addDbClass = async (db, school, term, semester, className, teacherName) =
         }
     });
     if (classData) { // class already exists
-        if (classData.teachers.every(x => x.teacherName !== teacherName)) {
+        if (isRealTeacher(teacherName) && classData.teachers.every(x => x.teacherName !== teacherName)) {
             await db.collection(classesCollection(school)).updateOne({_id: classData._id}, {$push: {"teachers": makeTeacher(teacherName)}});
         }
     } else { //class doesn't exist
