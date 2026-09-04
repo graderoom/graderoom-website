@@ -1445,6 +1445,10 @@ $.get("/donationProgress", function (data) {
         function getOverallGrade(classIndex) {
             let className = _data[classIndex].class_name;
             let overallGrade = 0;
+            if (!_data[classIndex].grades.length) {
+                // Nothing to calculate from (history terms), so trust PowerSchool's number
+                return _data[classIndex].overall_percent === false ? null : _data[classIndex].overall_percent;
+            }
             if (weights[classIndex]["hasWeights"] === false || unobtainedWeights[className]) {
                 let points_earned = 0;
                 let points_total = 0;
