@@ -38,6 +38,7 @@ async function run() {
         await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: {updating: true}}, {upsert: true});
     } else {
         console.log("Already updating!");
+        await client.close();
         return;
     }
     let {loginData, uniqueLoginData, syncData, schoolData, lastUpdated: lastUpdatedCharts} = data;
@@ -181,6 +182,9 @@ async function run() {
 
     await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: value, $unset: {updating: ""}}, {upsert: true});
     console.log(`Finished in ${Date.now() - start}ms!`);
+    // The open MongoClient keeps the event loop alive, so without this the forked process never
+    // exits. getChartData forks one whenever the data is stale, so they accumulate.
+    await client.close();
 }
 
 function getGradYear(year, today = null) {
