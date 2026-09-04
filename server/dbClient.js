@@ -5176,10 +5176,11 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
         className: className,
         "teachers.teacherName": teacherName
     }, {projection: {"teachers.$": 1}});
-    teacherData = classData.teachers[0];
+    // No teacher means no shared record to compare against or suggest to
+    teacherData = classData?.teachers[0];
 
     //Add Suggestion
-    if (addSuggestion) {
+    if (addSuggestion && teacherData) {
         await addWeightsSuggestion(username, term, semester, className, teacherName, hasWeights, weights);
     }
 
@@ -5196,7 +5197,7 @@ const _updateWeightsForClass = async (db, username, term, semester, className, h
 
     //Determine Custom
     if (custom === null) {
-        custom = isCustom({"weights": modWeights, "hasWeights": hasWeights}, {
+        custom = !teacherData || isCustom({"weights": modWeights, "hasWeights": hasWeights}, {
             "weights": teacherData.weights, "hasWeights": teacherData.hasWeights
         });
     }
