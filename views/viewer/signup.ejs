@@ -17,7 +17,7 @@
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
 </head>
 <body style="min-height: 100vh">
 <div class="container" id="signup-container">
@@ -644,7 +644,7 @@
             newDiv.className = 'g-recaptcha';
             oldDiv.parentNode.replaceChild(newDiv, oldDiv);
             if (typeof grecaptcha !== 'undefined') {
-                grecaptcha.render(newDiv, {
+                grecaptcha.enterprise.render(newDiv, {
                     sitekey: '<%= recaptchaSiteKey %>',
                     theme: darkMode ? 'dark' : 'light',
                     callback: onRecaptchaSuccess,

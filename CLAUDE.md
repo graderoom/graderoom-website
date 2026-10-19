@@ -15,7 +15,9 @@ pip install -r requirements.txt
 npm i
 ```
 
-Create a `.env` file from `.env.example` with port, SECRET, PLUNK_API_KEY, and reCAPTCHA keys.
+Create a `.env` file from `.env.example` with port, SECRET, PLUNK_API_KEY,
+and the reCAPTCHA Enterprise site key, Cloud project ID and API key. The API key must not have a website (referrer)
+restriction: the server calls `createAssessment` with no Referer, so restrict it by IP and to the reCAPTCHA Enterprise API.
 
 **Start the server:**
 ```bash

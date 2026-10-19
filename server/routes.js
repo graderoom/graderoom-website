@@ -3,7 +3,6 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 
-const https = require("https");
 const {changelog, changelogLegend, latestVersion, donoAttributes, discordDisplay, fetchDiscordUser, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isInternalApiAuthenticated, inRecentTerm, deviceOf} = require("./middleware");
@@ -26,36 +25,22 @@ function buildLabel() {
     return server.beta && commitHash ? `${version} ${commitHash}` : version;
 }
 
-function verifyRecaptcha(token) {
-    return new Promise((resolve) => {
-        const params = new URLSearchParams({
-            secret: process.env.RECAPTCHA_SECRET_KEY,
-            response: token
-        }).toString();
-        const options = {
-            hostname: "www.google.com",
-            path: "/recaptcha/api/siteverify",
+async function verifyRecaptcha(token) {
+    try {
+        const res = await fetch(`https://recaptchaenterprise.googleapis.com/v1/projects/${process.env.RECAPTCHA_PROJECT_ID}/assessments?key=${process.env.RECAPTCHA_API_KEY}`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Content-Length": Buffer.byteLength(params)
-            }
-        };
-        const req = https.request(options, (res) => {
-            let data = "";
-            res.on("data", (chunk) => data += chunk);
-            res.on("end", () => {
-                try {
-                    resolve(JSON.parse(data).success === true);
-                } catch {
-                    resolve(false);
-                }
-            });
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({event: {token, siteKey: process.env.RECAPTCHA_SITE_KEY}})
         });
-        req.on("error", () => resolve(false));
-        req.write(params);
-        req.end();
-    });
+        const data = await res.json();
+        if (data.tokenProperties?.valid !== true) {
+            console.log("reCAPTCHA rejected:", JSON.stringify(data.error ?? data.tokenProperties));
+        }
+        return data.tokenProperties?.valid === true;
+    } catch (e) {
+        console.log("reCAPTCHA request failed:", e.message);
+        return false;
+    }
 }
 
 // Every key authorized_index.ejs renders with. Also served as JSON to the app
