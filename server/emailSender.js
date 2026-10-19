@@ -15,10 +15,7 @@ module.exports = {
             from: fromEmail,
             subject: "Graderoom Password Reset",
             // Overrides OCI's own unsubscribe link, which would suppress every future email to this address
-            headers: {
-                "List-Unsubscribe": "<https://graderoom.me/unsubscribe>",
-                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
-            },
+            headers: {"List-Unsubscribe": "<https://graderoom.me/unsubscribe>"},
             html: buildEmailHTML(toEmail, pwResetLink, firstName),
             text: `Hi ${firstName},
 
