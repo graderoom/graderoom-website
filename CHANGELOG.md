@@ -57,6 +57,7 @@
 - Snow is smoother and lighter on your battery
 - <em>[Mobile]</em> Snow and the Christmas lights no longer run on phones
 - Snow now hides itself when frames arrive unevenly rather than when the frame rate drops, so a steady display keeps it however fast it runs
+- Password reset emails have a new look, with a reset button in place of a bare link
 
 ### Fixed
 - Past terms with no assignment data showed N/A instead of the grade from PowerSchool

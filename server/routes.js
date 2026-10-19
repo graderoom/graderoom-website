@@ -738,6 +738,10 @@ module.exports = function (app, passport) {
         res.redirect("/");
     });
 
+    // List-Unsubscribe target for transactional email. OCI only keeps an HTTPS header, and requests here never
+    // reach OCI's suppression list, so a stray one-click unsubscribe can't block future password resets
+    app.all("/unsubscribe", (req, res) => res.type("text").send("Graderoom only emails you when you request a password reset, so there's nothing to unsubscribe from."));
+
     // SIGNUP =================================
     // show the signup form
     app.get("/signup", (req, res) => {

@@ -15,7 +15,7 @@ pip install -r requirements.txt
 npm i
 ```
 
-Create a `.env` file from `.env.example` with port, SECRET, PLUNK_API_KEY,
+Create a `.env` file from `.env.example` with port, SECRET, the OCI Email Delivery SMTP host and credentials,
 and the reCAPTCHA Enterprise site key, Cloud project ID and API key. The API key must not have a website (referrer)
 restriction: the server calls `createAssessment` with no Referer, so restrict it by IP and to the reCAPTCHA Enterprise API.
 
@@ -60,7 +60,10 @@ npm run email_test    # Test email sending
 - `server/passport.js` — Passport.js local strategy configuration
 - `server/scrape.js` — Node.js interface to the Python scraper
 - `server/scrape.py` — Main Python web scraper (Powerschool login + grade extraction)
-- `server/emailSender.js` — Email via Plunk API
+- `server/emailSender.js` — Email via OCI Email Delivery SMTP (`nodemailer`, port 587 STARTTLS) from the approved
+  sender `no-reply@graderoom.me`, DKIM-signed for `graderoom.me`. Templates use inline styles only, and links need
+  real `https://` URLs or Outlook strips them. Each email sets `List-Unsubscribe` to `/unsubscribe` (a no-op route in
+  `routes.js`); without an HTTPS one there, OCI adds its own, which puts the recipient on the tenancy suppression list
 
 ### Database Structure
 

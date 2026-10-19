@@ -99,6 +99,6 @@ module.exports = {
     email_test: async function () {
         let email = emailJson["email"];
         if (!email || email === "") throw new Error("Configure email.json");
-        emailSender.sendPasswordResetToAccountOwner(email, "TESTLINK", "TESTNAME")
+        emailSender.sendPasswordResetToAccountOwner(email, "https://graderoom.me/reset_password?token=TEST", "TESTNAME")
     }
 }
