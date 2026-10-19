@@ -206,6 +206,30 @@ exports.validateEmail = (email, school) => {
     return re.test(email);
 };
 
+exports.appearanceDefaults = {
+    mode: 'system',
+    lightTheme: 'light',
+    darkTheme: 'dark',
+    classColors: [],
+    colorPalette: 'clear',
+    shuffleColors: false,
+    seasonalEffects: true,
+    background: 'winter-logo',
+    showNonAcademic: false,
+    darkModeStart: 946778400000,
+    darkModeFinish: 946738800000,
+    weightedGPA: true,
+    regularizeClassGraphs: true,
+    showPlusMinusLines: false,
+    reduceMotion: false,
+    showMaxGPA: false,
+    animateWhenUnfocused: false,
+    showFps: false
+};
+
+// Anything else under appearance is removed on startup by dbClient.removeUnknownAppearanceKeys
+exports.appearanceKeys = [...Object.keys(exports.appearanceDefaults), 'blurEffects'];
+
 exports.makeUser = async (school, username, password, schoolUsername, isAdmin, beta) => {
     return new Promise(resolve => {
         // Do not create user if username is not valid
@@ -252,26 +276,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 betaFeatures: {
                     active: beta
                 },
-                appearance: {
-                    mode: 'system',
-                    lightTheme: 'light',
-                    darkTheme: 'dark',
-                    classColors: [],
-                    colorPalette: 'clear',
-                    shuffleColors: false,
-                    seasonalEffects: true,
-                    background: 'winter-logo',
-                    showNonAcademic: false,
-                    darkModeStart: 946778400000,
-                    darkModeFinish: 946738800000,
-                    weightedGPA: true,
-                    regularizeClassGraphs: true,
-                    showPlusMinusLines: false,
-                    reduceMotion: false,
-                    showMaxGPA: false,
-                    animateWhenUnfocused: false,
-                    showFps: false
-                },
+                appearance: structuredClone(this.appearanceDefaults),
                 alerts: {
                     lastUpdated: [],
                     latestSeen: _versionNameArray[1] ? beta ? _versionNameArray[1][1] : _versionNameArray.find(v => v[0] !== 'Beta' && v[0] !== 'Known Issues')[1] : '1.0.0',

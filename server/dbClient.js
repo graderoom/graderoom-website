@@ -59,7 +59,7 @@ const {
     ERRORS_COLLECTION_NAME,
     GENERAL_ERRORS_COLLECTION_NAME, minUsersForAverageCalc, SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME, COSTS_COLLECTION_NAME, hash,
     checkValidTerm, checkValidSemester, processClasses, nextSyncWhen, syncPeriodOptions, defaultSyncPeriod,
-    minSyncPeriod
+    minSyncPeriod, appearanceKeys
 } = require("./dbHelpers");
 
 const config = async (url, prod, beta, testing = false) => {
@@ -1744,6 +1744,22 @@ const _updateAllUsers = async () => {
             await updateUser(user);
         }
         await initUser(user.username);
+    }
+    await removeUnknownAppearanceKeys();
+    return {success: true};
+};
+
+// Settings that were dropped leave their key behind on every user that ever had them
+const removeUnknownAppearanceKeys = () => safe(_removeUnknownAppearanceKeys);
+const _removeUnknownAppearanceKeys = async (db) => {
+    let {data: {value: users}} = await getAllUsers({username: 1, appearance: 1});
+    for (let user of users) {
+        let unknown = Object.keys(user.appearance ?? {}).filter(k => !appearanceKeys.includes(k));
+        if (unknown.length) {
+            console.log(`Removing ${unknown.join(", ")} from ${user.username}'s appearance`);
+            await _users(db, user.username).updateOne({username: user.username},
+                {$unset: Object.fromEntries(unknown.map(k => [`appearance.${k}`, ""]))});
+        }
     }
     return {success: true};
 };
@@ -6142,6 +6158,7 @@ module.exports = {
     userExists: userExists,
     initUser: initUser,
     updateAllUsers: updateAllUsers,
+    removeUnknownAppearanceKeys: removeUnknownAppearanceKeys,
     updateAllClasses: updateAllClasses,
     getUser: getUser,
     getClass: getClass,

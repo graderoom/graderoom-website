@@ -38,6 +38,10 @@ module.exports = {
         customAssert((await db.userExists({schoolUsername: schoolUsername})).success, true, "User exists with schoolUsername");
         customAssert((await db.userExists({username, schoolUsername})).success, true, "User exists with both");
         customAssert((await db.getUser(username, {})).success, true, "Get user");
+        // Every key a new user is made with must survive the startup cleanup
+        await db.removeUnknownAppearanceKeys();
+        customAssert((await db.getUser(username, {appearance: 1})).data.value.appearance,
+            require("./dbHelpers").appearanceDefaults, "Startup cleanup keeps known appearance keys");
         customAssert((await db.removeUser("")).success, false, "Invalid user removal");
         customAssert((await db.removeUser(username)).success, true, "Valid user removal");
     }, testSyncPeriod: async () => {

@@ -67,7 +67,9 @@ MongoDB with four logical databases:
 - **test** — Used by `dbTests.js` during startup
 - **common** — Shared across environments (course catalog, etc.)
 
-Schema versions are tracked (`dbUserVersion`, `dbClassVersion` in `dbHelpers.js`). On startup, `mongo.updateAllUsers()` and `mongo.updateAllClasses()` run migrations to bring documents up to the current version.
+Schema versions are tracked (`dbUserVersion`, `dbClassVersion` in `dbHelpers.js`). On startup, `mongo.updateAllUsers()` and `mongo.updateAllClasses()` run migrations to bring documents up to the current version. After that, any `appearance` key not
+in `appearanceKeys` (`dbHelpers.js`: the keys of `appearanceDefaults`, plus `blurEffects`) is
+unset, so a new appearance setting has to be added to one of those or it is wiped on the next boot.
 
 ### Request Flow
 
