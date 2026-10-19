@@ -470,7 +470,8 @@
             if (seq !== setupSeq) {
                 return; // a newer request superseded this one
             }
-            if (!response.success) {
+            // No results means maxPage 0; there is no page to retry on, so show the empty list
+            if (!response.success && response.maxPage > 0) {
                 page = response.maxPage;
                 setup();
                 return;
@@ -646,7 +647,7 @@
             for (let i = 1; i <= maxPage; i++) {
                 pageSelect.append(`<option>${i}</option>`);
             }
-            pageSelect.children("option")[page - 1].selected = true;
+            pageSelect.children("option").eq(page - 1).prop("selected", true);
 
             setupDonations();
         });
