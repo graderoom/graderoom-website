@@ -6,7 +6,7 @@ const _ = require("lodash");
 const https = require("https");
 const {changelog, changelogLegend, latestVersion, donoAttributes, discordDisplay, fetchDiscordUser, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
-const {checkReturnTo, isLoggedIn, isAdmin, isInternalApiAuthenticated, inRecentTerm} = require("./middleware");
+const {checkReturnTo, isLoggedIn, isAdmin, isInternalApiAuthenticated, inRecentTerm, deviceOf} = require("./middleware");
 
 // Read once
 const commitHash = (() => {
@@ -165,7 +165,7 @@ function appearanceForRender(appearance, attrs = {}) {
 }
 
 function renderWithConstants(res, view, data = {}) {
-    const renderData = Object.assign({_themeConstants: Constants.themes, testExtensionID: process.env.TEST_EXTENSION_ID || '', buildLabel: buildLabel()}, data);
+    const renderData = Object.assign({_themeConstants: Constants.themes, testExtensionID: process.env.TEST_EXTENSION_ID || '', buildLabel: buildLabel(), _mobile: deviceOf(res.req).mobile}, data);
     if (renderData._appearance) {
         renderData._appearance = appearanceForRender(renderData._appearance, {plus: renderData.plus === true, premium: renderData.premium === true});
     }

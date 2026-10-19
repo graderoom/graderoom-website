@@ -1,6 +1,7 @@
 const db = require("./dbClient");
 const _ = require("lodash");
 const assert = require("assert");
+const {deviceOf} = require("./middleware");
 
 let passCount = 0;
 let runCount = 0;
@@ -94,6 +95,21 @@ module.exports = {
         customAssert((await db.dbContainsSemester("bellarmine", "21-22", "S1")).success, false, "Invalid contained semester");
         customAssert((await db.dbContainsClass("bellarmine", "21-22", "S2", "Math", "Sally G")).success, true, "Valid contained class");
         customAssert((await db.dbContainsClass("bellarmine", "21-22", "S2", "Math", "Joel J")).success, false, "Invalid contained class");
+    }, testDeviceOf: async () => {
+        // A phone that reads as a desktop keeps the effects running on it, and a desktop that
+        // reads as a phone loses them, so the two headers this picks between are worth pinning
+        let req = (ua, hint) => ({get: header => header === "user-agent" ? ua : hint});
+        let iphone = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1";
+        let android = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36";
+        let windows = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36";
+        let mac = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15";
+        customAssert(deviceOf(req(iphone)), {os: "ios", mobile: true, key: "ios-mobile"}, "iPhone");
+        customAssert(deviceOf(req(android, "?1")), {os: "android", mobile: true, key: "android-mobile"}, "Android");
+        customAssert(deviceOf(req(windows, "?0")), {os: "windows", mobile: false, key: "windows"}, "Windows");
+        customAssert(deviceOf(req(mac)), {os: "macos", mobile: false, key: "macos"}, "Mac with no hint");
+        // The hint is the browser answering the question, so it beats anything read off the string
+        customAssert(deviceOf(req(android, "?0")), {os: "android", mobile: false, key: "android"}, "Android asking for the desktop site");
+        customAssert(deviceOf(req("")), {os: "other", mobile: false, key: "other"}, "No User-Agent at all");
     }
 };
 

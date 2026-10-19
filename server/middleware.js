@@ -79,7 +79,28 @@ const premiumRateLimit = setRateLimit({
     keyGenerator: keyGenerator,
 });
 
+// What someone is on, from what the browser says rather than from how wide the window is: a
+// narrow desktop window is not a phone and a tablet held sideways is not a desktop. Chromium
+// answers the question outright in Sec-CH-UA-Mobile and sends it unasked; everyone else is read
+// off the User-Agent.
+// ponytail: an iPad in its default desktop mode is indistinguishable from a Mac here and counts
+// as one. `navigator.maxTouchPoints` is the only thing that tells them apart and it is client side
+const deviceOf = function (req) {
+    const ua = req.get("user-agent") || "";
+    const os = /iPhone|iPad|iPod/.test(ua) ? "ios"
+        : /Android/.test(ua) ? "android"
+        : /CrOS/.test(ua) ? "chromeos"
+        : /Windows/.test(ua) ? "windows"
+        : /Macintosh|Mac OS X/.test(ua) ? "macos"
+        : /Linux/.test(ua) ? "linux"
+        : "other";
+    const hint = req.get("sec-ch-ua-mobile");
+    const mobile = hint ? hint === "?1" : /Mobi|Android|iPhone|iPod|iPad|Tablet|Silk|Kindle/.test(ua);
+    return {os: os, mobile: mobile, key: mobile ? `${os}-mobile` : os};
+};
+
 module.exports = {
+    deviceOf: deviceOf,
     checkReturnTo: function (req, res, next) {
         let returnTo = url.parse(req.headers.referer || "/", true).query.returnTo;
         if (returnTo && returnTo.startsWith("/")) {

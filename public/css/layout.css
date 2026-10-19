@@ -296,7 +296,7 @@
 
 #mobile-overview-grid {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     display: none;
     grid-template-columns: 49% 49%;
     grid-column-gap: 2%;

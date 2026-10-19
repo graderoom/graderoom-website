@@ -114,6 +114,12 @@ No build pipeline. EJS templates in `views/` with inline JavaScript. Static asse
 - `views/admin/` — Admin panel
 - `views/partials/` — Reusable EJS components
 
+**Site effects** (winter snow, Christmas lights) live in `views/partials/site_effects.ejs`. The snow
+loop clears only the rects it painted last frame (`smudge()`), times frames off the rAF stamp, and
+the watchdog hides it on frame jitter, not low FPS. Effects are disabled outright on mobile: `renderWithConstants()`
+sets `_mobile` from `deviceOf(req)` (`server/middleware.js`), which reads the `Sec-CH-UA-Mobile`
+client hint or the User-Agent, never the viewport width.
+
 **CSS architecture:** Component-based files in `public/css/` with theme-specific variable overrides in `public/css/themes/<theme>/index.css`. Themes only contain CSS custom property definitions (`:root {}` variable blocks); all structural CSS lives in the component files.
 
 **CSS file load order** (theme file loads first via server-side EJS `id="pageStyle"` link):

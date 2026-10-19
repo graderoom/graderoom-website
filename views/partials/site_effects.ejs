@@ -22,6 +22,8 @@
 
     #fps {
         font-family: monospace;
+        white-space: pre;
+        contain: content;
         font-size: 0.7rem;
         pointer-events: none;
         background: rgba(0, 0, 0, 0.6);
@@ -43,11 +45,12 @@
 <% } %>
 
 <div id="theme-background" class="theme-<%= activeThemeName %> background-<%= background %>">
-    <canvas id='snow-fall' <% if (!_appearance.seasonalEffects) { %>style="display: none"
+    <canvas id='snow-fall' <% if (!_appearance.seasonalEffects || _mobile) { %>style="display: none"
             <% } %>
     ></canvas>
 </div>
 <% const lightsMonth = 11; /* 11 is December */ %>
+<% const lights = new Date().getMonth() === lightsMonth && !_mobile; %>
 <% if (_appearance.showFps) { %>
 <span style="z-index: 999; position: fixed; bottom: 10px; left: 10px;" id="fps"></span>
 <% } %>
@@ -66,6 +69,12 @@
     const minSpeed = 0.75 + 0.5 * timeMultiplier;
     const sizeScale = 0.4 + 0.2 * timeMultiplier;
     const scaleFactor = 15;
+    const inSeason = today.getMonth() >= winterStart || today.getMonth() < winterEnd;
+    // Server side, from the User-Agent, so a narrow desktop window still gets snow
+    const onMobile = <%= _mobile %>;
+    // Watchdog acts on frame jitter as a share of the frame gap, with hysteresis so it doesn't flap.
+    // deadFps catches a page that is steady but too slow to watch
+    const jitterOut = 0.5, jitterBack = 0.3, deadFps = 10;
 
     let numFlakes;
     let snow = [];
@@ -73,13 +82,41 @@
     let screenWidth = canvas.width = window.innerWidth, screenHeight = canvas.height = window.innerHeight;
     let renderNextFrame = true;
 
+    // Rects painted last frame as x/y/w/h runs, so the next frame clears only those, not the page
+    const dirty = [];
+    let dirtyN = 0;
+    let stepSmooth = 1;
+    let frameGap = 0, frameJitter = 0, worstGap = 0, lastDelta = 0;
+    const statsBox = document.getElementById("fps");
+
     let dynamicDisplayInterval;
 
     let lightsMonth = <%= lightsMonth; %>;
     let init;
     let started = false;
 
-    let lowFps;
+    function smudge(x, y, w, h) {
+        dirty[dirtyN++] = x - 2;
+        dirty[dirtyN++] = y - 2;
+        dirty[dirtyN++] = w + 4;
+        dirty[dirtyN++] = h + 4;
+    }
+
+    function showStats(fps, average) {
+        const live = renderNextFrame && snow.length;
+        const row = (label, value) => label.padStart(10) + String(value).padStart(11);
+        statsBox.textContent = [
+            row("10S AVG:", live ? Math.round(average) + "FPS" + (average < deadFps ? " !" : "") : "N/A"),
+            row("FRAMETIME:", live ? Math.round(1000 / fps) + "MS" : "N/A"),
+            row("INTERVAL:", live && frameGap > 0 ? (frameGap * 1000).toFixed(1) + "MS" : "N/A"),
+            row("JITTER:", live && frameGap > 0
+                ? (100 * frameJitter / frameGap).toFixed(1) + "%" + (frameJitter / frameGap > jitterOut ? " !" : "") : "N/A"),
+            row("WORST GAP:", live && worstGap > 0 ? (worstGap * 1000).toFixed(0) + "MS" : "N/A"),
+            row("VIEWPORT:", screenWidth + "x" + screenHeight),
+            row("FLAKES:", snow.length || "N/A"),
+            row("LIGHTS:", typeof numLights === "undefined" ? "N/A" : numLights)
+        ].join("\n");
+    }
 
     function activeThemeNameFor(isDark) {
         const pageStyle = document.getElementById("pageStyle");
@@ -255,6 +292,9 @@
     applyThemeBackground();
 
     function enableSnow() {
+        if (onMobile) {
+            return;
+        }
         init = performance.now();
         snow.forEach((flake, index) => delete snow[index]);
         snow = [];
@@ -297,13 +337,12 @@
     }
 
     function Snowy(start = false) {
-        if (started) {
+        if (onMobile || started) {
             return;
         }
         started = true;
         let snowEnabled = false;
-        let lowPerformance = false;
-        if (appearance.seasonalEffects && (today.getMonth() >= winterStart || today.getMonth() < winterEnd)) {
+        if (appearance.seasonalEffects && inSeason) {
             snowEnabled = true;
             numFlakes = screenWidth / scaleFactor + screenWidth * timeMultiplier / scaleFactor;
             for (let i = 0; i < numFlakes; ++i) {
@@ -311,102 +350,105 @@
             }
         }
 
-        lowFps = 20;
         if (start) {
 
             init = performance.now();
             let lastCalledTime;
             let fps = 60;
-            let _10sTempFps = [];
-            let _10sAverage = 0;
+            // Decayed ten second average, as a weighted sum over its own weight so it reads right from
+            // the first frame. Replaces an array of per-frame objects sorted every second
+            let _10sAverage = 0, fpsBlend = 0, fpsWeight = 0;
             let fpsScale;
 
             go();
 
-            setInterval(() => {
-                if (_10sTempFps.length > 2) {
-                    _10sAverage = _10sTempFps.reduce((a, b) => a + b.y, 0) / _10sTempFps.length;
-                    _10sTempFps.sort((a, b) => a.x - b.x);
-                    _10sTempFps = _10sTempFps.slice(_10sTempFps.findIndex(t => t.x >= performance.now() - 10000));
-                    const candidate = (lowFps * 999 + _10sAverage / 2) / 1000;
-                    if (isFinite(candidate)) {
-                        lowFps = Math.min(30, Math.max(candidate, lowFps));
-                    }
-                }
-            }, 1000);
+            // Off the frame loop, so watching the frame rate doesn't lower it
+            if (statsBox) {
+                setInterval(() => {
+                    showStats(fps, _10sAverage);
+                    worstGap = 0;
+                }, 500);
+            }
 
             dynamicDisplayInterval = setInterval(() => {
-                if (performance.now() - init < 4000 || !renderNextFrame) {
+                if (performance.now() - init < 4000 || !renderNextFrame || !snow.length) {
                     return;
-                } // Wait 4 seconds before making fps-based changes
-                if (_10sAverage < lowFps) {
-                    $("#snow-fall").fadeOut("slow");
+                } // Wait 4 seconds before judging anything
+                const ragged = frameGap > 0 ? frameJitter / frameGap : 0;
+                if (ragged > (snowEnabled ? jitterOut : jitterBack) || _10sAverage < deadFps) {
                     if (snowEnabled) {
-                        $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow disabled to improve performance</small>`));
+                        $("#snow-fall").fadeOut("slow");
+                        $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow hidden: frames arriving unevenly</small>`));
+                        snowEnabled = false;
                     }
-                    snowEnabled = false;
-                } else if (!snowEnabled && (today.getMonth() >= winterStart || today.getMonth() < winterEnd)) {
+                } else if (!snowEnabled) {
                     $("#snow-fall").fadeIn("slow");
                     $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-success font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow reenabled</small>`));
                     snowEnabled = true;
                 }
-                if (_10sAverage < lowFps) {
-                    if (!lowPerformance) {
-                        $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | FPS Dropped below threshold</small>`));
-                    }
-                    lowPerformance = true;
-                } else {
-                    if (lowPerformance) {
-                        $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-success font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | FPS above threshold</small>`));
-                    }
-                    lowPerformance = false;
-                }
             }, 1000);
 
-            function go(requestAnother = true) {
-                if (renderNextFrame) {
+            // Timed off the rAF stamp, which is when the frame is shown, not performance.now() inside
+            // the callback, which carries the callback's own jitter
+            function go(at) {
+                if (renderNextFrame && snow.length) {
+                    const now = at || performance.now();
                     if (!lastCalledTime) {
-                        lastCalledTime = performance.now();
+                        lastCalledTime = now;
                         fps = 1;
-                        _10sTempFps.push({x: performance.now(), y: fps});
                         fpsScale = 1;
+                    } else if (now - lastCalledTime > 1000) {
+                        // A backgrounded tab coming back is not a slow page
+                        lastCalledTime = now;
+                        lastDelta = 0;
                     } else {
-                        let delta = (performance.now() - lastCalledTime) / 1000;
-                        lastCalledTime = performance.now();
+                        const delta = (now - lastCalledTime) / 1000;
+                        lastCalledTime = now;
                         fps = 1 / delta;
-                        _10sTempFps.push({x: performance.now(), y: fps});
+                        const decay = 1 - Math.exp(-delta / 10);
+                        fpsBlend += (fps - fpsBlend) * decay;
+                        fpsWeight += (1 - fpsWeight) * decay;
+                        _10sAverage = fpsBlend / fpsWeight;
+                        frameGap += (delta - frameGap) * (1 - Math.exp(-delta / 0.5));
+                        if (lastDelta) {
+                            frameJitter += (Math.abs(delta - lastDelta) - frameJitter) * (1 - Math.exp(-delta / 2));
+                        }
+                        lastDelta = delta;
+                        if (delta > worstGap) {
+                            worstGap = delta;
+                        }
                         fpsScale = fps / 60;
                     }
 
-                    if (document.getElementById("fps")) {
-                        let fpsDisplay = `LOW LIMIT: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(lowFps < 100 ? `&nbsp;` : ``) + (lowFps < 10 ? `&nbsp;` : ``) + Math.round(lowFps)}FPS<br>`;
-                        fpsDisplay += `&nbsp;&nbsp;10S AVG: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(Math.round(_10sAverage) < 100 ? `&nbsp;` : ``)}${(Math.round(_10sAverage) < 10 ? `&nbsp;` : ``)}<span ${_10sAverage < lowFps ? "style=\"color: red; font-weight: bold;\"" : ""}>${Math.round(_10sAverage)}FPS</span><br>`;
-                        fpsDisplay += `FRAMETIME: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${(Math.round(1000 / fps) < 1000 ? `&nbsp;` : ``) + (Math.round(1000 / fps) < 100 ? `&nbsp;` : ``) + (Math.round(1000 / fps) < 10 ? `&nbsp;` : ``) + Math.round(1000 / fps)}MS<br>`;
-                        fpsDisplay += `&nbsp;VIEWPORT: ${screenWidth < 100000 ? `&nbsp;` : ``}${screenWidth < 10000 ? `&nbsp;` : ``}${screenWidth < 1000 ? `&nbsp;` : ``}${screenHeight < 100000 ? `&nbsp;` : ``}${screenHeight < 10000 ? `&nbsp;` : ``}${screenHeight < 1000 ? `&nbsp;` : ``}${screenWidth}x${screenHeight}<br>`;
-                        fpsDisplay += `&nbsp;&nbsp;&nbsp;FLAKES: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${snow.length === 0 ? `&nbsp;N/A` : `${snow.length < 1000 ? `&nbsp;` : ``}${snow.length < 100 ? `&nbsp;` : ``}${snow.length}`}<br>`;
-                        fpsDisplay += `&nbsp;&nbsp;&nbsp;LIGHTS: ${typeof numLights === "undefined" ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N/A" : `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${numLights < 1000 ? `&nbsp;` : ``}${numLights < 100 ? `&nbsp;` : ``}${numLights}`}`;
-                        $("#fps").html(fpsDisplay);
-                    }
+                    // Elapsed time smoothed over ~50ms of wall clock; the clamp only stops a returning
+                    // tab teleporting every flake
+                    stepSmooth += (Math.min(4, 1 / fpsScale) - stepSmooth) * (1 - Math.exp(-1 / (fps * 0.05)));
+                    const step = stepSmooth;
 
-                    $$.clearRect(0, 0, screenWidth, screenHeight);
+                    for (let d = 0; d < dirtyN; d += 4) {
+                        $$.clearRect(dirty[d], dirty[d + 1], dirty[d + 2], dirty[d + 3]);
+                    }
+                    dirtyN = 0;
+
                     let flake;
                     $$.beginPath();
                     $$.fillStyle = "rgba(220, 235, 255, 0.9)";
                     for (let i = 0; i < snow.length; i++) {
                         flake = snow[i];
-                        flake.yPos += flake.speed / fpsScale;
-                        flake.xPos += flake.drift / fpsScale;
+                        flake.yPos += flake.speed * step;
+                        flake.xPos += flake.drift * step;
                         if (flake.xPos > screenWidth + buffer) flake.xPos = -buffer;
                         if (flake.xPos < -buffer) flake.xPos = screenWidth + buffer;
                         if (flake.yPos > screenHeight + 50) flake = initializeFlake(flake, false);
+                        smudge(flake.xPos - flake.size, flake.yPos - flake.size, flake.size * 2, flake.size * 2);
                         $$.moveTo(flake.xPos + flake.size, flake.yPos);
                         $$.arc(flake.xPos, flake.yPos, flake.size, 0, Math.PI * 2, true);
                     }
                     $$.fill();
-                    window.requestAnimationFrame(go);
-                } else if (requestAnother) {
-                    window.requestAnimationFrame(go);
+                } else {
+                    lastCalledTime = undefined;
                 }
+                window.requestAnimationFrame(go);
             }
 
             <% if (!_appearance.animateWhenUnfocused) { %>
@@ -415,7 +457,7 @@
             <% } %>
 
             function stop() {
-                if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {
+                if (inSeason) {
                     $("#snow-fall").hide();
                     $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects disabled by window unfocus</small>`));
                 }
@@ -426,7 +468,7 @@
             function play() {
                 renderNextFrame = true;
                 document.getElementById("theme-background").classList.remove("bg-paused");
-                if (today.getMonth() >= winterStart || today.getMonth() < winterEnd) {
+                if (inSeason) {
                     $("#snow-fall").show();
                     $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects enabled by window focus</small>`));
                 }
@@ -445,7 +487,7 @@
             started = false;
             setupThemeBackgroundDetails(typeof appearance !== "undefined" ? appearance.background : "<%= background %>");
             Snowy();
-            <% if (new Date().getMonth() === lightsMonth) { %>
+            <% if (lights) { %>
             setupLights();
             <% } %>
         }, 400);
@@ -453,6 +495,6 @@
 
 </script>
 
-<% if (new Date().getMonth() === lightsMonth) { %>
+<% if (lights) { %>
 <%- include('limited_time/christmas_lights.ejs', {theme: theme, page: page}); %>
 <% } %>
