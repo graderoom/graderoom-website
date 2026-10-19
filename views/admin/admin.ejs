@@ -41,6 +41,149 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <style>
+        /* responsive.css crushes every td to 3rem / 0.6rem at <=1100px; the admin tables need full cells */
+        @media (max-width: 1100px) {
+            .container {
+                max-width: 100%;
+                padding: 0 0.5rem;
+            }
+
+            #usersTable td, #archivedUsersTable td, #costsTable td, #donoTable td, #donoTable th {
+                max-width: none;
+                overflow: visible;
+            }
+
+            #usersTable td, #usersTable td *, #archivedUsersTable td, #archivedUsersTable td *,
+            #costsTable td, #costsTable th, #costsTable td *, #costsTable th * {
+                font-size: 0.85rem;
+            }
+
+            #users, #archived {
+                max-height: none !important;
+            }
+
+            #usersTable > thead, #archivedUsersTable > thead {
+                display: none;
+            }
+
+            #usersTable, #usersTable > tbody, #archivedUsersTable, #archivedUsersTable > tbody {
+                display: block;
+                width: 100% !important;
+            }
+
+            /* Each user becomes a card: short fields flow side by side, actions and donations span the row */
+            #usersTable > tbody > tr, #archivedUsersTable > tbody > tr {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+                margin-bottom: 1rem;
+                background-color: var(--clr-surface-deep);
+                border: 1px solid var(--clr-border-subtle);
+                border-radius: 0.5rem;
+                overflow: hidden;
+            }
+
+            #usersTable > tbody > tr > td, #archivedUsersTable > tbody > tr > td {
+                display: block;
+                text-align: left;
+                border: none;
+                padding: 0.5rem 0.75rem !important;
+            }
+
+            #usersTable > tbody > tr > td:nth-child(n+6) {
+                grid-column: 1 / -1;
+            }
+
+            #usersTable > tbody > tr > td:empty {
+                display: none;
+            }
+
+            #usersTable > tbody > tr > td::before, #archivedUsersTable > tbody > tr > td::before {
+                display: block;
+                font-size: 0.7rem;
+                opacity: 0.6;
+                text-transform: uppercase;
+            }
+
+            #usersTable > tbody > tr > td:nth-child(1)::before { content: "Username"; }
+            #usersTable > tbody > tr > td:nth-child(2)::before { content: "Name"; }
+            #usersTable > tbody > tr > td:nth-child(3)::before { content: "Account Created"; }
+            #usersTable > tbody > tr > td:nth-child(4)::before { content: "Last Logged In"; }
+            #usersTable > tbody > tr > td:nth-child(5)::before { content: "Attributes"; }
+            #usersTable > tbody > tr > td:nth-child(6)::before { content: "Actions"; }
+            #usersTable > tbody > tr > td:nth-child(7)::before { content: "Donations"; }
+            #archivedUsersTable > tbody > tr > td:nth-child(1)::before { content: "Username"; }
+            #archivedUsersTable > tbody > tr > td:nth-child(2)::before { content: "School Username"; }
+
+            /* Actions: buttons in a wrapping row instead of a stack separated by <br>s */
+            #usersTable > tbody > tr > td:nth-child(6) {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                align-items: center;
+            }
+
+            #usersTable > tbody > tr > td:nth-child(6)::before {
+                flex-basis: 100%;
+            }
+
+            #usersTable > tbody > tr > td:nth-child(6) > br {
+                display: none;
+            }
+
+            #usersTable > tbody > tr > td:nth-child(6) form {
+                margin: 0;
+            }
+
+            .admin .btn {
+                width: max-content;
+                min-height: 2.5rem;
+            }
+
+            #donoTable td, #donoTable th {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .add-donation-container {
+                width: min(20rem, calc(100vw - 2rem));
+                max-height: calc(100vh - 2rem);
+                overflow-y: auto;
+            }
+        }
+
+        /* Costs: scroll sideways instead of crushing, with the totals pinned to the visible width */
+        @media (max-width: 768px) {
+            #costsTable {
+                display: block;
+                overflow-x: auto;
+            }
+
+            #costsTable > tfoot {
+                display: block;
+                position: sticky;
+                left: 0;
+            }
+
+            #costsTable > tfoot > tr {
+                display: flex;
+            }
+
+            #costsTable > tfoot > tr > td:first-child {
+                flex: 1;
+            }
+
+            #costsTable > tfoot > tr > td:last-child {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #donoTable td:nth-child(3), #donoTable th:nth-child(3) {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
 
