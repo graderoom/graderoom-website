@@ -52,7 +52,7 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 8.2.1] - 2026-10-18
+## [Stable 8.3.0] - 2026-10-18
 ### Improved
 - Snow is smoother and lighter on your battery
 - <em>[Mobile]</em> Snow and the Christmas lights no longer run on phones
@@ -62,6 +62,7 @@
 ### Fixed
 - Past terms with no assignment data showed N/A instead of the grade from PowerSchool
 - Recent changes showed nothing for a class the first time it appeared
+- Changing the weights of a class with no teacher listed could fail to save
 - <em>[Mobile]</em> The supporter count at the bottom of the page could cover your classes
 
 ## [Stable 8.2.0] - 2026-09-02
