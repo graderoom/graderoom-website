@@ -37,6 +37,9 @@ Access at `localhost:<port>`. Default admin account: `admin` / `Pa5sw0rd`.
 
 Tests run automatically on server startup in non-production mode (`NODE_ENV !== "production"`). If any test fails, the server exits. Tests are in `server/dbTests.js` using Node's built-in `assert` module.
 
+`npm test` runs the same tests against local Mongo without starting the server. CI
+(`.github/workflows/test.yml`) runs it on every PR and push to master.
+
 ```bash
 npm run scrape_test   # Test web scraping
 npm run email_test    # Test email sending
