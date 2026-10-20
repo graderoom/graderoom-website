@@ -274,9 +274,9 @@ const _addUser = async (db, school, username, password, schoolUsername, isAdmin,
     return await safe(__addUser, user);
 };
 
-const __addUser = async (db, user) => {
+const __addUser = async (db, user, ignoreArchive = false) => {
     if (!(await userExists({username: user.username, schoolUsername: user.schoolUsername})).success &&
-        !(await userArchived({username: user.username, schoolUsername: user.schoolUsername})).success) {
+        (ignoreArchive || !(await userArchived({username: user.username, schoolUsername: user.schoolUsername})).success)) {
         await _usernames(db).insertOne({
             username: user.username,
             schoolUsername: user.schoolUsername,
@@ -2409,7 +2409,7 @@ const _unArchiveUser = async (db, username) => {
     if (!res.success) {
         return res;
     }
-    let res2 = await safe(__addUser, res.data.value);
+    let res2 = await safe(__addUser, res.data.value, true); // The user is still in the archive until re-added
     if (!res2.success) {
         return res2;
     }
