@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.3.1] - 2026-10-20
+### Fixed
+- Fixed an issue that could crash the server and briefly take Graderoom offline for everyone
+
 ## [Stable 8.3.0] - 2026-10-18
 ### Improved
 - Snow is smoother and lighter on your battery
