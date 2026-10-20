@@ -6,7 +6,9 @@ module.exports = {
         if (process.env.NODE_ENV !== 'production') {
             logSocket(socket);
         }
-        socket.on('settings-change', async (data) => {
+        // A malformed payload makes a handler throw, and an uncaught rejection kills the process
+        const on = (event, handler) => socket.on(event, (...args) => handler(...args).catch(e => console.error(`Error handling ${event}:`, e)));
+        on('settings-change', async (data) => {
             let keys = Object.keys(data);
             for (let key of keys) {
                 let value = data[key];
@@ -50,11 +52,11 @@ module.exports = {
                 if (resp?.success) {
                     socketManager.emitToRoom(_socketUsernameHelper(socket), 'success-settings-change', resp.data);
                 } else {
-                    socketManager.emitToRoom(_socketUsernameHelper(socket), 'fail-settings-change', resp.data);
+                    socketManager.emitToRoom(_socketUsernameHelper(socket), 'fail-settings-change', resp?.data);
                 }
             }
         });
-        socket.on('start-update', async (data) => {
+        on('start-update', async (data) => {
             let username = _socketUsernameHelper(socket);
             let gradeSync = data.gradeSync;
             let schoolPass = data.schoolPassword;
@@ -80,7 +82,7 @@ module.exports = {
 
             await dbClient.updateGrades(username, schoolPass, userPass, gradeSync);
         });
-        socket.on('can-i-update', async (data) => {
+        on('can-i-update', async (data) => {
             let username = _socketUsernameHelper(socket);
             let resp = await dbClient.canIUpdate(username);
             if (resp.success) {
@@ -89,7 +91,7 @@ module.exports = {
                 socketManager.emitToRoom(username, 'sync-limit', resp.data);
             }
         });
-        socket.on('start-update-from-user', async (data) => {
+        on('start-update-from-user', async (data) => {
             let username = _socketUsernameHelper(socket);
             let resp = await dbClient.updateGradesFromUser(username, data);
             if (!resp.success) {
@@ -98,14 +100,14 @@ module.exports = {
                 }
             }
         });
-        socket.on('start-update-history-from-user', async (data) => {
+        on('start-update-history-from-user', async (data) => {
             let username = _socketUsernameHelper(socket);
             let resp = await dbClient.updateGradeHistoryFromUser(username, data);
             if (!resp.success) {
                 socketManager.emitToRoom(username, 'sync-fail-general', {message: resp.data.message});
             }
         })
-        socket.on('notification-settings-change', async (data) => {
+        on('notification-settings-change', async (data) => {
             let keys = Object.keys(data);
             for (let key of keys) {
                 let value = data[key];
@@ -118,11 +120,11 @@ module.exports = {
                 if (resp?.success) {
                     socketManager.emitToRoom(_socketUsernameHelper(socket), 'success-notification-settings-change', resp.data);
                 } else {
-                    socketManager.emitToRoom(_socketUsernameHelper(socket), 'fail-notification-settings-change', resp.data);
+                    socketManager.emitToRoom(_socketUsernameHelper(socket), 'fail-notification-settings-change', resp?.data);
                 }
             }
         });
-        socket.on('notification-update', async (data) => {
+        on('notification-update', async (data) => {
             let id = data.id;
             let update = data.data;
             let resp = await dbClient.updateNotification(_socketUsernameHelper(socket), id, update);
@@ -132,7 +134,7 @@ module.exports = {
                 socketManager.emitToRoom(_socketUsernameHelper(socket), 'fail-notification-update', resp.data);
             }
         });
-        socket.on('discord-verify', async (data) => {
+        on('discord-verify', async (data) => {
             let username = _socketUsernameHelper(socket);
             let resp = await dbClient.discordVerify(username, data.verificationCode);
             await dbClient.deleteNotification(username, 'discord-verify');

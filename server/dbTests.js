@@ -110,6 +110,20 @@ module.exports = {
         // The hint is the browser answering the question, so it beats anything read off the string
         customAssert(deviceOf(req(android, "?0")), {os: "android", mobile: false, key: "android"}, "Android asking for the desktop site");
         customAssert(deviceOf(req("")), {os: "other", mobile: false, key: "other"}, "No User-Agent at all");
+    }, testSocketMalformedPayload: async () => {
+        // A handler that throws on a bad payload is an unhandled rejection, which kills the process
+        let handlers = {};
+        let socket = {on: (event, fn) => handlers[event] = fn, onAny: () => {}, request: {user: {username: "x"}, headers: {}}};
+        require("./socket").setupSocket(socket);
+        let rejections = 0;
+        let count = () => rejections++;
+        process.on("unhandledRejection", count);
+        handlers["settings-change"]({unknownKey: 1});
+        handlers["settings-change"](null);
+        handlers["start-update"](undefined);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        process.off("unhandledRejection", count);
+        customAssert(rejections, 0, "Malformed socket payloads do not crash the server");
     }
 };
 
