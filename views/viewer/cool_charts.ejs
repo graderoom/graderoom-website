@@ -285,11 +285,13 @@
     let loginData = <%- JSON.stringify(_loginData); %>;
     let uniqueLoginData = <%- JSON.stringify(_uniqueLoginData); %>;
     let syncData = <%- JSON.stringify(_syncData); %>;
+    let uniqueSyncData = <%- JSON.stringify(_uniqueSyncData); %>;
     let userData = <%- JSON.stringify(_userData); %>;
 
     let weekdayLoginData = Array(7).fill(0);
     let weekdayUniqueLoginData = Array(7).fill(0);
     let weekdaySyncData = Array(7).fill(0);
+    let weekdayUniqueSyncData = Array(7).fill(0);
 
     let schoolData = <%- JSON.stringify(_schoolData); %>;
 
@@ -299,6 +301,7 @@
     fillHoles(loginData);
     fillHoles(uniqueLoginData);
     fillHoles(syncData);
+    fillHoles(uniqueSyncData);
     fillHoles(userData, true);
 
     // calculate weekday stats
@@ -310,6 +313,9 @@
     }
     for (let i = 0; i < syncData.length; i++) {
         weekdaySyncData[new Date(syncData[i].x).getDay()] += syncData[i].y;
+    }
+    for (let i = 0; i < uniqueSyncData.length; i++) {
+        weekdayUniqueSyncData[new Date(uniqueSyncData[i].x).getDay()] += uniqueSyncData[i].y;
     }
 
     let updated = new Date(<%= lastUpdated - 24 * 60 * 60 * 1000 %>);
@@ -324,6 +330,9 @@
     let schoolChart;
 
     function fillHoles(data, fillWithPreviousValue=false) {
+        if (!data.length) {
+            data.push({x: new Date(minDate).toISOString(), y: 0});
+        }
         if (new Date(data[0].x).getTime() !== minDate) {
             data.unshift({x: new Date(minDate).toISOString(), y: 0});
         }
@@ -399,9 +408,19 @@
         pointHoverBorderColor: "orange",
         pointHoverBorderWidth: 2
     };
+    let uniqueSyncsDataset = {
+        ...syncsDataset,
+        label: "Unique Syncs",
+        pointBackgroundColor: "purple",
+        borderColor: "purple",
+        data: uniqueSyncData,
+        pointHoverBackgroundColor: "purple",
+        pointHoverBorderColor: "purple"
+    };
     dataset.push(loginsDataset);
     dataset.push(uniqueLoginDataset);
     dataset.push(syncsDataset);
+    dataset.push(uniqueSyncsDataset);
 
     function setupAllCharts() {
         setupChart();
@@ -718,6 +737,12 @@
                     borderColor: borders[2],
                     borderWidth: 1,
                     data: weekdaySyncData
+                }, {
+                    label: "Unique Syncs",
+                    backgroundColor: colors[4],
+                    borderColor: borders[4],
+                    borderWidth: 1,
+                    data: weekdayUniqueSyncData
                 }]
             }, options: {
                 scales: {

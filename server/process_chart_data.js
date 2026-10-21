@@ -28,6 +28,7 @@ async function run() {
             loginData: [],
             uniqueLoginData: [],
             syncData: [],
+            uniqueSyncData: [],
             userData: [],
             activeUsersData: [],
             schoolData: [],
@@ -41,7 +42,7 @@ async function run() {
         await client.close();
         return;
     }
-    let {loginData, uniqueLoginData, syncData, schoolData, lastUpdated: lastUpdatedCharts} = data;
+    let {loginData, uniqueLoginData, syncData, uniqueSyncData, schoolData, lastUpdated: lastUpdatedCharts} = data;
     let projection = {
         loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1, school: 1, username: 1
     };
@@ -101,8 +102,6 @@ async function run() {
                 return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
             }))
         ].map(loggedIn => new Date(loggedIn))).reduce((a, b) => a.concat(b));
-        uniqueLoginDates =
-            uniqueLoginDates.concat(loginDates.filter(time => !uniqueLoginDates.find(anotherTime => anotherTime.getTime() === time.getTime())));
         uniqueLoginDates.sort((a, b) => a.getTime() - b.getTime());
         uniqueLoginData = uniqueLoginData ?? [];
         for (let j = 0; j < uniqueLoginDates.length; j++) {
@@ -127,6 +126,28 @@ async function run() {
         }
         console.log(`Calculated sync data in ${Date.now() - time}ms!`);
     }
+
+    time = Date.now();
+    // Charts from before uniqueSyncData existed get it backfilled from all sync history once
+    let uniqueSyncFrom = uniqueSyncData ? lastUpdatedCharts.getTime() : 0;
+    let syncUsers = allUsers;
+    if (!uniqueSyncData) {
+        let syncQuery = {"alerts.lastUpdated.timestamp": {$lt: dayStart}};
+        syncUsers = (await _getAllUsers(db, projection, syncQuery)).data.value
+            .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find(syncQuery, {projection: projection}).toArray());
+    }
+    let uniqueSyncCounts = new Map((uniqueSyncData ?? []).map(d => [d.x.getTime(), d.y]));
+    for (let user of syncUsers) {
+        let days = new Set(user.alerts.lastUpdated.map(d => d.timestamp).filter(t => t >= uniqueSyncFrom && t < dayStart).map(t => {
+            let date = new Date(t);
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+        }));
+        for (let day of days) {
+            uniqueSyncCounts.set(day, (uniqueSyncCounts.get(day) ?? 0) + 1);
+        }
+    }
+    uniqueSyncData = [...uniqueSyncCounts].sort((a, b) => a[0] - b[0]).map(([x, y]) => ({x: new Date(x), y: y}));
+    console.log(`Calculated unique sync data in ${Date.now() - time}ms!`);
 
     time = Date.now();
     let actualAllUsers = (await _getAllUsers(db, {"loggedIn": 1, 'personalInfo.graduationYear': 1}, {"alerts.lastUpdated": {$not: {$size: 0}}})).data.value
@@ -175,6 +196,7 @@ async function run() {
         loginData: loginData,
         uniqueLoginData: uniqueLoginData,
         syncData: syncData,
+        uniqueSyncData: uniqueSyncData,
         userData: userData,
         schoolData: schoolData,
         lastUpdated: lastUpdatedCharts

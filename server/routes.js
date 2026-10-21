@@ -1112,7 +1112,7 @@ module.exports = function (app, passport) {
 
     app.get("/charts", async (req, res) => {
 
-        let {success, data: {loginData, uniqueLoginData, syncData, userData, activeUsersData, schoolData, lastUpdated}} = await dbClient.getChartData();
+        let {success, data: {loginData, uniqueLoginData, syncData, uniqueSyncData, userData, activeUsersData, schoolData, lastUpdated}} = await dbClient.getChartData();
         if (!success) {
             return renderWithConstants(res, "viewer/loading_charts.ejs", {page: "charts-logged-out",
                 _appearance: loggedOutAppearance(),
@@ -1132,6 +1132,7 @@ module.exports = function (app, passport) {
                 _loginData: loginData,
                 _uniqueLoginData: uniqueLoginData,
                 _syncData: syncData,
+                _uniqueSyncData: uniqueSyncData ?? [],
                 _userData: userData,
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,
@@ -1150,6 +1151,7 @@ module.exports = function (app, passport) {
                 _loginData: loginData,
                 _uniqueLoginData: uniqueLoginData,
                 _syncData: syncData,
+                _uniqueSyncData: uniqueSyncData ?? [],
                 _userData: userData,
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,
