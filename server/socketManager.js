@@ -42,13 +42,11 @@ function exists(roomName) {
 
 function keepTrying(func, initialDelay, triesLeft, success, fail) {
     let test = func();
-    if (triesLeft === 0) {
-        if (fail) fail();
-        return;
-    }
-    if (!test && test !== false) {
-        setTimeout(() => keepTrying(func, initialDelay * 1.5, --triesLeft), initialDelay);
-    } else {
+    if (test || test === false) {
         if (success) success(test);
+    } else if (triesLeft === 0) {
+        if (fail) fail();
+    } else {
+        setTimeout(() => keepTrying(func, initialDelay * 1.5, triesLeft - 1, success, fail), initialDelay);
     }
 }

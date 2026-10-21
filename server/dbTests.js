@@ -142,6 +142,17 @@ module.exports = {
         release();
         await new Promise(resolve => setTimeout(resolve, 50));
         customAssert(heard.c[1], "Waiting in queue. You are next in line.", "Queue moves up when a sync finishes");
+    }, testEmitToRoomRetry: async () => {
+        // A user whose room isn't ready on the first try (mid-reload) must still get the message
+        const socketManager = require("./socketManager");
+        let rooms = new Map();
+        let sent = [];
+        socketManager.setIo({sockets: {adapter: {rooms}}, to: () => ({emit: (event) => sent.push(event)})});
+        socketManager.emitToRoom("late", "hello");
+        rooms.set("late", new Set());
+        await new Promise(resolve => setTimeout(resolve, 1600));
+        socketManager.setIo(undefined);
+        customAssert(sent, ["hello"], "Message sent after the room appears on a retry");
     }
 };
 
