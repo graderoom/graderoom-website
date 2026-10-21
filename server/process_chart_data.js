@@ -44,7 +44,7 @@ async function run() {
     }
     let {loginData, uniqueLoginData, syncData, uniqueSyncData, schoolData, lastUpdated: lastUpdatedCharts} = data;
     let projection = {
-        loggedIn: 1, "alerts.lastUpdated": 1, "personalInfo.graduationYear": 1, school: 1, username: 1
+        loggedIn: 1, "alerts.lastUpdated.timestamp": 1, "personalInfo.graduationYear": 1, school: 1, username: 1
     };
     let dayStart = Date.parse(new Date().toDateString());
     let query = {
