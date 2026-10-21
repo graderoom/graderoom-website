@@ -295,8 +295,9 @@
     let schoolData = <%- JSON.stringify(_schoolData); %>;
 
     // Fill in holes in loginData
-    let minDate = Math.min(new Date(loginData[0].x).getTime(), new Date(syncData[0].x).getTime());
-    let maxDate = Math.max(new Date(loginData.slice(-1)[0].x).getTime(), new Date(syncData.slice(-1)[0].x).getTime());
+    let series = [loginData, uniqueLoginData, syncData, uniqueSyncData].filter(d => d.length);
+    let minDate = Math.min(...series.map(d => new Date(d[0].x).getTime()));
+    let maxDate = Math.max(...series.map(d => new Date(d.slice(-1)[0].x).getTime()));
     fillHoles(loginData);
     fillHoles(uniqueLoginData);
     fillHoles(syncData);
