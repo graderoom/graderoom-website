@@ -53,6 +53,12 @@
 - None
 
 ## [Stable 8.3.1] - 2026-10-20
+### Added
+- Unique syncs on the charts page, counting each user once per day
+
+### Improved
+- The charts page updates faster and uses less memory
+
 ### Fixed
 - Fixed an issue that could crash the server and briefly take Graderoom offline for everyone
 
