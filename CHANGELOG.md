@@ -55,12 +55,16 @@
 ## [Stable 8.3.1] - 2026-10-20
 ### Added
 - Unique syncs on the charts page, counting each user once per day
+- Updated contributor list in <span style="cursor: pointer" onclick="showCard('#settingsCardDisplay'); openTab(5)" class="changelog-inline-setoff">About Tab <i class="fa fa-external-link"></i></span>
 
 ### Improved
 - The charts page updates faster and uses less memory
+- View on GitHub in the contributor list now shows contributions from all time instead of the last 3 months
 
 ### Fixed
 - Fixed an issue that could crash the server and briefly take Graderoom offline for everyone
+- For BISV and Notre Dame students, your place in the sync queue was off by one, and the person whose sync was running was told they were still waiting
+- Sync updates could go missing if they were sent while your page was reloading
 
 ## [Stable 8.3.0] - 2026-10-18
 ### Improved
