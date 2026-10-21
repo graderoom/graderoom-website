@@ -7,15 +7,18 @@ module.exports.ScraperAutoQueue = class extends AutoQueue {
     }
 
     enqueue(action, processor, priority=false) {
+        // The running job is out of the queue but still holds processors[0]
+        let offset = this._pendingPromise ? 1 : 0;
         let index;
         if (priority) {
             index = super.priorityEnqueue(action);
         } else {
             index = super.enqueue(action);
         }
+        index += offset;
         this.processors.splice(index, 0, processor);
 
-        for (let i = index + 1; i < this.processors.length; i++) {
+        for (let i = Math.max(index, 1); i < this.processors.length; i++) {
             if (i === 1) {
                 this.processors[i]({progress: 0, message: "Waiting in queue. You are next in line."});
                 continue;

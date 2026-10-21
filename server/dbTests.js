@@ -124,6 +124,24 @@ module.exports = {
         await new Promise(resolve => setTimeout(resolve, 100));
         process.off("unhandledRejection", count);
         customAssert(rejections, 0, "Malformed socket payloads do not crash the server");
+    }, testScraperQueuePositions: async () => {
+        // Only waiting users hear their place in line, never the one whose sync is running
+        const {ScraperAutoQueue} = require("./data_structures/queue/scraper_auto_queue");
+        let queue = new ScraperAutoQueue();
+        let heard = {a: [], b: [], c: []};
+        let release;
+        let gate = new Promise(resolve => release = resolve);
+        queue.enqueue(() => gate, m => heard.a.push(m.message));
+        queue.enqueue(async () => {}, m => heard.b.push(m.message));
+        queue.enqueue(async () => {}, m => heard.c.push(m.message));
+        customAssert(heard, {
+            a: [],
+            b: ["Waiting in queue. You are next in line."],
+            c: ["Waiting in queue. You are number 2 in line."]
+        }, "Queue positions go to the waiting users");
+        release();
+        await new Promise(resolve => setTimeout(resolve, 50));
+        customAssert(heard.c[1], "Waiting in queue. You are next in line.", "Queue moves up when a sync finishes");
     }
 };
 
