@@ -188,6 +188,19 @@ module.exports = {
         customAssert((await db.checkPasswordResetToken({$exists: true})).data.valid, false, "A reset token must be a string");
         customAssert((await db.checkPasswordResetToken({$regex: "^" + token[0]})).data.valid, false, "A reset token can't be a pattern");
         await db.removeUser(username);
+    }, testRemoveDonationKeepsPalette: async () => {
+        // Removing one donation must not clear a custom palette while the user is still Plus
+        let username = randomString(16).toLowerCase();
+        await db.addUser("bellarmine", username, "123ThisIsAPassword", `${randomString(8)}.${randomString(8)}22@bcp.org`.toLowerCase(), false);
+        let donation = {username, platform: "cash", paidValue: 3, receivedValue: 3, dateDonated: Date.now()};
+        await db.addDonation(JSON.stringify(donation));
+        await db.addDonation(JSON.stringify(donation));
+        customAssert((await db.setColorPalette(username, "custom", false)).success, true, "Plus user sets a custom palette");
+        customAssert((await db.removeDonation(username, 0)).success, true, "Remove one of two donations");
+        customAssert((await db.getUser(username, {"appearance.colorPalette": 1})).data.value.appearance.colorPalette, "custom", "Still Plus keeps the custom palette");
+        await db.removeDonation(username, 0);
+        customAssert((await db.getUser(username, {"appearance.colorPalette": 1})).data.value.appearance.colorPalette !== "custom", true, "No longer Plus clears the custom palette");
+        await db.removeUser(username);
     }
 };
 

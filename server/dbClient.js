@@ -5583,7 +5583,7 @@ const _removeDonation = async (db, username, index) => {
     });
 
     if (res.data.value.appearance.colorPalette === "custom") {
-        if (!(await getDonoAttributes(username)).data.plus) {
+        if (!(await getDonoAttributes(username)).data.value.plus) {
             await setColorPalette(username, "clear", false);
         }
     }
