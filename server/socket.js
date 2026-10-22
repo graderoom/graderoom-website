@@ -1,5 +1,9 @@
 const dbClient = require('./dbClient');
 const socketManager = require('./socketManager');
+
+// ponytail: in-memory, so it only holds within one server process; move to Redis if the server is ever clustered
+const runningUploads = new Set();
+
 module.exports = {
     socketUsernameHelper: _socketUsernameHelper,
     setupSocket: function (socket) {
@@ -8,6 +12,18 @@ module.exports = {
         }
         // A malformed payload makes a handler throw, and an uncaught rejection kills the process
         const on = (event, handler) => socket.on(event, (...args) => handler(...args).catch(e => console.error(`Error handling ${event}:`, e)));
+        // One upload of this kind per user at a time, across all their tabs. A tab turned away gets the
+        // running upload's result, which goes to the whole room
+        const oneAtATime = (event, handler) => on(event, async (...args) => {
+            let key = `${event}:${_socketUsernameHelper(socket)}`;
+            if (runningUploads.has(key)) return;
+            runningUploads.add(key);
+            try {
+                await handler(...args);
+            } finally {
+                runningUploads.delete(key);
+            }
+        });
         on('settings-change', async (data) => {
             let keys = Object.keys(data);
             for (let key of keys) {
@@ -91,7 +107,7 @@ module.exports = {
                 socketManager.emitToRoom(username, 'sync-limit', resp.data);
             }
         });
-        on('start-update-from-user', async (data) => {
+        oneAtATime('start-update-from-user', async (data) => {
             let username = _socketUsernameHelper(socket);
             let resp = await dbClient.updateGradesFromUser(username, data);
             if (!resp.success) {
@@ -100,7 +116,7 @@ module.exports = {
                 }
             }
         });
-        on('start-update-history-from-user', async (data) => {
+        oneAtATime('start-update-history-from-user', async (data) => {
             let username = _socketUsernameHelper(socket);
             let resp = await dbClient.updateGradeHistoryFromUser(username, data);
             if (!resp.success) {

@@ -330,10 +330,31 @@ nav .navbar-toggler:hover {
     --sync-accent: var(--clr-error);
 }
 
+.sync-popup:has([data-state="unchanged"]) {
+    --sync-accent: color-mix(in srgb, var(--clr-success) 50%, var(--clr-loading));
+}
+
 .sync-control[data-state="syncing"] {
     background: linear-gradient(to right,
         color-mix(in srgb, var(--sync-accent) 25%, var(--sync-bg)) var(--progress, 0%),
         var(--sync-bg) 0);
+}
+
+/* Drains over CHECK_COOLDOWN (sync_control.js) until the chip is clickable again */
+.sync-control[data-state="unchanged"] {
+    background: linear-gradient(to right,
+        color-mix(in srgb, var(--sync-accent) 25%, var(--sync-bg)) var(--progress, 0%),
+        var(--sync-bg) 0);
+    animation: sync-cooldown 60s linear forwards;
+}
+
+@keyframes sync-cooldown {
+    from {
+        --progress: 100%;
+    }
+    to {
+        --progress: 0%;
+    }
 }
 
 .sync-control[data-state="syncing"] .sync-icon,

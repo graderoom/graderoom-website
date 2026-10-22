@@ -153,6 +153,26 @@ module.exports = {
         await new Promise(resolve => setTimeout(resolve, 1600));
         socketManager.setIo(undefined);
         customAssert(sent, ["hello"], "Message sent after the room appears on a retry");
+    }, testConcurrentUploads: async () => {
+        // Two tabs uploading the same scrape at once must only spend, and record, one sync
+        let username = randomString(16).toLowerCase();
+        await db.addUser("bellarmine", username, "123ThisIsAPassword", `${randomString(8)}.${randomString(8)}22@bcp.org`.toLowerCase(), false);
+        let upload = {
+            term: "25-26", semester: "S1", grades: [{
+                extension_version: "1.7.3", class_name: "Math", teacher_name: "Sally G", overall_percent: 95,
+                overall_letter: "A", student_id: "1", section_id: "2", ps_locked: false, grades: [{
+                    date: "10/01/2025", category: "Tests", assignment_name: "Test 1", exclude: false,
+                    points_possible: 10, points_gotten: 9, grade_percent: 90, psaid: 1, late: false, missing: false
+                }]
+            }]
+        };
+        let handlers = {};
+        let socket = {on: (event, fn) => handlers[event] = fn, onAny: () => {}, request: {user: {username}, headers: {}}};
+        require("./socket").setupSocket(socket);
+        await Promise.all([handlers["start-update-from-user"](upload), handlers["start-update-from-user"](upload)]);
+        let lastUpdated = (await db.getUser(username, {"alerts.lastUpdated": 1})).data.value.alerts.lastUpdated;
+        customAssert(lastUpdated.length, 1, "Concurrent uploads record one sync");
+        await db.removeUser(username);
     }
 };
 

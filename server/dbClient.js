@@ -3493,6 +3493,8 @@ const _updateGradesFromUser = async (db, username, data) => {
         updateHistory: updateHistory, // Client can update history if extension has support. Otherwise whatever
         updateHistoryToken: token,
         message: data.message,
+        term: term,
+        semester: semester,
         grades: JSON.stringify(_user.grades[term][semester]),
         weights: JSON.stringify(_user.weights[term][semester]),
         updateData: JSON.stringify(_user.alerts.lastUpdated.slice(-1)[0])

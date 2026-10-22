@@ -52,6 +52,17 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.3.2] - 2026-10-21
+### Improved
+- For Bellarmine students, a sync that finds no grade changes no longer uses up a sync, so you can sync again right away when something does change
+- The sync button shows Up to date when nothing changed, and is ready again a minute later
+- Checking for changes counts toward auto-sync, so it waits your full sync period before checking again
+- Auto-sync runs while Graderoom stays open, not only when you load the page (requires Graderoom Extension v1.7.3+)
+- Syncing from several tabs at once checks PowerSchool only once, and every tab shows its progress (requires Graderoom Extension v1.7.3+)
+
+### Fixed
+- Syncing from two tabs at the same moment could record the same sync twice
+
 ## [Stable 8.3.1] - 2026-10-20
 ### Added
 - Unique syncs on the charts page, counting each user once per day

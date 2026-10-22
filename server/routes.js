@@ -60,6 +60,8 @@ async function buildUserPayload(req, term, semester, gradeSync, history) {
         });
         return [term, sortedSemesters];
     }).sort((a, b) => a[0].substring(3) < b[0].substring(3) ? -1 : 1);
+    let [latestTerm, latestSemesters] = termsAndSemesters.at(-1) ?? [];
+    let latestSemester = latestSemesters?.at(-1);
 
     return {
         page: "home",
@@ -78,6 +80,12 @@ async function buildUserPayload(req, term, semester, gradeSync, history) {
         _discord: discordDisplay(user.discord),
         gradeSync: gradeSync,
         _gradeData: gradeData,
+        // Compared against extension scrapes so unchanged grades aren't uploaded. Grades are left out
+        // when they're already the page's _gradeData
+        _syncedGrades: latestTerm ? {
+            term: latestTerm, semester: latestSemester,
+            grades: term === latestTerm && semester === latestSemester ? null : grades[latestTerm][latestSemester]
+        } : null,
         _weightData: hasTerm ? (await dbClient.getSemesterWeights(user.username, term, semester)).data.value : {},
         _addedWeights: hasTerm ? (await dbClient.getSemesterAddedWeights(user.username, term, semester)).data.value : {},
         nonAcademicCount: Object.entries(relevantClassData).filter(([k, v]) => gradeData.find(c => c.class_name === k) && v.classType === "non-academic").length,

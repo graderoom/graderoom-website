@@ -737,6 +737,8 @@
         let isAdmin = <%= isAdmin; %>;
         let gradeSync = <%= gradeSync; %>;
         let data = <%- JSON.stringify(_gradeData); %>;
+        let syncedGrades = <%- JSON.stringify(locals._syncedGrades ?? null); %>;
+        if (syncedGrades && !syncedGrades.grades) syncedGrades.grades = data;
         let editedAssignments = <%- JSON.stringify(_editedAssignments); %>;
         let addedAssignments = <%- JSON.stringify(_addedAssignments); %>;
         let weights = <%- JSON.stringify(_weightData); %>;

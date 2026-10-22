@@ -91,7 +91,7 @@ Bellarmine has no sync card. Its sync UI is `#syncControl`, a chip first in the 
 (left of More), driven by `public/js/sync_control.js`.
 
 - States set `data-state`: `waiting`, `ready`, `syncing`, `login`, `awaiting`, `install`,
-  `installed`, `reload`, `unsupported`, `error`. Clickable: `ready`, `login`, `awaiting`,
+  `installed`, `reload`, `unsupported`, `error`, `unchanged`. Clickable: `ready`, `login`, `awaiting`,
   `install`, `reload`, `error`. `STICKY_STATES` is a separate list of states that hold until
   something resolves them — `syncControl(null)` will not clear one, `syncReset()` will.
 - `--progress` (registered) fills the interior left to right during a sync, from the extension's
@@ -107,7 +107,9 @@ Bellarmine has no sync card. Its sync UI is `#syncControl`, a chip first in the 
 - After the store opens, `watchForInstall()` polls for the extension and syncs on its own once
   it appears. Firefox cannot detect it without a page load, so it gets the `reload` state.
 - Auto-sync is attempted after every `info-initialstatus` via `maybeAutoSync()`, gated on
-  `autoSyncDue()`. Extension 1.7.0+ reports a
+  `autoSyncDue()`. While the page stays open, `scheduleSyncTick()` also calls `autoSync()` once
+  it's due (extension 1.7.3+, which shares one scrape between tabs). Every open tab may upload; the
+  server runs one at a time (see `oneAtATime` below) and the rest share its result. Extension 1.7.0+ reports a
   PowerSchool login from a content script on `powerschool.bcp.org/guardian/*` over the existing
   external port; a `.closed` poll on the login popup is the fallback.
 - Sessions are rolling: `sessionIdlePeriod` (8h) of inactivity, or `sessionRememberPeriod` (30d) with
@@ -159,6 +161,20 @@ Users have tiers (free, donor, plus, premium) that affect:
   auto-sync fires at the end of it, "Available in 2h" otherwise) and `syncInterval` once
   clickable ("Auto in 4h").
 - `sync-limit` calls `syncBlocked(timestamp)`, pinning the chip to the server's deadline.
+- Bellarmine never uploads an unchanged scrape. `syncPresent()` compares it with `syncedGrades`,
+  `{term, semester, grades}` of the latest stored term, over the fields `processClasses()` keeps
+  (`CLASS_KEYS` / `GRADE_KEYS` in `sync_control.js`; add new fields there too). The server renders
+  it as `_syncedGrades` with `grades: null` when the latest term is the one being viewed, and the
+  page fills in its unfiltered `data`. `sync-success` replaces it with the stored copy.
+- A match skips the upload, so no sync is spent, and writes `syncLastChecked:<username>` to
+  localStorage. Auto-sync and "Auto in" count from it as well as from the last upload. For
+  `CHECK_COOLDOWN` (60s) the chip shows `unchanged` ("Up to date", its own color, a fill that
+  drains over the cooldown) and `nextAllowedAt()` blocks manual syncs. Other tabs follow via the
+  `storage` event. The server still counts every upload.
+- `oneAtATime()` in `socket.js` runs one `start-update-from-user` and one
+  `start-update-history-from-user` per user at a time, in memory, so it only holds within one
+  server process. A tab turned away gets nothing back; the running upload's result goes to the
+  whole room.
 - `syncPeriod` must be in the `deserializeUser` projection in `passport.js` to reach a render.
 - Theme access:
   - **Free:** dark, light, oled-dark

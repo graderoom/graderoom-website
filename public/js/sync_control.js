@@ -44,6 +44,10 @@
                     : ' You can sync manually sooner, in ' + left + '.');
             }
         },
+        unchanged: {
+            label: 'Up to date', sub: 'No changes',
+            popup: 'Nothing changed since your last sync, so nothing was uploaded and no sync was used. You can check again once the bar empties.'
+        },
         ready: {
             label: 'Sync', sub: nextAutoText,
             popup: () => 'Click to sync now. ' + autoSyncPhrase()
@@ -115,11 +119,16 @@
             syncState = null;
         }
         if (syncState === null || syncState === 'ready') {
-            syncState = syncReady() ? 'ready' : 'waiting';
+            syncState = syncReady() ? 'ready' : recentlyUnchanged() ? 'unchanged' : 'waiting';
         }
 
         let {label, sub, popup} = SYNC_STATES[syncState];
         let progress = syncState === 'syncing' ? syncProgressPct : 0;
+        if (syncState === 'unchanged' && $('#syncControl').attr('data-state') !== 'unchanged') {
+            // Start the drain part-way through if the check happened before this page loaded
+            $('#syncControl').css('animation-delay', (lastChecked() - Date.now()) + 'ms');
+            setTimeout(() => syncState === 'unchanged' && syncControl(), lastChecked() + CHECK_COOLDOWN - Date.now());
+        }
         $('#syncControl').attr('data-state', syncState)
             .css('--progress', progress + '%');
         $('#syncControlLabel').text(label);
@@ -182,12 +191,56 @@
     function nextAllowedAt() {
         if (syncBlockedUntil) return syncBlockedUntil;
         let lastUpdated = lastSync();
-        return lastUpdated && syncMinInterval ? lastUpdated.timestamp + syncMinInterval : 0;
+        // Unchanged checks cost no sync, but still space them out so PowerSchool isn't hammered
+        let checkCooldown = lastChecked() ? lastChecked() + CHECK_COOLDOWN : 0;
+        return Math.max(lastUpdated && syncMinInterval ? lastUpdated.timestamp + syncMinInterval : 0, checkCooldown);
+    }
+
+    function storage(key, value) {
+        try {
+            if (value === undefined) return localStorage.getItem(key);
+            localStorage.setItem(key, value);
+        } catch {
+            return null;
+        }
+    }
+
+    const CHECK_COOLDOWN = 60000;
+
+    // A check newer than the last upload found nothing to upload
+    function recentlyUnchanged() {
+        return lastChecked() > (lastSync()?.timestamp ?? 0) && Date.now() < lastChecked() + CHECK_COOLDOWN;
+    }
+
+    function lastChecked() {
+        return +storage('syncLastChecked:' + username) || 0;
+    }
+
+    const CLASS_KEYS = ['class_name', 'teacher_name', 'overall_percent', 'overall_letter', 'student_id', 'section_id', 'ps_locked'];
+    const GRADE_KEYS = ['assignment_name', 'date', 'category', 'grade_percent', 'points_gotten', 'points_possible', 'exclude', 'missing', 'late', 'psaid'];
+
+    // Same fields processClasses() keeps, so a scrape compares equal to what the server stored from it
+    function comparableGrades(classes) {
+        let pick = (o, keys) => Object.fromEntries(keys.map(k => [k, o[k] ?? null]));
+        return classes.map(c => ({...pick(c, CLASS_KEYS), grades: c.grades.map(g => pick(g, GRADE_KEYS))}));
+    }
+
+    function matchesStoredGrades(scrapeTerm, scrapeSemester, classes) {
+        if (typeof syncedGrades === 'undefined' || !syncedGrades) return false;
+        if (scrapeTerm !== syncedGrades.term || scrapeSemester !== syncedGrades.semester) return false;
+        return _.isEqual(comparableGrades(classes), comparableGrades(syncedGrades.grades));
+    }
+
+    function syncUnchanged() {
+        storage('syncLastChecked:' + username, Date.now());
+        disconnectPort();
+        setupLastUpdated();
+        syncReset();
     }
 
     function nextAutoAt() {
-        let lastUpdated = lastSync();
-        return lastUpdated && syncInterval ? lastUpdated.timestamp + syncInterval : 0;
+        let last = Math.max(lastSync()?.timestamp ?? 0, lastChecked());
+        return last && syncInterval ? last + syncInterval : 0;
     }
 
     function syncReady() {
@@ -240,8 +293,18 @@
         let untilBoundary = deadline ? (deadline - Date.now()) % 60000 : 0;
         setTimeout(() => {
             syncControl();
+            if (syncState === 'ready' && autoSyncDue()) autoSync();
             scheduleSyncTick();
         }, untilBoundary > 0 ? untilBoundary : 60000);
+    }
+
+    // Auto-sync while the page stays open. Every open tab may fire at once: 1.7.3+ shares one scrape
+    // between them, and the server records only one upload
+    function autoSync() {
+        // accountInactive only exists on the grades page, the one page that handles sync results
+        if (typeof accountInactive === 'undefined' || accountInactive || school !== 'bellarmine' || !extensionSupported()) return;
+        if (!checkVersion(actualExtensionVersion, [1, 7, 3])) return;
+        initSync();
     }
 
     function maybeAutoSync() {
@@ -258,6 +321,8 @@
     $(() => {
         syncControl(extensionSupported() ? null : 'unsupported');
         scheduleSyncTick();
+        // Another tab's check starts the cooldown here too
+        window.addEventListener('storage', (e) => e.key === 'syncLastChecked:' + username && syncState !== 'syncing' && syncControl());
     });
 
     function powerschoolLogin() {
@@ -421,7 +486,8 @@
                 powerschoolLoggedIn();
                 return;
             }
-            if (msg.type === 'status') {
+            // Extension 1.7.3+ sends every tab's scrape progress to all connected tabs
+            if (msg.type === 'status' && syncState === 'syncing') {
                 syncStatus(msg.progress, msg.message);
             }
         });
@@ -553,6 +619,7 @@
             let term = Object.keys(data.data)[0];
             let semester = Object.keys(data.data[term])[0];
             let grades = data.data[term][semester];
+            if (matchesStoredGrades(term, semester, grades)) return syncUnchanged();
             syncStatus(100, 'Uploading…');
             sendData('start-update-from-user', {term: term, semester: semester, grades: grades});
         }

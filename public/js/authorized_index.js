@@ -337,6 +337,7 @@ $.get("/donationProgress", function (data) {
                     syncMessage('Syncing Grade History...');
                     break;
                 case "sync-success":
+                    if (data.term) syncedGrades = {term: data.term, semester: data.semester, grades: JSON.parse(data.grades)};
                     let formMessagesDiv = $(".updateGradesMessage.alert .messageTxt");
                     if (data.gradeSyncEnabled) {
                         $("#syncGradesDiv").hide();
