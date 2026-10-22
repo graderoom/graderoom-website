@@ -55,6 +55,7 @@
 ## [Stable 8.3.4] - 2026-10-22
 ### Fixed
 - Fixed a security issue in password reset emails
+- Fixed requests that could crash the server
 
 ## [Stable 8.3.3] - 2026-10-22
 ### Fixed

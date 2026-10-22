@@ -1184,8 +1184,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/usernameAvailable", async (req, res) => {
-        let username = req.body.username.toLowerCase();
-        let resp = await dbClient.usernameAvailable(username);
+        let resp = await dbClient.usernameAvailable(req.body.username);
         if (resp.success) {
             res.status(200).send(resp.data.message);
         } else {
@@ -1194,8 +1193,7 @@ module.exports = function (app, passport) {
     });
 
     app.post("/emailAvailable", async (req, res) => {
-        let schoolUsername = req.body.schoolUsername.toLowerCase();
-        let resp = await dbClient.schoolUsernameAvailable(schoolUsername);
+        let resp = await dbClient.schoolUsernameAvailable(req.body.schoolUsername);
         if (resp.success) {
             res.status(200).send(resp.data.message);
         } else {
