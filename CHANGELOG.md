@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.3.4] - 2026-10-22
+### Fixed
+- Fixed a security issue in password reset emails
+
 ## [Stable 8.3.3] - 2026-10-22
 ### Fixed
 - Fixed a security issue in password reset

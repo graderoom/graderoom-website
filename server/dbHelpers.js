@@ -816,8 +816,8 @@ exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
 };
 
 // The Host header is chosen by the client, so a reset link built from it can point anywhere
-exports.resetLink = function (token) {
-    return (process.env.BASE_URL || "https://graderoom.me").replace(/\/$/, "") + "/reset_password?token=" + token;
+exports.resetLink = function (token, beta) {
+    return (beta ? "https://beta.graderoom.me" : "https://graderoom.me") + "/reset_password?token=" + token;
 };
 
 exports.nextSyncWhen = function (lastSyncTimestamp, donoData) {
