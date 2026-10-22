@@ -4701,6 +4701,10 @@ const _leaveBeta = async (db, username) => {
 
 const checkPasswordResetToken = (token) => safe(_checkPasswordResetToken, token);
 const _checkPasswordResetToken = async (db, token) => {
+    // Tokens come straight from the request, so only a plain string is a token
+    if (typeof token !== "string") {
+        return {success: true, data: {username: null, school: null, valid: false, gradeSync: false}};
+    }
     let res = await getAllUsers({
         schoolPassword: 1,
         passwordResetTokenExpire: 1,

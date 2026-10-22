@@ -178,6 +178,14 @@ module.exports = {
         let lastUpdated = (await db.getUser(username, {"alerts.lastUpdated": 1})).data.value.alerts.lastUpdated;
         customAssert(lastUpdated.length, 1, "Concurrent uploads record one sync");
         await db.removeUser(username);
+    }, testResetTokenMustBeString: async () => {
+        let username = randomString(16).toLowerCase();
+        let schoolUsername = `${randomString(8)}.${randomString(8)}22@bcp.org`.toLowerCase();
+        await db.addUser("bellarmine", username, "123ThisIsAPassword", schoolUsername, false);
+        let token = (await db.resetPasswordRequest(schoolUsername)).data.token;
+        customAssert((await db.checkPasswordResetToken(token)).data.valid, true, "A real reset token is valid");
+        customAssert((await db.checkPasswordResetToken({$exists: true})).data.valid, false, "A reset token must be a string");
+        await db.removeUser(username);
     }
 };
 
