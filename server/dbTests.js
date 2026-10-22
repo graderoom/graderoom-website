@@ -43,6 +43,11 @@ module.exports = {
         await db.removeUnknownAppearanceKeys();
         customAssert((await db.getUser(username, {appearance: 1})).data.value.appearance,
             require("./dbHelpers").appearanceDefaults, "Startup cleanup keeps known appearance keys");
+        customAssert((await db.archiveUser(username)).success, true, "Archive user");
+        customAssert((await db.userExists({username})).success, false, "Archived user no longer exists");
+        customAssert((await db.unArchiveUser(username)).success, true, "Unarchive user");
+        customAssert((await db.userExists({username})).success, true, "Unarchived user exists again");
+        customAssert((await db.userArchived({username})).success, false, "Unarchived user left the archive");
         customAssert((await db.removeUser("")).success, false, "Invalid user removal");
         customAssert((await db.removeUser(username)).success, true, "Valid user removal");
     }, testSyncPeriod: async () => {
