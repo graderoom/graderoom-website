@@ -5,6 +5,9 @@ const productionEnv = process.env.NODE_ENV === "production";
 if (!productionEnv) {
     require("dotenv").config();
 }
+// Express 4 doesn't catch a rejected async handler, and one stray rejection shouldn't take every user offline.
+// The request that caused it gets no response, so fix the handler too; this only keeps the process up
+process.on("unhandledRejection", (reason) => console.error("Unhandled rejection:", reason));
 const httpPort = parseInt(process.env.port);
 const isBetaServer = httpPort !== 5996;
 const flash = require("connect-flash");
