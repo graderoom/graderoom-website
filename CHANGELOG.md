@@ -62,6 +62,7 @@
 - Checking for changes counts toward auto-sync, so it waits your full sync period before checking again
 - Auto-sync runs while Graderoom stays open, not only when you load the page (requires Graderoom Extension v1.7.3+)
 - Syncing from several tabs at once checks PowerSchool only once, and every tab shows its progress (requires Graderoom Extension v1.7.3+)
+- Better tab icons and titles
 
 ### Fixed
 - Syncing from two tabs at the same moment could record the same sync twice
