@@ -4589,7 +4589,7 @@ const _addBetaKey = async (db) => {
 
 const betaKeyExists = (betaKey) => safe(_betaKeyExists, betaKey);
 const _betaKeyExists = async (db, betaKey) => {
-    let betaKeyExists = await db.collection(BETAKEYS_COLLECTION_NAME).findOne({betaKey: betaKey});
+    let betaKeyExists = typeof betaKey === "string" && await db.collection(BETAKEYS_COLLECTION_NAME).findOne({betaKey: betaKey});
     if (!!betaKeyExists) {
         return {success: true, data: {log: `BetaKey ${betaKey} found`, value: betaKeyExists}};
     }
@@ -4612,7 +4612,7 @@ const _betaKeyValid = async (db, betaKey) => {
 
 const getBetaKey = (betaKey) => safe(_getBetaKey, betaKey);
 const _getBetaKey = async (db, betaKey) => {
-    let _betaKey = await db.collection(BETAKEYS_COLLECTION_NAME).findOne({betaKey: betaKey});
+    let _betaKey = typeof betaKey === "string" && await db.collection(BETAKEYS_COLLECTION_NAME).findOne({betaKey: betaKey});
     if (!_betaKey) {
         return {success: false, data: {log: `Key not found: ${betaKey}`}};
     }

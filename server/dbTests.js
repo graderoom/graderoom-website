@@ -63,6 +63,7 @@ module.exports = {
         customAssert(res.success, true, "Add beta key");
         let betaKey = res.data.value.betaKey;
         customAssert((await db.betaKeyExists(betaKey)).success, true, "Beta key exists");
+        customAssert((await db.betaKeyExists({$ne: null})).success, false, "A beta key must be a string");
         customAssert(await db.getBetaKey(betaKey), {
             success: true,
             data: {value: {betaKey: betaKey, claimed: false, claimedBy: ""}}
@@ -185,6 +186,7 @@ module.exports = {
         let token = (await db.resetPasswordRequest(schoolUsername)).data.token;
         customAssert((await db.checkPasswordResetToken(token)).data.valid, true, "A real reset token is valid");
         customAssert((await db.checkPasswordResetToken({$exists: true})).data.valid, false, "A reset token must be a string");
+        customAssert((await db.checkPasswordResetToken({$regex: "^" + token[0]})).data.valid, false, "A reset token can't be a pattern");
         await db.removeUser(username);
     }
 };

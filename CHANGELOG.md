@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.3.3] - 2026-10-22
+### Fixed
+- Fixed a security issue in password reset
+
 ## [Stable 8.3.2] - 2026-10-21
 ### Added
 - Unique visits on the charts page, counting each user once per day they open Graderoom. Days before this release are estimated from logins and syncs
