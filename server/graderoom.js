@@ -17,7 +17,6 @@ const bodyParser = require("body-parser");
 const redis = require("redis");
 const session = require("express-session");
 const passport = require("passport");
-const fs = require("fs");
 const {watchChangelog, readChangelog, donoAttributes, sessionIdlePeriod} = require("./dbHelpers");
 const {Constants} = require("./enums");
 
@@ -52,12 +51,6 @@ mongo.config(mongoUrl, productionEnv, isBetaServer).then(() => {
         require("./passport")(passport); // pass passport for configuration
 
         // set up our express application
-        if (productionEnv) {
-            app.use(morgan("common", {
-                stream: fs.createWriteStream("./graderoom.log", {flags: "a"})
-            }));
-        }
-
         app.use(morgan("dev")); // log every request to the console
         app.use(cookieParser()); // read cookies (needed for auth)
         app.use(bodyParser.json({limit: '1mb'})); // get information from html forms
