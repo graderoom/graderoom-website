@@ -25,7 +25,7 @@ exports.SCHOOL_USERNAME_LOOKUP_COLLECTION_NAME = 'school_username_lookup';
 exports.COSTS_COLLECTION_NAME = 'costs';
 
 // Change this when updateDB changes
-exports.dbUserVersion = 43;
+exports.dbUserVersion = 44;
 exports.dbClassVersion = 4;
 
 exports.sessionIdlePeriod = 8 * 60 * 60 * 1000;
@@ -299,6 +299,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                     dateSort: [], categorySort: []
                 },
                 loggedIn: [],
+                visitDays: [],
                 enableLogging: true,
                 syncPeriod: freeSyncPeriod,
                 donoData: [],

@@ -53,6 +53,9 @@
 - None
 
 ## [Stable 8.3.2] - 2026-10-21
+### Added
+- Unique visits on the charts page, counting each user once per day they open Graderoom. Days before this release are estimated from logins and syncs
+
 ### Improved
 - For Bellarmine students, a sync that finds no grade changes no longer uses up a sync, so you can sync again right away when something does change
 - The sync button shows Up to date when nothing changed, and is ready again a minute later

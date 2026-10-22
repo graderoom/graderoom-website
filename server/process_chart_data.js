@@ -42,9 +42,9 @@ async function run() {
         await client.close();
         return;
     }
-    let {loginData, uniqueLoginData, syncData, uniqueSyncData, schoolData, lastUpdated: lastUpdatedCharts} = data;
+    let {loginData, uniqueLoginData, syncData, uniqueSyncData, uniqueVisitData, visitsTrackedFrom, schoolData, lastUpdated: lastUpdatedCharts} = data;
     let projection = {
-        loggedIn: 1, "alerts.lastUpdated.timestamp": 1, "personalInfo.graduationYear": 1, school: 1, username: 1
+        loggedIn: 1, "alerts.lastUpdated.timestamp": 1, "personalInfo.graduationYear": 1, school: 1, username: 1, visitDays: 1
     };
     let dayStart = Date.parse(new Date().toDateString());
     let query = {
@@ -53,7 +53,8 @@ async function run() {
                 "alerts.lastUpdated.timestamp": {
                     $gte: lastUpdatedCharts.getTime(), $lt: dayStart
                 }
-            }, {"loggedIn": {$gt: lastUpdatedCharts.getTime(), $lt: dayStart}}
+            }, {"loggedIn": {$gt: lastUpdatedCharts.getTime(), $lt: dayStart}},
+            {visitDays: {$gte: lastUpdatedCharts.getTime(), $lt: dayStart}}
         ]
     };
     // All users with new data since lastUpdatedCharts but before today
@@ -150,6 +151,31 @@ async function run() {
     console.log(`Calculated unique sync data in ${Date.now() - time}ms!`);
 
     time = Date.now();
+    // A login or a sync means a visit that day, so days before visitDays existed get a lower bound
+    let visitFrom = uniqueVisitData ? lastUpdatedCharts.getTime() : 0;
+    let visitUsers = allUsers;
+    if (!uniqueVisitData) {
+        let visitQuery = {$or: [{"alerts.lastUpdated.timestamp": {$lt: dayStart}}, {loggedIn: {$lt: dayStart}}]};
+        visitUsers = (await _getAllUsers(db, projection, visitQuery)).data.value
+            .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find(visitQuery, {projection: projection}).toArray());
+    }
+    let uniqueVisitCounts = new Map((uniqueVisitData ?? []).map(d => [d.x.getTime(), d.y]));
+    for (let user of visitUsers) {
+        let tracked = (user.visitDays ?? []).filter(t => t >= visitFrom && t < dayStart);
+        if (tracked.length) visitsTrackedFrom = Math.min(visitsTrackedFrom ?? Infinity, ...tracked);
+        let days = new Set([...user.loggedIn ?? [], ...user.alerts?.lastUpdated?.map(d => d.timestamp) ?? [], ...tracked]
+            .filter(t => t >= visitFrom && t < dayStart).map(t => {
+                let date = new Date(t);
+                return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+            }));
+        for (let day of days) {
+            uniqueVisitCounts.set(day, (uniqueVisitCounts.get(day) ?? 0) + 1);
+        }
+    }
+    uniqueVisitData = [...uniqueVisitCounts].sort((a, b) => a[0] - b[0]).map(([x, y]) => ({x: new Date(x), y: y}));
+    console.log(`Calculated unique visit data in ${Date.now() - time}ms!`);
+
+    time = Date.now();
     let actualAllUsers = (await _getAllUsers(db, {"loggedIn": 1, 'personalInfo.graduationYear': 1}, {"alerts.lastUpdated": {$not: {$size: 0}}})).data.value
         .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({"alerts.lastUpdated": {$not: {$size: 0}}}, {projection: {"loggedIn": 1, 'personalInfo.graduationYear': 1}}).toArray());
 
@@ -197,6 +223,8 @@ async function run() {
         uniqueLoginData: uniqueLoginData,
         syncData: syncData,
         uniqueSyncData: uniqueSyncData,
+        uniqueVisitData: uniqueVisitData,
+        visitsTrackedFrom: visitsTrackedFrom ?? null,
         userData: userData,
         schoolData: schoolData,
         lastUpdated: lastUpdatedCharts

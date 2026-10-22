@@ -48,6 +48,7 @@ async function buildUserPayload(req, term, semester, gradeSync, history) {
     let user = req.user;
     let {plus, premium} = donoAttributes(user.donoData);
     let hasTerm = !!(term && semester);
+    dbClient.recordVisit(user.username);
 
     let grades = hasTerm ? (await dbClient.getAllGrades(user.username)).data.value : {};
     let relevantClassData = hasTerm ? (await dbClient.getRelevantClassData(user.username, term, semester)).data.value : {};
@@ -1120,7 +1121,7 @@ module.exports = function (app, passport) {
 
     app.get("/charts", async (req, res) => {
 
-        let {success, data: {loginData, uniqueLoginData, syncData, uniqueSyncData, userData, activeUsersData, schoolData, lastUpdated}} = await dbClient.getChartData();
+        let {success, data: {loginData, uniqueLoginData, syncData, uniqueSyncData, uniqueVisitData, visitsTrackedFrom, userData, activeUsersData, schoolData, lastUpdated}} = await dbClient.getChartData();
         if (!success) {
             return renderWithConstants(res, "viewer/loading_charts.ejs", {page: "charts-logged-out",
                 _appearance: loggedOutAppearance(),
@@ -1141,6 +1142,8 @@ module.exports = function (app, passport) {
                 _uniqueLoginData: uniqueLoginData,
                 _syncData: syncData,
                 _uniqueSyncData: uniqueSyncData ?? [],
+                _uniqueVisitData: uniqueVisitData ?? [],
+                visitsTrackedFrom: visitsTrackedFrom ?? null,
                 _userData: userData,
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,
@@ -1160,6 +1163,8 @@ module.exports = function (app, passport) {
                 _uniqueLoginData: uniqueLoginData,
                 _syncData: syncData,
                 _uniqueSyncData: uniqueSyncData ?? [],
+                _uniqueVisitData: uniqueVisitData ?? [],
+                visitsTrackedFrom: visitsTrackedFrom ?? null,
                 _userData: userData,
                 _activeUsersData: activeUsersData,
                 _schoolData: schoolData,

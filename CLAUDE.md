@@ -79,6 +79,14 @@ Schema versions are tracked (`dbUserVersion`, `dbClassVersion` in `dbHelpers.js`
 in `appearanceKeys` (`dbHelpers.js`: the keys of `appearanceDefaults`, plus `blurEffects`) is
 unset, so a new appearance setting has to be added to one of those or it is wiped on the next boot.
 
+`/charts` data is rebuilt once a day by `server/process_chart_data.js` (forked from `getChartData()`).
+Unique Visits counts users per day with a `visitDays` entry (added by `recordVisit()` whenever
+`buildUserPayload()` runs: the grades page and the app payload), a login or a sync, since either
+means a visit. Days before `visitsTrackedFrom` (the first `visitDays` entry) are only that lower
+bound and are drawn dashed as Unique Visits (estimated). A chart doc without `uniqueVisitData`
+is backfilled from all history on the next rebuild. Unique
+Syncs is no longer a visit proxy: a Bellarmine sync with no changes uploads nothing.
+
 ### Request Flow
 
 Two parallel communication paths:

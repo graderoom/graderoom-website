@@ -285,23 +285,33 @@
     let uniqueLoginData = <%- JSON.stringify(_uniqueLoginData); %>;
     let syncData = <%- JSON.stringify(_syncData); %>;
     let uniqueSyncData = <%- JSON.stringify(_uniqueSyncData); %>;
+    let uniqueVisitData = <%- JSON.stringify(_uniqueVisitData); %>;
     let userData = <%- JSON.stringify(_userData); %>;
 
     let weekdayLoginData = Array(7).fill(0);
     let weekdayUniqueLoginData = Array(7).fill(0);
     let weekdaySyncData = Array(7).fill(0);
     let weekdayUniqueSyncData = Array(7).fill(0);
+    let weekdayUniqueVisitData = Array(7).fill(0);
 
     let schoolData = <%- JSON.stringify(_schoolData); %>;
 
     // Fill in holes in loginData
-    let series = [loginData, uniqueLoginData, syncData, uniqueSyncData].filter(d => d.length);
+    let series = [loginData, uniqueLoginData, syncData, uniqueSyncData, uniqueVisitData].filter(d => d.length);
     let minDate = Math.min(...series.map(d => new Date(d[0].x).getTime()));
     let maxDate = Math.max(...series.map(d => new Date(d.slice(-1)[0].x).getTime()));
     fillHoles(loginData);
     fillHoles(uniqueLoginData);
     fillHoles(syncData);
     fillHoles(uniqueSyncData);
+    fillHoles(uniqueVisitData);
+    for (let i = 0; i < uniqueVisitData.length; i++) {
+        weekdayUniqueVisitData[new Date(uniqueVisitData[i].x).getDay()] += uniqueVisitData[i].y;
+    }
+    let visitsTrackedFrom = <%= visitsTrackedFrom ?? 'null' %>;
+    let tracked = d => visitsTrackedFrom !== null && new Date(d.x).getTime() >= visitsTrackedFrom;
+    let estimatedVisitData = uniqueVisitData.map(d => ({x: d.x, y: tracked(d) && new Date(d.x).getTime() > visitsTrackedFrom ? null : d.y}));
+    uniqueVisitData = uniqueVisitData.map(d => ({x: d.x, y: tracked(d) ? d.y : null}));
     fillHoles(userData, true);
 
     // calculate weekday stats
@@ -420,7 +430,22 @@
     dataset.push(loginsDataset);
     dataset.push(uniqueLoginDataset);
     dataset.push(syncsDataset);
+    let uniqueVisitsDataset = {
+        ...syncsDataset,
+        label: "Unique Visits",
+        pointBackgroundColor: "#9b30d9",
+        borderColor: "#9b30d9",
+        data: uniqueVisitData,
+        pointHoverBackgroundColor: "#9b30d9",
+        pointHoverBorderColor: "#9b30d9"
+    };
     dataset.push(uniqueSyncsDataset);
+    dataset.push(uniqueVisitsDataset);
+    dataset.push({
+        ...uniqueVisitsDataset,
+        data: estimatedVisitData,
+        borderDash: [4, 4]
+    });
 
     function setupAllCharts() {
         setupChart();
@@ -478,15 +503,22 @@
                             fontFamily: "Verdana",
                             boxWidth: 20,
                             fontSize: 13,
-                            filter: function (item) {
-                                return !item.text.includes("undefined");
+                            filter: function (item, data) {
+                                return !item.text.includes("undefined") && data.datasets.findIndex(d => d.label === item.text) === item.datasetIndex;
                             }
+                        }, onClick: function (e, item, legend) {
+                            let chart = legend.chart;
+                            let visible = chart.isDatasetVisible(item.datasetIndex);
+                            chart.data.datasets.forEach((d, i) => d.label === item.text && chart.setDatasetVisibility(i, !visible));
+                            chart.update();
                         }
                     }, tooltip: {
-                        enabled: true, mode: "index", intersect: false, position: "nearest", displayColors: true, caretSize: 10, callbacks: {
+                        enabled: true, mode: "index", intersect: false, position: "nearest", displayColors: true, caretSize: 10,
+                        filter: (item, i, items) => item.parsed.y !== null && items.findIndex(o => o.dataset.label === item.dataset.label && o.parsed.y !== null) === i, callbacks: {
                             title: function (tooltipItems) {
                                 return new Date(tooltipItems[0].label).toDateString();
-                            }
+                            },
+                            label: item => `${item.dataset.label}${item.dataset.borderDash ? " (inferred)" : ""}: ${item.formattedValue}`
                         }
                     }, zoom: {
                         zoom: {
@@ -743,6 +775,12 @@
                     borderColor: borders[4],
                     borderWidth: 1,
                     data: weekdayUniqueSyncData
+                }, {
+                    label: "Unique Visits",
+                    backgroundColor: colors[5],
+                    borderColor: borders[5],
+                    borderWidth: 1,
+                    data: weekdayUniqueVisitData
                 }]
             }, options: {
                 scales: {
