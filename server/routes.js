@@ -788,7 +788,9 @@ module.exports = function (app, passport) {
             resp = await dbClient.addUser(school, username, password, s_email, false);
             console.log("nonbeta: " + resp);
         }
-        await dbClient.setColorPalette(username, "clear", false);
+        if (resp.success) {
+            await dbClient.setColorPalette(username, "clear", false);
+        }
 
         if (!resp.success) {
             req.flash("signupMessage", resp.data.message);
