@@ -815,14 +815,14 @@ exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
     return Date.now() >= exports.nextSyncWhen(lastSyncTimestamp, donoData);
 };
 
+exports.nextSyncWhen = function (lastSyncTimestamp, donoData) {
+    return lastSyncTimestamp + exports.minSyncPeriod(donoData);
+}
+
 // The Host header is chosen by the client, so a reset link built from it can point anywhere
 exports.resetLink = function (token, beta) {
     return (beta ? "https://beta.graderoom.me" : "https://graderoom.me") + "/reset_password?token=" + token;
 };
-
-exports.nextSyncWhen = function (lastSyncTimestamp, donoData) {
-    return lastSyncTimestamp + exports.minSyncPeriod(donoData);
-}
 
 exports.processClasses = function (classes, forHistory=false) {
     if (!Array.isArray(classes)) {
