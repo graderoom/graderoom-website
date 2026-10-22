@@ -201,6 +201,23 @@ module.exports = {
         await db.removeDonation(username, 0);
         customAssert((await db.getUser(username, {"appearance.colorPalette": 1})).data.value.appearance.colorPalette !== "custom", true, "No longer Plus clears the custom palette");
         await db.removeUser(username);
+    }, testResetLink: async () => {
+        // The link is built from configuration, never from anything the requester sends
+        const {resetLink} = require("./dbHelpers");
+        let saved = process.env.BASE_URL;
+        delete process.env.BASE_URL;
+        customAssert(resetLink("abc"), "https://graderoom.me/reset_password?token=abc", "Reset link defaults to the production site");
+        process.env.BASE_URL = "https://beta.example.test";
+        customAssert(resetLink("abc"), "https://beta.example.test/reset_password?token=abc", "Reset link honors BASE_URL");
+        process.env.BASE_URL = "https://beta.example.test/";
+        customAssert(resetLink("abc"), "https://beta.example.test/reset_password?token=abc", "Reset link ignores a trailing slash");
+        process.env.BASE_URL = "";
+        customAssert(resetLink("abc"), "https://graderoom.me/reset_password?token=abc", "An empty BASE_URL (as in .env.example) falls back to the default");
+        if (saved === undefined) {
+            delete process.env.BASE_URL;
+        } else {
+            process.env.BASE_URL = saved;
+        }
     }
 };
 

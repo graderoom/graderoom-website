@@ -815,6 +815,11 @@ exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
     return Date.now() >= exports.nextSyncWhen(lastSyncTimestamp, donoData);
 };
 
+// The Host header is chosen by the client, so a reset link built from it can point anywhere
+exports.resetLink = function (token) {
+    return (process.env.BASE_URL || "https://graderoom.me").replace(/\/$/, "") + "/reset_password?token=" + token;
+};
+
 exports.nextSyncWhen = function (lastSyncTimestamp, donoData) {
     return lastSyncTimestamp + exports.minSyncPeriod(donoData);
 }

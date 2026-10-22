@@ -3,7 +3,7 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 
-const {changelog, changelogLegend, latestVersion, donoAttributes, discordDisplay, fetchDiscordUser, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod} = require("./dbHelpers");
+const {changelog, changelogLegend, latestVersion, donoAttributes, discordDisplay, fetchDiscordUser, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod, resetLink} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isInternalApiAuthenticated, inRecentTerm, deviceOf} = require("./middleware");
 
@@ -1297,10 +1297,10 @@ module.exports = function (app, passport) {
         let {user, token} = (await dbClient.resetPasswordRequest(email)).data;
 
         if (user) {
-            emailSender.sendPasswordResetToAccountOwner(email, "https://" + req.headers.host + "/reset_password?token=" + token, user.personalInfo.firstName);
+            emailSender.sendPasswordResetToAccountOwner(email, resetLink(token), user.personalInfo.firstName);
         } else {
             // this doesn't do anything
-            emailSender.sendPasswordResetToNonUser(email, "https://" + req.headers.host + "/reset_password?token=" + token);
+            emailSender.sendPasswordResetToNonUser(email, resetLink(token));
         }
         req.flash("forgotPasswordMsg", "If the email address you entered is associated with an account, you should receive an email containing a link to reset your password. Please make sure to check your spam folder. If you run into any issues, contact <b><a href='mailto:support@graderoom.me'>support@graderoom.me</a></b>.");
         res.redirect("/forgot_password");
