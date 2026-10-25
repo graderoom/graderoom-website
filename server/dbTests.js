@@ -201,6 +201,18 @@ module.exports = {
         await db.removeDonation(username, 0);
         customAssert((await db.getUser(username, {"appearance.colorPalette": 1})).data.value.appearance.colorPalette !== "custom", true, "No longer Plus clears the custom palette");
         await db.removeUser(username);
+    }, testChangeSchoolEmail: async () => {
+        // Changing to a new, unused school email must work; a taken one must be refused
+        let [a, b] = [randomString(16).toLowerCase(), randomString(16).toLowerCase()];
+        let email = () => `${randomString(8)}.${randomString(8)}22@bcp.org`.toLowerCase();
+        let [emailA, emailB, emailNew] = [email(), email(), email()];
+        await db.addUser("bellarmine", a, "123ThisIsAPassword", emailA, false);
+        await db.addUser("bellarmine", b, "123ThisIsAPassword", emailB, false);
+        customAssert((await db.changeSchoolEmail(a, emailNew)).success, true, "Change to an unused school email");
+        customAssert((await db.getUser(a, {schoolUsername: 1})).data.value.schoolUsername, emailNew, "School email was updated");
+        customAssert((await db.changeSchoolEmail(a, emailB)).success, false, "Cannot take another user's school email");
+        await db.removeUser(a);
+        await db.removeUser(b);
     }, testResetLink: async () => {
         // The link is built from which server this is, never from anything the requester sends
         const {resetLink} = require("./dbHelpers");
