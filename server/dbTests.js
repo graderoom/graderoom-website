@@ -213,6 +213,14 @@ module.exports = {
         customAssert((await db.changeSchoolEmail(a, emailB)).success, false, "Cannot take another user's school email");
         await db.removeUser(a);
         await db.removeUser(b);
+    }, testSetGraduationYear: async () => {
+        // The settings page posts the year form-encoded, so it arrives as a string
+        let username = randomString(16).toLowerCase();
+        await db.addUser("basis", username, "123ThisIsAPassword", `ab${String(randomInt(5)).padStart(5, "0")}@basisindependent.com`, false);
+        customAssert((await db.setPersonalInfo(username, undefined, undefined, "2027")).success, true, "Numeric string accepted");
+        customAssert((await db.getUser(username, {personalInfo: 1})).data.value.personalInfo.graduationYear, 2027, "Stored as a number");
+        customAssert((await db.setPersonalInfo(username, undefined, undefined, "20x7")).success, false, "Non-numeric string refused");
+        await db.removeUser(username);
     }, testResetLink: async () => {
         // The link is built from which server this is, never from anything the requester sends
         const {resetLink} = require("./dbHelpers");

@@ -2676,7 +2676,9 @@ const _setPersonalInfo = async (db, username, firstName, lastName, graduationYea
             return {success: false, data: {message: "Changing graduation year is not supported"}};
         }
 
-        if (typeof graduationYear !== "number") {
+        // The settings page posts form-encoded, so this arrives as a string
+        graduationYear = Number(graduationYear);
+        if (!Number.isInteger(graduationYear)) {
             return {success: false, data: {message: "Graduation year must be a number"}};
         }
         let res = await _users(db, username).updateOne({username: username}, {$set: {"personalInfo.graduationYear": graduationYear}});
