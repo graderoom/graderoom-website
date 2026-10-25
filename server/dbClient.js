@@ -3269,7 +3269,7 @@ const _changeSchoolEmail = async (db, username, schoolUsername) => {
     if (!validateEmail(schoolUsername, user.school)) {
         return {success: false, data: {message: "This must be your school email."}};
     }
-    if ((user.schoolUsername !== schoolUsername && await userExists({schoolUsername: schoolUsername})) ||
+    if ((user.schoolUsername !== schoolUsername && (await userExists({schoolUsername: schoolUsername})).success) ||
         (await userArchived({schoolUsername: schoolUsername})).success) {
         return {success: false, data: {message: "This email is already associated with an account."}};
     }

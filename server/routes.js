@@ -788,12 +788,12 @@ module.exports = function (app, passport) {
             resp = await dbClient.addUser(school, username, password, s_email, false);
             console.log("nonbeta: " + resp);
         }
-        await dbClient.setColorPalette(username, "clear", false);
 
         if (!resp.success) {
             req.flash("signupMessage", resp.data.message);
             res.redirect("/signup");
         } else {
+            await dbClient.setColorPalette(username, "clear", false);
             passport.authenticate("local-login", {
                 successRedirect: "/", // redirect to the secure profile section
                 failureRedirect: "/signup", // redirect back to the signup page if there is an error
