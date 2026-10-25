@@ -120,6 +120,9 @@ Bellarmine has no sync card. Its sync UI is `#syncControl`, a chip first in the 
   server runs one at a time (see `oneAtATime` below) and the rest share its result. Extension 1.7.0+ reports a
   PowerSchool login from a content script on `powerschool.bcp.org/guardian/*` over the existing
   external port; a `.closed` poll on the login popup is the fallback.
+- The login popup opens `powerschool.bcp.org/public/#graderoom`, and extension 1.7.4+ hops from there
+  to `student/idp`. BCP's human check on adfs.bcp.org fails when sign-in starts cross-site from
+  Graderoom, so never link to `student/idp` directly.
 - Sessions are rolling: `sessionIdlePeriod` (8h) of inactivity, or `sessionRememberPeriod` (30d) with
   the login page's Stay signed in box. The extension holds the PowerSchool credentials, not the server.
 

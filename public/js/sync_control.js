@@ -13,7 +13,7 @@
     let openedStore = false;
     let installWatcher;
 
-    const powerschoolLoginUrl = 'https://powerschool.bcp.org/student/idp?_userTypeHint=student';
+    const powerschoolLoginUrl = 'https://powerschool.bcp.org/public/#graderoom';
     let needsLogin = false;
     let awaitingLogin = false;
 
@@ -46,7 +46,8 @@
         },
         unchanged: {
             label: 'Up to date', sub: 'No changes',
-            popup: 'Nothing changed since your last sync, so nothing was uploaded and no sync was used. You can check again once the bar empties.'
+            popup: () => 'Nothing changed since your last sync, so nothing was uploaded and no sync was used. You can check again in '
+                + Math.max(1, Math.ceil((lastChecked() + CHECK_COOLDOWN - Date.now()) / 1000)) + 's.'
         },
         ready: {
             label: 'Sync', sub: nextAutoText,
@@ -65,8 +66,10 @@
             popup: 'Finish signing in to PowerSchool, then click here.'
         },
         install: {
-            label: 'Install', sub: 'Extension',
-            popup: 'Syncing needs the Graderoom Extension. Click to install it.'
+            label: 'Install', sub: () => legacyExtension ? 'New add-on' : 'Extension',
+            popup: () => legacyExtension
+                ? 'The Graderoom add-on moved to a new listing. Click to install the new one, and the old one will uninstall itself.'
+                : 'Syncing needs the Graderoom Extension. Click to install it.'
         },
         installed: {
             label: 'Waiting', sub: 'For install',
@@ -128,6 +131,9 @@
             // Start the drain part-way through if the check happened before this page loaded
             $('#syncControl').css('animation-delay', (lastChecked() - Date.now()) + 'ms');
             setTimeout(() => syncState === 'unchanged' && syncControl(), lastChecked() + CHECK_COOLDOWN - Date.now());
+            let tick = setInterval(() => syncState === 'unchanged'
+                ? $('#syncControlPopup').text(SYNC_STATES.unchanged.popup())
+                : clearInterval(tick), 1000);
         }
         $('#syncControl').attr('data-state', syncState)
             .css('--progress', progress + '%');
@@ -377,6 +383,8 @@
     let activeExtensionID = null;
     const requiredExtensionVersion = [1, 5, 4];
     let firefoxExtensionInstalled = false;
+    // The old Firefox listing's id, typo'd graderom.me
+    let legacyExtension = false;
     let actualExtensionVersion = null;
 
     const EXTENSION_SOURCES = {chrome: 'Chrome', edge: 'Edge', test: 'Test build', firefox: 'Firefox'};
@@ -509,6 +517,9 @@
             return sendMessageToExtension({type: 'get-version'}).then((response) => {
                 if (response) {
                     showExtensionVersion(response.version, 'firefox');
+                    // Before 1.7.4 the old add-on can't remove itself, so it keeps syncing until it updates
+                    legacyExtension = response.id === 'extension@graderom.me' && checkVersion(response.version, [1, 7, 4]);
+                    if (legacyExtension) return false;
                     if (!checkVersion(response.version)) {
                         alert('Your Graderoom Extension is out of date');
                         return false;

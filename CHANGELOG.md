@@ -52,6 +52,23 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.4.0] - 2026-10-25
+### Improved
+- The Firefox add-on has a new listing<ul>
+- If you have the old one, the sync chip will ask you to install the new one, and the old one will uninstall itself
+- The old add-on was created with a typo in its ID, which can't be changed, so it had to be replaced</ul>
+
+### Fixed
+- Fixed human verification check always being required and not working in some cases<ul>
+- Signing in now requires you to first click "Student Sign In"
+- Graderoom Extension v1.7.4+ will skip the extra click</ul>
+- Fixed changing your school email always being refused
+- Fixed failed signups resetting an existing account's color palette
+
+## [Beta 8.3.5] - 2026-10-22
+### Fixed
+- Fixed failed signups resetting an existing account's color palette
+
 ## [Stable 8.3.4] - 2026-10-22
 ### Fixed
 - Fixed a security issue in password reset emails
