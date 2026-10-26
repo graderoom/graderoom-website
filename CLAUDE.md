@@ -83,7 +83,7 @@ unset, so a new appearance setting has to be added to one of those or it is wipe
 Active Users counts users per day with a `visitDays` entry (added by `recordVisit()` whenever
 `buildUserPayload()` runs: the grades page and the app payload), a login or a sync, since either
 means a visit. Weekly and Monthly Active count distinct users over the trailing 7 and 30 days.
-Days through `visitsTrackedFrom` (the first `visitDays` entry, a partial day) are only that lower
+Days through `visitsTrackedFrom` (`dbHelpers.js`, the day v8.3.2 shipped visit tracking) are only that lower
 bound, as is any window reaching back into them; the page draws those dashed or hatched as
 inferred. Grades Synced counts each assignment (`school:psaid`) once, on the day the first sync
 picked it up, skipping each user's first sync, and is rebuilt from all history every day. A chart

@@ -801,6 +801,10 @@ exports.syncPeriodOptions = [15, 30, 60, 120, 240, 480, 720, 1440].map(m => m * 
 
 exports.defaultSyncPeriod = defaultSyncPeriod;
 
+// v8.3.2 started recording visitDays partway through this day, on stable and beta alike. Activity before the
+// next day is only a lower bound, inferred from logins and syncs
+exports.visitsTrackedFrom = new Date(2026, 9, 21).getTime();
+
 exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
     return Date.now() >= exports.nextSyncWhen(lastSyncTimestamp, donoData);
 };

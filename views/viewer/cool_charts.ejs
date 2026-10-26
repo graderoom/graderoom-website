@@ -337,8 +337,8 @@
 
     // Days before visits were tracked only have a lower bound, and so does the first tracked day, which
     // tracking started partway through, and any rolling window that reaches back into them. Those parts are drawn dashed
-    let visitsTrackedFrom = <%= visitsTrackedFrom ?? 'null' %>;
-    let accurateFrom = days => visitsTrackedFrom === null ? Infinity : new Date(visitsTrackedFrom).setDate(new Date(visitsTrackedFrom).getDate() + days);
+    let visitsTrackedFrom = <%= visitsTrackedFrom %>;
+    let accurateFrom = days => new Date(visitsTrackedFrom).setDate(new Date(visitsTrackedFrom).getDate() + days);
     let tracked = (d, days = 1) => new Date(d.x).getTime() >= accurateFrom(days);
     let estimated = (data, days) => data.map(d => ({x: d.x, y: new Date(d.x).getTime() > accurateFrom(days) ? null : d.y}));
     let measured = (data, days) => data.map(d => ({x: d.x, y: tracked(d, days) ? d.y : null}));
@@ -358,7 +358,7 @@
     for (let d of gradesPostedData) {
         weekdayPostedData[new Date(d.x).getDay()] += d.y;
     }
-    $("#weekday-desc").text(visitsTrackedFrom !== null ? `Active users all time. Days through ${new Date(visitsTrackedFrom).toDateString()} are inferred from logins and syncs` : "Active users all time, inferred from logins and syncs");
+    $("#weekday-desc").text(`Active users all time. Days through ${new Date(visitsTrackedFrom).toDateString()} are inferred from logins and syncs`);
 
     let chart;
     let postedChart;

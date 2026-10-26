@@ -42,7 +42,7 @@ async function run() {
         await client.close();
         return;
     }
-    let {loginData, uniqueLoginData, syncData, uniqueSyncData, uniqueVisitData, weeklyActiveData, monthlyActiveData, visitsTrackedFrom, schoolData, lastUpdated: lastUpdatedCharts} = data;
+    let {loginData, uniqueLoginData, syncData, uniqueSyncData, uniqueVisitData, weeklyActiveData, monthlyActiveData, schoolData, lastUpdated: lastUpdatedCharts} = data;
     let projection = {
         loggedIn: 1, "alerts.lastUpdated.timestamp": 1, "personalInfo.graduationYear": 1, school: 1, username: 1, visitDays: 1
     };
@@ -162,7 +162,6 @@ async function run() {
     let uniqueVisitCounts = new Map((uniqueVisitData ?? []).map(d => [d.x.getTime(), d.y]));
     for (let user of visitUsers) {
         let tracked = (user.visitDays ?? []).filter(t => t >= visitFrom && t < dayStart);
-        if (tracked.length) visitsTrackedFrom = Math.min(visitsTrackedFrom ?? Infinity, ...tracked);
         let days = new Set([...user.loggedIn ?? [], ...user.alerts?.lastUpdated?.map(d => d.timestamp) ?? [], ...tracked]
             .filter(t => t >= visitFrom && t < dayStart).map(t => {
                 let date = new Date(t);
@@ -295,13 +294,12 @@ async function run() {
         weeklyActiveData: weeklyActiveData,
         monthlyActiveData: monthlyActiveData,
         gradesPostedData: gradesPostedData,
-        visitsTrackedFrom: visitsTrackedFrom ?? null,
         userData: userData,
         schoolData: schoolData,
         lastUpdated: lastUpdatedCharts
     };
 
-    await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: value, $unset: {updating: ""}}, {upsert: true});
+    await db.collection(CHARTS_COLLECTION_NAME).updateOne({}, {$set: value, $unset: {updating: "", visitsTrackedFrom: ""}}, {upsert: true});
     console.log(`Finished in ${Date.now() - start}ms!`);
     // The open MongoClient keeps the event loop alive, so without this the forked process never
     // exits. getChartData forks one whenever the data is stale, so they accumulate.

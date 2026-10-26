@@ -3,7 +3,7 @@ const dbClient = require("./dbClient.js");
 const emailSender = require("./emailSender.js");
 const _ = require("lodash");
 
-const {changelog, changelogLegend, latestVersion, donoAttributes, discordDisplay, fetchDiscordUser, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod, resetLink} = require("./dbHelpers");
+const {changelog, changelogLegend, latestVersion, donoAttributes, discordDisplay, fetchDiscordUser, effectiveSyncPeriod, minSyncPeriod, syncPeriodOptions, sessionRememberPeriod, resetLink, visitsTrackedFrom} = require("./dbHelpers");
 const {Schools, PrettySchools, SchoolAbbr, Constants} = require("./enums");
 const {checkReturnTo, isLoggedIn, isAdmin, isInternalApiAuthenticated, inRecentTerm, deviceOf} = require("./middleware");
 
@@ -1121,7 +1121,7 @@ module.exports = function (app, passport) {
 
     app.get("/charts", async (req, res) => {
 
-        let {success, data: {uniqueVisitData, weeklyActiveData, monthlyActiveData, gradesPostedData, visitsTrackedFrom, userData, lastUpdated}} = await dbClient.getChartData();
+        let {success, data: {uniqueVisitData, weeklyActiveData, monthlyActiveData, gradesPostedData, userData, lastUpdated}} = await dbClient.getChartData();
         if (!success) {
             return renderWithConstants(res, "viewer/loading_charts.ejs", {page: "charts-logged-out",
                 _appearance: loggedOutAppearance(),
@@ -1142,7 +1142,7 @@ module.exports = function (app, passport) {
                 _weeklyActiveData: weeklyActiveData ?? [],
                 _monthlyActiveData: monthlyActiveData ?? [],
                 _gradesPostedData: gradesPostedData ?? [],
-                visitsTrackedFrom: visitsTrackedFrom ?? null,
+                visitsTrackedFrom: visitsTrackedFrom,
                 _userData: userData,
                 _loggedInData: await dbClient.getLoggedInData(true, req.user.username),
                 plus: plus,
@@ -1158,7 +1158,7 @@ module.exports = function (app, passport) {
                 _weeklyActiveData: weeklyActiveData ?? [],
                 _monthlyActiveData: monthlyActiveData ?? [],
                 _gradesPostedData: gradesPostedData ?? [],
-                visitsTrackedFrom: visitsTrackedFrom ?? null,
+                visitsTrackedFrom: visitsTrackedFrom,
                 _userData: userData,
                 _loggedInData: await dbClient.getLoggedInData(false, null),
                 lastUpdated: lastUpdated.getTime(),
