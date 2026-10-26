@@ -52,22 +52,28 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
-## [Beta 8.4.1] - 2026-10-25
+## [Beta 8.5.0] - 2026-10-25
 ### Added
 - Weekly and monthly active users on the charts page
 - Grades synced by day of the week on the charts page
 
 ### Improved
+- <span class="changelog-inline-setoff">Everyone can sync as often as every 15 minutes, and set auto-sync that often, on any plan</span>
+- Unique Visits on the charts page is now called Active Users, in a chart titled Activity
+- Estimated days are drawn dashed on every activity line, and striped in Activity by day of the week
+- Activity by day of the week shows all-time totals, split into tracked and estimated days, with the total in its tooltip
 - The charts page fits on one screen on large displays, and stacks into one column on narrow ones
-- Drag across a chart on the charts page to zoom into that part
+- Consistent text sizes on the charts page
+- Drag across a chart on the charts page to zoom into that part, instead of panning
+- Hiding and showing bars on the charts page animates smoothly
 - Hiding every line or bar in a chart keeps its axis where it was
-- Everyone can sync as often as every 15 minutes, and set auto-sync that often, on any plan
 
 ### Fixed
 - Fixed BISV students being unable to save a graduation year
 
 ### Removed
 - Logins, syncs and the school breakdown from the charts page
+- More frequent syncing as a Donor, Plus and Premium perk
 
 ## [Stable 8.4.0] - 2026-10-25
 ### Improved
