@@ -726,11 +726,12 @@ $.get("/donationProgress", function (data) {
         let darkModeFinish = appearance.darkModeFinish;
         let mobile = window.innerWidth <= 991;
 
-        let academicIndices = data.map((d, i) => relClassData[d.class_name].classType !== "non-academic" ? i : null).filter(c => c !== null);
+        // Non-academic classes are hidden only while they have no assignments, unless the setting shows them
+        let academicIndices = data.map((d, i) => relClassData[d.class_name].classType !== "non-academic" || d.grades?.length ? i : null).filter(c => c !== null);
         let nonAcademicCount = data.length - academicIndices.length;
 
         let mapToOnlyAcademic = false;
-        if (!appearance.showNonAcademic && Object.keys(Object.fromEntries(Object.entries(relClassData).filter(([k, v]) => data.find(c => c.class_name === k) && v.classType === "non-academic"))).length > 0) {
+        if (!appearance.showNonAcademic && nonAcademicCount > 0) {
             mapToOnlyAcademic = true;
             colors = academicIndices.map(n => colors[n]);
             data = academicIndices.map(n => data[n]);

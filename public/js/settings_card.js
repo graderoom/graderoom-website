@@ -269,6 +269,18 @@
         location.reload();
     }
 
+    // A setting that refreshes the page would hit the unsaved changes prompt, and cancelling that leaves the
+    // switch flipped without the change applying. Ask first, so a no can put the switch back
+    function confirmRefresh(input) {
+        if (!window.onbeforeunload) return true;
+        if (confirm('Changing this setting refreshes the page, which discards your unsaved changes. Continue?')) {
+            window.onbeforeunload = null;
+            return true;
+        }
+        input.checked = !input.checked;
+        return false;
+    }
+
     function setColorPalette(palette) {
         if (!palette) {
             palette = appearance.colorPalette;

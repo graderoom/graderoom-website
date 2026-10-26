@@ -137,6 +137,10 @@ No build pipeline. EJS templates in `views/` with inline JavaScript. Static asse
 - `views/viewer/` — Public/login pages
 - `views/admin/` — Admin panel
 - `views/partials/` — Reusable EJS components
+- Settings (`views/partials/user/settings_card.ejs`) tabs are opened by index with `openTab(n)`:
+  0 Donate, 1 Appearance, 2 Grades, 3 Account, 4 Help, 5 About, 6 Experiments. The navbar,
+  keyboard shortcuts (`authorized_index.js`), `sync_grades_card.ejs` and links inside Settings use
+  these numbers, so moving a tab means updating them.
 
 **Site effects** (winter snow, Christmas lights) live in `views/partials/site_effects.ejs`. The snow
 loop clears only the rects it painted last frame (`smudge()`), times frames off the rAF stamp, and
@@ -169,7 +173,7 @@ Users have tiers (free, donor, plus, premium) that affect:
 - The minimum sync interval is 15 min for every tier (`minSyncPeriod()`), the only thing the server
   gates on (`nextSyncAllowed()` / `nextSyncWhen()` in `dbHelpers.js`). It used to be 4h/2h/1h/15min
   by tier; since unchanged checks stopped uploading, ~97% of uploads came 4h+ apart anyway.
-- `syncPeriod` (Settings > Advanced > PowerSchool Sync Settings, default 4h) is the user's
+- `syncPeriod` (Settings > Grades, default 4h) is the user's
   auto-sync preference. `effectiveSyncPeriod()` = `max(minimum, syncPeriod)`, rendered as
   `syncInterval`; the minimum is rendered as `syncMinInterval`. The chip is clickable on
   `syncMinInterval`; its sub-line reads `syncMinInterval` while waiting ("Auto in 15m" when an

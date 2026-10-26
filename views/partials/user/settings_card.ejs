@@ -18,13 +18,11 @@
                                 class="inner-donate">Donate</span></span>
                 </btn>
                 <btn id="btn-1" class="tablinks active" onclick="openTab(1)">Appearance</btn>
-                <btn id="btn-2" class="tablinks" onclick="openTab(2)">Account</btn>
-                <btn id="btn-3" class="tablinks" onclick="openTab(3)">Advanced</btn>
+                <btn id="btn-2" class="tablinks" onclick="openTab(2)">Grades</btn>
+                <btn id="btn-3" class="tablinks" onclick="openTab(3)">Account</btn>
                 <btn id="btn-4" class="tablinks" onclick="openTab(4)">Help</btn>
                 <btn id="btn-5" class="tablinks" onclick="openTab(5)">About</btn>
-                <% if (_betaFeatures.active) { %>
-                    <btn id="btn-5" class="tablinks" onclick="openTab(6)">Experiments</btn>
-                <% } %>
+                <btn id="btn-6" class="tablinks" onclick="openTab(6)">Experiments</btn>
             </div>
             <div id="settings-0" class="tabcontent">
                 <div class="card-body">
@@ -107,13 +105,6 @@
                                     <td class="previous"></td>
                                 </tr>
                                 <tr>
-                                    <th><span>Bypass the sync queue</span></th>
-                                    <td></td>
-                                    <td></td>
-                                    <td class="supported"></td>
-                                    <td class="previous"></td>
-                                </tr>
-                                <tr>
                                     <th><span>View what other teachers teach a course and how many Graderoom users are in those classes</span>
                                     </th>
                                     <td></td>
@@ -146,7 +137,7 @@
                             to your
                             Graderoom account.</span>
                         <span>After donating, it may take some time before your donation is processed and appears in
-                            your Graderoom <a href="#" onclick="openTab(2)">Account tab</a>.</span>
+                            your Graderoom <a href="#" onclick="openTab(3)">Account tab</a>.</span>
                     </div>
                     <div class="donation-container">
                         <div class="card-footer">
@@ -479,56 +470,6 @@
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                        <label class="slider-container disable-in-firefox">
-                            <label class="switch">
-                                <input
-                                        id="blurEffectsToggle"
-                                        style="margin: 0; display: flex"
-                                        type="checkbox"
-                                        name="blurEffects"
-                                <% if (_appearance.blurEffects) { %>
-                                        checked="checked"
-                                        <% } %>
-                                        onchange="changeSetting('theme', {mode: appearance.mode, blurEffects: !appearance.blurEffects})"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="blurEffectsToggle">
-                                <span>Enable Blur Effects</span> <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, adds blur effects across
-                                            the site.
-                                        </span></i></span> <span class="popup hide-in-firefox"><i
-                                            class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">Causes lag on slower
-                                            devices</span></i></span>
-                            </label>
-                            <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
-                                        class="fa fa-exclamation-circle"><span
-                                            class="popup-right always-show"
-                                            style="width: 10rem;">Your
-                                        browser does not support these effects.</span></i></span>
-                        </label>
-                        <label class="slider-container">
-                            <label class="switch">
-                                <input id="seasonalEffectsToggle" type="checkbox"
-                                       name="enableSeasonalEffects"
-                                <% if (_appearance.seasonalEffects) { %>
-                                       checked
-                                        <% } %>
-                                       onchange="changeSetting('theme', {mode: appearance.mode, seasonalEffects: !appearance.seasonalEffects})"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="seasonalEffectsToggle">
-                                <span>Enable Seasonal Effects</span> <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, adds seasonal effects
-                                            across the site.
-                                        </span></i></span>
-                            </label>
-                        </label>
                     </div>
                     <% if (_gradeData.length > 0) { %>
                         <div class="card-footer">
@@ -611,7 +552,7 @@
                                 <div class="text-center" id="classColors">
                                     <% let _offset = 0; %>
                                     <% for (var i = 0; i < _gradeData.length; i++) { %>
-                                        <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
+                                        <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic" || _gradeData[i].grades?.length) { %>
                                             <label id="classColor<%= i + _offset; %>"
                                                    style="color: <%= _appearance.classColors[i]; %>;">
                                                 <%= _gradeData[i].class_name; %><span class="editClassColor"></span>
@@ -628,6 +569,184 @@
                             </div>
                         </div>
                     <% } %>
+                    <div class="card-footer">
+                        <h5>Effects</h5>
+                        <label class="slider-container disable-in-firefox">
+                            <label class="switch">
+                                <input
+                                        id="blurEffectsToggle"
+                                        style="margin: 0; display: flex"
+                                        type="checkbox"
+                                        name="blurEffects"
+                                <% if (_appearance.blurEffects) { %>
+                                        checked="checked"
+                                        <% } %>
+                                        onchange="changeSetting('theme', {mode: appearance.mode, blurEffects: !appearance.blurEffects})"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="blurEffectsToggle">
+                                <span>Enable Blur Effects</span> <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, adds blur effects across
+                                            the site.
+                                        </span></i></span> <span class="popup hide-in-firefox"><i
+                                            class="fa fa-exclamation-triangle">
+                                        <span class="popup-right-bottom">Causes lag on slower
+                                            devices</span></i></span>
+                            </label>
+                            <span style="margin-left: 0.5rem;" class="popup show-in-firefox"><i
+                                        class="fa fa-exclamation-circle"><span
+                                            class="popup-right always-show"
+                                            style="width: 10rem;">Your
+                                        browser does not support these effects.</span></i></span>
+                        </label>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="seasonalEffectsToggle" type="checkbox"
+                                       name="enableSeasonalEffects"
+                                <% if (_appearance.seasonalEffects) { %>
+                                       checked
+                                        <% } %>
+                                       onchange="changeSetting('theme', {mode: appearance.mode, seasonalEffects: !appearance.seasonalEffects})"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="seasonalEffectsToggle">
+                                <span>Enable Seasonal Effects</span> <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, adds seasonal effects
+                                            across the site.
+                                        </span></i></span>
+                            </label>
+                        </label>
+                    <label class="slider-container">
+                        <label class="switch">
+                            <input
+                                    id="reduceMotionToggle"
+                                    style="margin: 0; display: flex"
+                                    type="checkbox"
+                                    name="reduceMotion"
+                            <% if (_appearance.reduceMotion) { %>
+                                    checked="checked"
+                                    <% } %>
+                                    onchange="changeSetting('reduceMotion', !appearance.reduceMotion)"
+                            >
+                            <span class="slider"></span>
+                        </label>
+                        <label for="reduceMotionToggle">
+                            Reduce Motion <span class="popup"><i
+                                        class="fa fa-question-circle"><span
+                                            class="popup-right-bottom">When enabled, animations will be reduced
+                                        and disabled where possible.</span></i></span>
+                        </label>
+                    </label>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
+                                <% if (_appearance.animateWhenUnfocused) { %>
+                                       checked="checked"
+                                        <% } %>
+                                       onchange="confirmRefresh(this) && changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused)"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="animateWhenUnfocused">
+                                Don't Pause Effects When Window is not in Focus <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-top-left">When enabled, certain animations and effects
+                                            that
+                                            are usually paused to conserve resources will continue to play even if
+                                            you
+                                            are on a different tab or window.
+                                        </span></i></span> <span class="popup hide-in-firefox"><i
+                                            class="fa fa-exclamation-triangle">
+                                        <span class="popup-right-bottom">This can cause issues such as the
+                                            horizontal snow line</span></i></span>
+                            </label>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div id="settings-2" class="tabcontent">
+                <div class="card-body">
+                    <div class="card-footer">
+                        <h5>
+                            <% if (school === "basis") { %>Schoology
+                            <% } else { %>PowerSchool
+                            <% } %>
+                            Sync Settings
+                        </h5>
+                        <% if (school === "bellarmine") { %>
+                            <label style="display: flex; font-size: 1rem; align-items: center; gap: 1rem">
+                                Sync my grades automatically every
+                                <select id="syncPeriodPreset" class="minimal"
+                                        onchange="changeSetting('syncPeriod', parseInt(this.value))">
+                                    <% for (const option of _syncPeriodOptions) { %>
+                                        <option value="<%= option %>" <% if (syncInterval === option) { %>selected<% } %>>
+                                            <%= option < 3600000 ? (option / 60000) + " minutes"
+                                                : option === 3600000 ? "hour"
+                                                    : option === 86400000 ? "day"
+                                                        : (option / 3600000) + " hours" %>
+                                        </option>
+                                    <% } %>
+                                </select>
+                            </label>
+                            <small style="opacity: 0.5; display: block">Graderoom syncs on its own about every <span
+                                        id="syncPeriodHint"></span>. It can sync as often as every
+                                <%= _syncPeriodOptions[0] < 3600000 ? (_syncPeriodOptions[0] / 60000) + " minutes"
+                                    : _syncPeriodOptions[0] === 3600000 ? "hour"
+                                        : (_syncPeriodOptions[0] / 3600000) + " hours" %>.</small>
+                            <small style="opacity: 0.5; display: block">Graderoom Extension: <span
+                                        id="extensionVersionDisplay">checking...</span></small>
+                        <% } else { %>
+                            <btn style="margin-top: 0; margin-left: 0;" class="btn btn-sm"
+                                 onclick="$('#syncGradesDiv').show(); $('#gradeSyncDiv').hide(); showCard('#updateGradesDisplay')">
+                                Change School Password
+                            </btn>
+                            <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
+                                <label class="slider-container">
+                                    <label class="switch">
+                                        <input
+                                                id="gradeSyncToggle"
+                                                type="checkbox"
+                                                name="gradeSync"
+                                        <% if (gradeSync) { %>
+                                                checked
+                                                <% } %>
+                                                onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
+                                        >
+                                        <span class="slider"></span>
+                                    </label>
+                                    <label onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
+                                                class="popup"><i class="fa fa-question-circle"
+                                                                 style="margin-left: 0.4rem"><span
+                                                        class="popup-right-top">When enabled, Graderoom syncs whenever
+                                                you
+                                                login</span></i></span></label>
+                                </label>
+                            </form>
+                        <% } %>
+                    </div>
+                    <div class="card-footer">
+                        <h5>Classes<br><small style="opacity: 0.5">Changing this setting will immediately refresh the
+                                page.</small></h5>
+                        <form action="/setShowNonAcademic" method="post">
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
+                                    <% if (_appearance.showNonAcademic) { %> checked="checked"
+                                            <% } %>
+                                           onchange="confirmRefresh(this) && $(this).closest('form').trigger('submit')"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label for="showNonAcademicCheckbox">
+                                    Show Empty Non-Academic Classes (<%= nonAcademicCount %> this semester)
+                                </label>
+                            </label>
+                        </form>
+                    </div>
                     <div class="card-footer">
                         <h5>Charts</h5>
                         <div>
@@ -676,35 +795,9 @@
                             </label>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <h5>Accessibility</h5>
-                        <div>
-                            <label class="slider-container">
-                                <label class="switch">
-                                    <input
-                                            id="reduceMotionToggle"
-                                            style="margin: 0; display: flex"
-                                            type="checkbox"
-                                            name="reduceMotion"
-                                    <% if (_appearance.reduceMotion) { %>
-                                            checked="checked"
-                                            <% } %>
-                                            onchange="changeSetting('reduceMotion', !appearance.reduceMotion)"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label for="reduceMotionToggle">
-                                    Reduce Motion <span class="popup"><i
-                                                class="fa fa-question-circle"><span
-                                                    class="popup-right-bottom">When enabled, animations will be reduced
-                                                and disabled where possible.</span></i></span>
-                                </label>
-                            </label>
-                        </div>
-                    </div>
                 </div>
             </div>
-            <div id="settings-2" class="tabcontent">
+            <div id="settings-3" class="tabcontent">
                 <div class="card-body">
                     <div class="card-footer">
                         <p>Hover over each bar to see some of the features each tier gives you.</p>
@@ -739,7 +832,6 @@
                                                 <span>Thanks for using Graderoom!</span>
                                                 <span>Access class average for latest assignment in each course</span>
                                                 <span>Make 30 requests per minute to the Graderoom server</span>
-                                                <span>Sync once every 4 hours</span>
                                             </span>
                                         </span>
                                     </div>
@@ -764,7 +856,6 @@
                                                 <span>Make <span class="strikethrough">40</span>60 requests per minute to the Graderoom server</span>
                                                 <span><span class="plus-label">PLUS</span> badge</span>
                                                 <span>Ability to set custom class colors</span>
-                                                <span>Bypass the sync queue</span>
                                                 <span>View what other teachers teach a course and how many Graderoom users are in those classes</span>
                                             </span>
                                         </span>
@@ -777,7 +868,6 @@
                                                 <span class="previous">Access class average for latest assignment in each course</span>
                                                 <span class="previous">Get a Donor role on Discord</span>
                                                 <span class="previous">Ability to set custom class colors</span>
-                                                <span class="previous">Bypass the sync queue</span>
                                                 <span class="previous">View what other teachers teach a course and how many Graderoom users are in those classes</span>
                                                 <span>Make <span class="strikethrough">60</span>100 requests per minute to the Graderoom server</span>
                                                 <span><span class="strikethrough"><span
@@ -886,6 +976,45 @@
                             </div>
                         </div>
                     </form>
+                    <div class="card-footer">
+                        <h5>School Email</h5>
+                        <form id="changeSchoolEmail" class="form-signin"
+                              action="/changeschoolemail" method="post">
+                            <div class="form-group">
+                                <div id="emailChangeMessage"
+                                     class="alert alert-success alert-dismissible font-weight-bold"
+                                     style="display:none">
+                                    <div style="display:none" class="sk-chase-mini">
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                        <div class="sk-chase-dot mini"></div>
+                                    </div>
+                                    <div class="messageTxt"></div>
+                                    <a class="close" onclick="closeMessage('emailChangeMessage')"
+                                       aria-label="close">X</a>
+                                </div>
+                                <div style="display: flex; flex-flow: row; justify-content: flex-start; align-items: center">
+                                    <div class="input-group" style="margin-bottom: 0">
+                                        <i class="email-bg"></i>
+                                        <label for="school_email">School Email</label>
+                                        <input oninput="checkLabel(this); $($(this)[0].form).find('button').prop('disabled',false)"
+                                               id="school_email" type="text"
+                                               class="form-control"
+                                               name="school_email" required>
+                                    </div>
+                                    <button type="submit"
+                                            onclick="ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true); updateSchoolUsernameDisplay(); "
+                                            class="btn btn-default btn-med"
+                                            style="width: fit-content; width: -moz-fit-content;" disabled>
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                     <form id="changePassword" class="card-footer form-signin"
                           action="/changepassword"
                           method="post">
@@ -946,245 +1075,10 @@
                             </button>
                         </div>
                     </form>
-                    <% if (!_betaFeatures.active) { %>
-                        <div class="card-footer">
-                            <button class="btn btn-sm" style="margin: 0.1rem"
-                                    onclick="showCard('#activateBetaDisplay');">
-                                <label style="margin: 0; cursor: pointer;">Enable Experiments
-                                    <span class="fa fa-external-link-square"></span>
-                                </label>
-                            </button>
-                        </div>
-                    <% } %>
-                </div>
-            </div>
-            <div id="settings-3" class="tabcontent">
-                <div class="card-body">
-                    <div class="card-footer">
-                        <h5>
-                            <% if (school === "basis") { %>Schoology
-                            <% } else { %>PowerSchool
-                            <% } %>
-                            Sync Settings
-                        </h5>
-                        <form id="changeSchoolEmail" class="form-signin"
-                              action="/changeschoolemail" method="post">
-                            <div class="form-group">
-                                <div id="emailChangeMessage"
-                                     class="alert alert-success alert-dismissible font-weight-bold"
-                                     style="display:none">
-                                    <div style="display:none" class="sk-chase-mini">
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                        <div class="sk-chase-dot mini"></div>
-                                    </div>
-                                    <div class="messageTxt"></div>
-                                    <a class="close" onclick="closeMessage('emailChangeMessage')"
-                                       aria-label="close">X</a>
-                                </div>
-                                <div style="display: flex; flex-flow: row; justify-content: flex-start; align-items: center">
-                                    <div class="input-group" style="margin-bottom: 0">
-                                        <i class="email-bg"></i>
-                                        <label for="school_email">School Email</label>
-                                        <input oninput="checkLabel(this); $($(this)[0].form).find('button').prop('disabled',false)"
-                                               id="school_email" type="text"
-                                               class="form-control"
-                                               name="school_email" required>
-                                    </div>
-                                    <button type="submit"
-                                            onclick="ajaxPostForm('#changeSchoolEmail',[],'#emailChangeMessage', true); updateSchoolUsernameDisplay(); "
-                                            class="btn btn-default btn-med"
-                                            style="width: fit-content; width: -moz-fit-content;" disabled>
-                                        Apply
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                        <% if (school === "bellarmine") { %>
-                            <label style="display: flex; font-size: 1rem; align-items: center; gap: 1rem">
-                                Sync my grades automatically every
-                                <select id="syncPeriodPreset" class="minimal"
-                                        onchange="changeSetting('syncPeriod', parseInt(this.value))">
-                                    <% for (const option of _syncPeriodOptions) { %>
-                                        <option value="<%= option %>" <% if (syncInterval === option) { %>selected<% } %>>
-                                            <%= option < 3600000 ? (option / 60000) + " minutes"
-                                                : option === 3600000 ? "hour"
-                                                    : option === 86400000 ? "day"
-                                                        : (option / 3600000) + " hours" %>
-                                        </option>
-                                    <% } %>
-                                </select>
-                            </label>
-                            <small style="opacity: 0.5; display: block">Graderoom syncs on its own about every <span
-                                        id="syncPeriodHint"></span>. It can sync as often as every
-                                <%= _syncPeriodOptions[0] < 3600000 ? (_syncPeriodOptions[0] / 60000) + " minutes"
-                                    : _syncPeriodOptions[0] === 3600000 ? "hour"
-                                        : (_syncPeriodOptions[0] / 3600000) + " hours" %>.</small>
-                            <small style="opacity: 0.5; display: block">Graderoom Extension: <span
-                                        id="extensionVersionDisplay">checking...</span></small>
-                        <% } else { %>
-                            <btn style="margin-top: 0; margin-left: 0;" class="btn btn-sm"
-                                 onclick="$('#syncGradesDiv').show(); $('#gradeSyncDiv').hide(); showCard('#updateGradesDisplay')">
-                                Change School Password
-                            </btn>
-                            <form id="gradeSync" class="form-signin" action="/disableGradeSync" method="post">
-                                <label class="slider-container">
-                                    <label class="switch">
-                                        <input
-                                                id="gradeSyncToggle"
-                                                type="checkbox"
-                                                name="gradeSync"
-                                        <% if (gradeSync) { %>
-                                                checked
-                                                <% } %>
-                                                onchange="manageGradeSyncCheckbox(); setupTutorialPopups()"
-                                        >
-                                        <span class="slider"></span>
-                                    </label>
-                                    <label onclick="$('#gradeSyncToggle').trigger('click')">GradeSync<span
-                                                class="popup"><i class="fa fa-question-circle"
-                                                                 style="margin-left: 0.4rem"><span
-                                                        class="popup-right-top">When enabled, Graderoom syncs whenever
-                                                you
-                                                login</span></i></span></label>
-                                </label>
-                            </form>
-                        <% } %>
-                    </div>
-
-                    <div class="card-footer">
-                        <h5>Display<br><small style="opacity: 0.5">Changing these settings will immediately refresh the
-                                page.</small></h5>
-                        <form action="/setShowNonAcademic" method="post">
-                            <label class="slider-container">
-                                <label class="switch">
-                                    <input id="showNonAcademicCheckbox" type="checkbox" name="showNonAcademic"
-                                    <% if (_appearance.showNonAcademic) { %> checked="checked"
-                                            <% } %>
-                                           onchange="$(this).closest('form').trigger('submit')"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label for="showNonAcademicCheckbox">
-                                    Show Non-Academic Classes (<%= nonAcademicCount %> this semester)
-                                </label>
-                            </label>
-                        </form>
-                    </div>
-                    <div class="card-footer">
-                        <h5>Performance
-                            <br>
-                            <small style="opacity: 0.5">Changing these settings will immediately refresh the
-                                page.</small></h5>
-                        <label class="slider-container">
-                            <label class="switch">
-                                <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
-                                <% if (_appearance.animateWhenUnfocused) { %>
-                                       checked="checked"
-                                        <% } %>
-                                       onchange="changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused)"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="animateWhenUnfocused">
-                                Don't Pause Effects When Window is not in Focus <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-top-left">When enabled, certain animations and effects
-                                            that
-                                            are usually paused to conserve resources will continue to play even if
-                                            you
-                                            are on a different tab or window.
-                                        </span></i></span> <span class="popup hide-in-firefox"><i
-                                            class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">This can cause issues such as the
-                                            horizontal snow line</span></i></span>
-                            </label>
-                        </label>
-                        <label class="slider-container">
-                            <label class="switch">
-                                <input id="showFps" type="checkbox" name="showFps"
-                                <% if (_appearance.showFps) { %>
-                                       checked="checked"
-                                        <% } %>
-                                       onchange="changeSetting('showFps', !appearance.showFps)"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="showFps">
-                                Stats for Nerds <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">When enabled, displays performance info in
-                                            the bottom
-                                            left
-                                            corner of the screen
-                                        </span></i></span>
-                            </label>
-                        </label>
-                        <hr>
-                        <div>
-                            <h6>Performance Log <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">Performance issues will be displayed here
-                                        </span></i></span></h6>
-                            <div id="performance-issues-messages"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div id="settings-4" class="tabcontent">
                 <div class="card-body">
-                    <div class="card-footer">
-                        <h5>Troubleshooting</h5>
-                        <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
-                            <label class="switch">
-                                <input
-                                        id="enableLoggingToggle"
-                                        style="margin: 0; display: flex"
-                                        type="checkbox"
-                                        name="remoteAccess"
-                                <% if (enableLogging) { %>
-                                        checked
-                                        <% } %>
-                                        onchange="changeSetting('enableLogging', !enableLogging);"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
-                                   onclick="$('#enableLoggingToggle').trigger('click')">Show Logs in Console<span
-                                        class="popup"><i class="fa fa-question-circle"
-                                                         style="margin-left: 0.4rem"><span
-                                                class="popup-right-top">Shows logs in console for debugging
-                                            purposes.</span></i></span></label>
-                        </label>
-                        <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
-                            <label style="display: flex; font-size: 1rem; justify-content: flex-start; align-items: center">
-                                <label class="switch">
-                                    <input
-                                            id="remoteAccessToggle"
-                                            style="margin: 0; display: flex"
-                                            type="checkbox"
-                                            name="remoteAccess"
-                                    <% if (_alerts.remoteAccess === "allowed") { %>
-                                            checked
-                                            <% } %>
-                                            onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').trigger('submit');"
-                                    >
-                                    <span class="slider"></span>
-                                </label>
-                                <label style="margin: 0 0 0 1rem; justify-content: center; align-items: center; cursor: pointer"
-                                       onclick="$('#remoteAccessToggle').trigger('click')">Allow
-                                    Remote Access<span
-                                            class="popup"><i class="fa fa-question-circle"
-                                                             style="margin-left: 0.4rem"><span
-                                                    class="popup-right-top">When enabled, developers can view your
-                                                personal home page to help with
-                                                troubleshooting.</span></i></span></label>
-                            </label>
-                        </form>
-                    </div>
                     <div class="card-footer">
                         <div id="discordLinked" <% if (!_discord) { %>style="display: none"<% } %>>
                             <h5 style="padding-bottom: 12px">Your Discord Account</h5>
@@ -1242,16 +1136,78 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a style="margin: 0.1rem" target="_blank" href="/terms">
-                            <label style="margin: 0; cursor: pointer;">Terms And Conditions
-                                <span class="fa fa-external-link-square"></span>
+                        <h5>Troubleshooting</h5>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input
+                                        id="enableLoggingToggle"
+                                        type="checkbox"
+                                        name="enableLogging"
+                                <% if (enableLogging) { %>
+                                        checked
+                                        <% } %>
+                                        onchange="changeSetting('enableLogging', !enableLogging);"
+                                >
+                                <span class="slider"></span>
                             </label>
-                        </a>
-                        <a style="margin: 0.1rem" target="_blank" href="/privacy">
-                            <label style="margin: 0; cursor: pointer;">Privacy Policy
-                                <span class="fa fa-external-link-square"></span>
+                            <label for="enableLoggingToggle">
+                                Show Logs in Console <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-top">Shows logs in console for debugging
+                                            purposes.</span></i></span>
                             </label>
-                        </a>
+                        </label>
+                        <form id="remoteAccess" class="form-signin" action="/setRemoteAccess" method="post">
+                            <label class="slider-container">
+                                <label class="switch">
+                                    <input
+                                            id="remoteAccessToggle"
+                                            type="checkbox"
+                                            name="remoteAccess"
+                                    <% if (_alerts.remoteAccess === "allowed") { %>
+                                            checked
+                                            <% } %>
+                                            onchange="ajaxPostForm('#remoteAccess',[],'',true); $('#remoteAccess').trigger('submit');"
+                                    >
+                                    <span class="slider"></span>
+                                </label>
+                                <label for="remoteAccessToggle">
+                                    Allow Remote Access <span class="popup"><i
+                                                class="fa fa-question-circle"><span
+                                                    class="popup-right-top">When enabled, developers can view your
+                                                personal home page to help with
+                                                troubleshooting.</span></i></span>
+                                </label>
+                            </label>
+                        </form>
+                        <label class="slider-container">
+                            <label class="switch">
+                                <input id="showFps" type="checkbox" name="showFps"
+                                <% if (_appearance.showFps) { %>
+                                       checked="checked"
+                                        <% } %>
+                                       onchange="confirmRefresh(this) && changeSetting('showFps', !appearance.showFps)"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                            <label for="showFps">
+                                Stats for Nerds <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">When enabled, displays performance info in
+                                            the bottom
+                                            left
+                                            corner of the screen
+                                        </span></i></span>
+                            </label>
+                        </label>
+                        <hr>
+                        <div>
+                            <h6>Performance Log <span class="popup"><i
+                                            class="fa fa-question-circle"><span
+                                                class="popup-right-bottom">Performance issues will be displayed here
+                                        </span></i></span></h6>
+                            <div id="performance-issues-messages"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1287,56 +1243,79 @@
                         <h6>First Beta Release: October 2, 2019</h6>
                         <h6>First Stable Release: February 27, 2020</h6>
                     </div>
-                </div>
-            </div>
-            <% if (_betaFeatures.active) { %>
-                <div id="settings-6" class="tabcontent">
-                    <div class="card-body">
-                        <div class="card-footer">
-                            <h5>Thanks for trying out new features before they're released!</h5>
-                            <p>Your choices to enable the features listed below contribute to the speed at which
-                                these
-                                features are officially released. We will continue to add more features as time goes
-                                on.
-                            </p>
-                        </div>
-                        <br>
-                        <form id="betaFeatures" action="/betaFeatures" method="post">
-                            <!--                            <div class="card-footer">-->
-                            <!--                                <label class="slider-container">-->
-                            <!--                                    <label style="margin-left: 0;" for="localScraping">-->
-                            <!--                                        Enable Local Scraping-->
-                            <!--                                    </label>-->
-                            <!--                                    <label class="switch">-->
-                            <!--                                        <input id="localScraping" type="checkbox"-->
-                            <!--                                               name="localScraping"-->
-                            <!--                                        <\% if (_betaFeatures.localScraping) { %\>-->
-                            <!--                                               checked="checked"-->
-                            <!--                                                <\% } %\>-->
-                            <!--                                               onchange="$($(this)[0].form).trigger('submit')"-->
-                            <!--                                        >-->
-                            <!--                                        <span class="slider"></span>-->
-                            <!--                                    </label>-->
-                            <!--                                </label>-->
-                            <!--                                <small>-->
-                            <!--                                    Enabled: Uses Graderoom browser extension to scrape grades locally on your computer-->
-                            <!--                                </small>-->
-                            <!--                                <br>-->
-                            <!--                                <small>-->
-                            <!--                                    Disabled: Default-->
-                            <!--                                </small>-->
-                            <!--                            </div>-->
-                            <div class="card-footer">
-                                <h5><small style="opacity: 0.5">No Experiments at the moment. Check back later!</small>
-                                </h5>
-                            </div>
-                        </form>
-                        <form action="/leavebeta" method="post">
-                            <button class="btn btn-sm" type="submit">Disable Experiments</button>
-                        </form>
+                    <div class="card-footer">
+                        <a style="margin: 0.1rem" target="_blank" href="/terms">
+                            <label style="margin: 0; cursor: pointer;">Terms And Conditions
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </a>
+                        <a style="margin: 0.1rem" target="_blank" href="/privacy">
+                            <label style="margin: 0; cursor: pointer;">Privacy Policy
+                                <span class="fa fa-external-link-square"></span>
+                            </label>
+                        </a>
                     </div>
                 </div>
-            <% } %>
+            </div>
+            <div id="settings-6" class="tabcontent">
+                <div class="card-body">
+                    <% if (_betaFeatures.active) { %>
+                    <div class="card-footer">
+                        <h5>Thanks for trying out new features before they're released!</h5>
+                        <p>Your choices to enable the features listed below contribute to the speed at which
+                            these
+                            features are officially released. We will continue to add more features as time goes
+                            on.
+                        </p>
+                    </div>
+                    <br>
+                    <form id="betaFeatures" action="/betaFeatures" method="post">
+                        <!--                            <div class="card-footer">-->
+                        <!--                                <label class="slider-container">-->
+                        <!--                                    <label style="margin-left: 0;" for="localScraping">-->
+                        <!--                                        Enable Local Scraping-->
+                        <!--                                    </label>-->
+                        <!--                                    <label class="switch">-->
+                        <!--                                        <input id="localScraping" type="checkbox"-->
+                        <!--                                               name="localScraping"-->
+                        <!--                                        <\% if (_betaFeatures.localScraping) { %\>-->
+                        <!--                                               checked="checked"-->
+                        <!--                                                <\% } %\>-->
+                        <!--                                               onchange="$($(this)[0].form).trigger('submit')"-->
+                        <!--                                        >-->
+                        <!--                                        <span class="slider"></span>-->
+                        <!--                                    </label>-->
+                        <!--                                </label>-->
+                        <!--                                <small>-->
+                        <!--                                    Enabled: Uses Graderoom browser extension to scrape grades locally on your computer-->
+                        <!--                                </small>-->
+                        <!--                                <br>-->
+                        <!--                                <small>-->
+                        <!--                                    Disabled: Default-->
+                        <!--                                </small>-->
+                        <!--                            </div>-->
+                        <div class="card-footer">
+                            <h5><small style="opacity: 0.5">No Experiments at the moment. Check back later!</small>
+                            </h5>
+                        </div>
+                    </form>
+                    <form action="/leavebeta" method="post">
+                        <button class="btn btn-sm" type="submit">Disable Experiments</button>
+                    </form>
+                    <% } else { %>
+                        <div class="card-footer">
+                            <h5>Try new features before they're released</h5>
+                            <p>Experiments are features still in progress. Enabling them helps us release them sooner.</p>
+                            <button class="btn btn-sm" style="margin: 0.1rem"
+                                    onclick="showCard('#activateBetaDisplay');">
+                                <label style="margin: 0; cursor: pointer;">Enable Experiments
+                                    <span class="fa fa-external-link-square"></span>
+                                </label>
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
         </div>
     </div>
 </div>

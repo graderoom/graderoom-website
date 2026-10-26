@@ -92,7 +92,7 @@
             </li>
             <% offset = 0; %>
             <% for (let i = 0; i < _gradeData.length; i++) { %>
-                <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
+                <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic" || _gradeData[i].grades?.length) { %>
                     <li class="nav-item" id="link<%= i + offset; %>">
                         <a class="nav-link" style="color: <%= _appearance.classColors[i]; %>"
                            onclick="showPage(<%= i + offset; %>)"><%= (_gradeData[i].class_name); %>
@@ -245,7 +245,7 @@
                     <% offset = 0; %>
                     <div class="left-block">
                         <% for (let i = 0; i < _gradeData.length; i++) { %>
-                            <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
+                            <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic" || _gradeData[i].grades?.length) { %>
                                 <% if (i % 2 === 1) {
                                     continue;
                                 } %>
@@ -285,7 +285,7 @@
                     <% offset = 0; %>
                     <div class="right-block">
                         <% for (let i = 0; i < _gradeData.length; i++) { %>
-                            <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
+                            <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic" || _gradeData[i].grades?.length) { %>
                                 <% if (i % 2 === 0) continue; %>
                                 <div class="block" id="block<%= i + offset; %>">
                                     <table>
@@ -326,7 +326,7 @@
         <!-- Class Sections -->
         <% displayedStuffIndexOffset = 0; %>
         <% for (let i = 0; i < _gradeData.length; i++) { %>
-            <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic") { %>
+            <% if (_appearance.showNonAcademic || _relevantClassData[_gradeData[i].class_name]["classType"] !== "non-academic" || _gradeData[i].grades?.length) { %>
                 <span id="section<%= i + displayedStuffIndexOffset; %>" class="section">
                     <% if (school !== "basis") { %>
                         <% let classType = _relevantClassData[_gradeData[i].class_name].classType %>

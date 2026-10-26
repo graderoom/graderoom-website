@@ -67,13 +67,23 @@
 - Drag across a chart on the charts page to zoom into that part, instead of panning
 - Hiding and showing bars on the charts page animates smoothly
 - Hiding every line or bar in a chart keeps its axis where it was
+- Non-academic classes with grades always show. The setting, now Show Empty Non-Academic Classes, only controls the ones without any
+- Settings is reorganized<ul>
+- Grades holds your sync, class and chart settings
+- Appearance holds every visual effect, including Reduce Motion
+- Account holds your school email, next to your name and password
+- Help holds the troubleshooting tools, and About holds the Terms and Privacy Policy
+- Experiments has its own tab, where you can turn them on</ul>
 
 ### Fixed
 - Fixed BISV students being unable to save a graduation year
+- Settings that refresh the page now ask before discarding unsaved changes, and cancelling puts the switch back
+- Allow Remote Access showed as on when it was off
 
 ### Removed
 - Logins, syncs and the school breakdown from the charts page
 - More frequent syncing as a Donor, Plus and Premium perk
+- Skipping the sync queue as a Plus and Premium perk
 
 ## [Stable 8.4.0] - 2026-10-25
 ### Improved
