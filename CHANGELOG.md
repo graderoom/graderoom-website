@@ -54,36 +54,35 @@
 
 ## [Beta 8.5.0] - 2026-10-25
 ### Added
-- Weekly and monthly active users on the charts page
-- Grades synced by day of the week on the charts page
+- Weekly and monthly active users, and grades synced by day of the week, on the charts page
 
 ### Improved
 - <span class="changelog-inline-setoff">Everyone can sync as often as every 15 minutes, and set auto-sync that often, on any plan</span>
-- Unique Visits on the charts page is now called Active Users, in a chart titled Activity
-- Estimated days are drawn dashed on every activity line, and striped in Activity by day of the week
-- Activity by day of the week shows all-time totals, split into tracked and estimated days, with the total in its tooltip
-- The charts page fits on one screen on large displays, and stacks into one column on narrow ones
-- Consistent text sizes on the charts page
-- Drag across a chart on the charts page to zoom into that part, instead of panning
-- Hiding and showing bars on the charts page animates smoothly
+- The charts page<ul>
+- Unique Visits is now Active Users, in a chart titled Activity
+- Estimated days are dashed, or striped in Activity by day of the week, which now shows all-time totals
+- Fits one screen on large displays and stacks on narrow ones, with consistent text sizes
+- Drag across a chart to zoom in, instead of panning
+- Bars animate smoothly when hidden and shown</ul>
 - Hiding every line or bar in a chart keeps its axis where it was
-- Non-academic classes with grades always show. The setting, now Show Empty Non-Academic Classes, only controls the ones without any
-- Settings is reorganized<ul>
-- Grades holds your sync, class and chart settings
-- Appearance holds every visual effect, including Reduce Motion
-- Account holds your school email, next to your name and password
-- Help holds the troubleshooting tools, and About holds the Terms and Privacy Policy
-- Experiments has its own tab, where you can turn them on</ul>
+- Non-academic classes with grades always show. Show Empty Non-Academic Classes controls the rest
+- Settings is reorganized, and the Advanced tab is gone<ul>
+- Grades: sync, class and chart settings
+- Appearance: all visual effects, including Reduce Motion
+- Account: school email, name and password
+- Help: troubleshooting tools, including Stats for Nerds
+- About: Terms and Privacy Policy
+- Experiments: its own tab, where you can turn them on</ul>
 
 ### Fixed
 - Fixed BISV students being unable to save a graduation year
 - Settings that refresh the page now ask before discarding unsaved changes, and cancelling puts the switch back
 - Allow Remote Access showed as on when it was off
+- The school email pencil on the school login card opened the wrong Settings tab
 
 ### Removed
 - Logins, syncs and the school breakdown from the charts page
-- More frequent syncing as a Donor, Plus and Premium perk
-- Skipping the sync queue as a Plus and Premium perk
+- Faster syncing and skipping the sync queue as paid perks
 
 ## [Stable 8.4.0] - 2026-10-25
 ### Improved
