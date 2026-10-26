@@ -52,6 +52,47 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.6.0] - 2026-10-26
+### Added
+- New charts on the Graderoom Stats page (More > Graderoom Stats)<ul>
+- Weekly and monthly active users
+- Grades synced by day of the week</ul>
+
+### Improved
+- <span class="changelog-inline-setoff">Syncing works the same on every plan</span><ul>
+- You can sync as often as every 15 minutes
+- Before, the wait was 4 hours on the free plan, 2 hours for donors, and 1 hour for Plus
+- Auto-sync can run as often as every 15 minutes too
+- Choose how often auto-sync runs in Settings > Grades
+- Plus and Premium no longer skip the sync queue for schools that sync on Graderoom's server</ul>
+- The navbar is simpler<ul>
+- More has Keyboard Shortcuts, Send Feedback, What's New (the changelog), Graderoom Stats, and the Calculator
+- Settings opens straight to any of its tabs, and has Log Out</ul>
+- Settings is reorganized, and the Advanced tab is gone<ul>
+- Grades: sync, class, and chart settings
+- Appearance: themes, class colors, effects, and Reduce Motion
+- Account: school email, name, and password
+- Help: support, the tutorial, and troubleshooting tools like Stats for Nerds
+- About: Terms and Privacy Policy
+- Experiments: its own tab, where you can turn them on</ul>
+- Non-academic classes that have grades always show<ul>
+- Settings > Grades > Show Empty Non-Academic Classes controls the ones without any</ul>
+- The Graderoom Stats page<ul>
+- Unique Visits is now Active Users, in a chart titled Activity
+- Activity by day of the week shows all-time totals
+- Days before visits were tracked are marked as estimated
+- Fits one screen on large displays, and stacks into one column on narrow ones
+- Drag across a chart to zoom in, instead of panning</ul>
+- Hiding every line or bar in a chart keeps its axis where it was, on the grades page too
+
+### Fixed
+- BISV students could not save a graduation year
+- Declining to leave unsaved changes after flipping a setting that refreshes the page left the switch flipped
+- The pencil to change your school email, on the school password prompt, opened a Settings tab without your school email
+
+### Removed
+- Logins, syncs, and the school breakdown from the Graderoom Stats page
+
 ## [Beta 8.5.0] - 2026-10-25
 ### Added
 - Weekly and monthly active users, and grades synced by day of the week, on the charts page
@@ -60,29 +101,32 @@
 - Everyone can sync as often as every 15 minutes, and set auto-sync that often, on any plan
 - The charts page<ul>
 - Unique Visits is now Active Users, in a chart titled Activity
-- Estimated days are dashed, or striped in Activity by day of the week, which now shows all-time totals
+- Activity by day of the week shows all-time totals
+- Days before visits were tracked are marked as estimated
 - Fits one screen on large displays and stacks on narrow ones, with consistent text sizes
 - Drag across a chart to zoom in, instead of panning
 - Bars animate smoothly when hidden and shown</ul>
 - Hiding every line or bar in a chart keeps its axis where it was
-- Non-academic classes with grades always show. Show Empty Non-Academic Classes controls the rest
-- The navbar's Settings menu opens any Settings tab directly, including Donate, and holds Log Out. In More, Analytics is now Graderoom Stats, and Changelog is What's New
+- Non-academic classes with grades always show<ul>
+- Show Empty Non-Academic Classes controls the rest</ul>
+- The navbar is simpler<ul>
+- Its Settings menu opens any Settings tab directly and holds Log Out
+- In More, Analytics is now Graderoom Stats, and Changelog is What's New</ul>
 - Settings is reorganized, and the Advanced tab is gone<ul>
-- Grades: sync, class and chart settings
-- Appearance: all visual effects, including Reduce Motion
-- Account: school email, name and password
-- Help: troubleshooting tools, including Stats for Nerds
+- Grades: sync, class, and chart settings
+- Appearance: themes, class colors, effects, and Reduce Motion
+- Account: school email, name, and password
+- Help: support, the tutorial, and troubleshooting tools like Stats for Nerds
 - About: Terms and Privacy Policy
 - Experiments: its own tab, where you can turn them on</ul>
 
 ### Fixed
 - Fixed BISV students being unable to save a graduation year
-- Settings that refresh the page now ask before discarding unsaved changes, and cancelling puts the switch back
-- Allow Remote Access showed as on when it was off
-- The school email pencil on the school login card opened the wrong Settings tab
+- Declining to leave unsaved changes after flipping a setting that refreshes the page left the switch flipped
+- The pencil to change your school email, on the school password prompt, opened a Settings tab without your school email
 
 ### Removed
-- Logins, syncs and the school breakdown from the charts page
+- Logins, syncs, and the school breakdown from the charts page
 - Faster syncing and skipping the sync queue as paid perks
 
 ## [Stable 8.4.0] - 2026-10-25

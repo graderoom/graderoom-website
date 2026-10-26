@@ -1388,15 +1388,15 @@ div.assignment-info > span > span:last-child {
     margin-right: 1rem;
 }
 
+/* A highlighter mark in the theme's amber, so the text keeps the theme's own color */
 .changelog-inline-setoff {
-    font-size: 80%;
     font-weight: bold;
     display: inline-block;
-    border-radius: 0.5rem;
-    padding: 0 0.5rem;
+    border-radius: 0.35rem;
+    padding: 0 0.4rem;
     margin: 0 0.1rem;
-    background-color: var(--clr-surface);
-    box-shadow: var(--clr-border-subtle) 0 0 2px 1px;
+    background-color: color-mix(in srgb, var(--clr-warning) 30%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--clr-warning) 60%, transparent);
 }
 
 .changelog-fixes {
