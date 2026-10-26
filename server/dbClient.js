@@ -25,6 +25,7 @@ const {
     validateEmail,
     getPersonalInfo,
     tutorialKeys,
+    tutorialSeenByDefault,
     shuffleArray,
     betaFeatures,
     compareWeights,
@@ -1703,7 +1704,7 @@ const __initUser = async (db, user) => {
         if (existingKeys.includes(tutorialKey)) {
             temp[tutorialKey] = user.alerts.tutorialStatus[tutorialKey];
         } else {
-            temp[tutorialKey] = false;
+            temp[tutorialKey] = tutorialSeenByDefault(tutorialKey, user.school);
         }
     }
 
@@ -4562,9 +4563,10 @@ const _updateTutorial = async (db, username, action) => {
 
 const resetTutorial = (username) => safe(_resetTutorial, lower(username));
 const _resetTutorial = async (db, username) => {
+    let {school} = await _users(db, username).findOne({username: username}, {projection: {school: 1}});
     let res = await _users(db, username).findOneAndUpdate({username: username}, {
         $set: {
-            "alerts.tutorialStatus": Object.fromEntries(tutorialKeys.map(key => [key, false]))
+            "alerts.tutorialStatus": Object.fromEntries(tutorialKeys.map(key => [key, tutorialSeenByDefault(key, school)]))
         }
     }, {returnDocument: "after"});
     return {success: true, data: {value: res.alerts.tutorialStatus}};

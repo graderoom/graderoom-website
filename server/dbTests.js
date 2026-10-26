@@ -226,6 +226,18 @@ module.exports = {
         const {resetLink} = require("./dbHelpers");
         customAssert(resetLink("abc", false), "https://graderoom.me/reset_password?token=abc", "Stable reset links go to stable");
         customAssert(resetLink("abc", true), "https://beta.graderoom.me/reset_password?token=abc", "Beta reset links go to beta");
+    }, testSyncChipTutorial: async () => {
+        // Only Bellarmine has the sync chip, so its tutorial step starts done everywhere else, even after a reset
+        let emails = {bellarmine: () => randomString(8) + "." + randomString(8) + "22@bcp.org", ndsj: () => randomString(8) + "22@ndsj.org"};
+        for (let [school, expected] of [["bellarmine", false], ["ndsj", true]]) {
+            let username = randomString(16).toLowerCase();
+            await db.addUser(school, username, "Abcdef123", emails[school]().toLowerCase(), false);
+            let status = () => db.getUser(username, {"alerts.tutorialStatus": 1}).then(r => r.data.value.alerts.tutorialStatus.syncChipSeen);
+            customAssert(await status(), expected, `New ${school} user's sync chip step`);
+            await db.resetTutorial(username);
+            customAssert(await status(), expected, `Reset ${school} user's sync chip step`);
+            await db.removeUser(username);
+        }
     }
 };
 

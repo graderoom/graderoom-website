@@ -80,7 +80,7 @@
         <ul class="navbar-nav w-100 justify-content-end align-items-end ml-auto">
             <% if (page === "home") { %>
                 <% if (school === "bellarmine") { %>
-                    <li id="syncGrades" class="nav-item">
+                    <li id="syncGrades" class="nav-item" style="position: relative">
                         <span class="popup sync-popup">
                             <div id="syncControl" class="sync-control" data-state="waiting" role="button" tabindex="0"
                                  onclick="syncControlClick()" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); syncControlClick(); }">
@@ -92,18 +92,17 @@
                             </div>
                             <span id="syncControlPopup" class="popup-bottom">Your grades sync automatically</span>
                         </span>
+                        <%# Covers the chip so the popup centers under it, and lets clicks through to the chip %>
+                        <div class="popup popup-holder" style="position: absolute; inset: 0; height: auto; pointer-events: none">
+                            <span id="syncChipPopup"
+                                  class="nav-popups popup-bottom tutorial-popup"
+                                  style="min-width: 14rem; pointer-events: auto">
+                                Your grades sync here. Once the Graderoom Extension is installed, they sync on their own, and this shows when the next sync is.
+                                <span class="gotIt"></span>
+                            </span>
+                        </div>
                     </li>
                 <% } %>
-                <li class="nav-item popup">
-                    <div class="popup-holder-vert">
-                        <span id="morePopup"
-                              class="nav-popups popup-left-bottom tutorial-popup"
-                              style="min-width: 8rem">
-                            Hover here to access other parts of the site. Click to keep the menu open.
-                            <span class="gotIt"></span>
-                        </span>
-                    </div>
-                </li>
                 <li class="nav-item dropdown popup">
                     <a class="nav-link dropdown-toggle popup" href="#" id="navbarDropdown" role="button"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -207,14 +206,6 @@
                                         class="fa fa-sign-out" aria-hidden="true"></i> Log Out</a>
                         </li>
                     </ul>
-                    <div class="popup-holder">
-                        <span id="settingsPopup"
-                              class="nav-popups popup-bottom-left tutorial-popup"
-                              style="min-width: 8rem;">
-                            Hover here for any part of Settings, or to log out
-                            <span class="gotIt"></span>
-                        </span>
-                    </div>
                 </li>
             <% } else { %>
                 <li id="home" class="nav-item">

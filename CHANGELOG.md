@@ -84,6 +84,7 @@
 - Fits one screen on large displays, and stacks into one column on narrow ones
 - Drag across a chart to zoom in, instead of panning</ul>
 - Hiding every line or bar in a chart keeps its axis where it was, on the grades page too
+- The tutorial explains the sync chip, and no longer points out More and Settings
 
 ### Fixed
 - BISV students could not save a graduation year

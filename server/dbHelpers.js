@@ -52,7 +52,10 @@ exports.betaChangelogArray = () => _betaChangelogArray;
 exports.versionNameArray = () => _versionNameArray;
 
 // Update this list with new tutorial keys
-exports.tutorialKeys = ['homeSeen', 'navinfoSeen', 'moreSeen', 'settingsSeen', 'legendSeen'];
+exports.tutorialKeys = ['homeSeen', 'navinfoSeen', 'syncChipSeen', 'legendSeen'];
+
+// Only Bellarmine has the sync chip, so other schools start with that step done
+exports.tutorialSeenByDefault = (key, school) => key === 'syncChipSeen' && school !== Schools.BELL;
 
 // Update this list with new beta features
 exports.betaFeatureKeys = [];
@@ -283,7 +286,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                     policyLastSeen: 'never',
                     termsLastSeen: 'never',
                     remoteAccess: beta ? 'allowed' : 'denied',
-                    tutorialStatus: Object.fromEntries(this.tutorialKeys.map(k => [k, false])),
+                    tutorialStatus: Object.fromEntries(this.tutorialKeys.map(k => [k, this.tutorialSeenByDefault(k, school)])),
                     notifications: this.buildStarterNotifications(),
                     notificationSettings: {
                         showUpdatePopup: false,
