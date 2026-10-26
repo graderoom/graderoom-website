@@ -113,8 +113,8 @@
     $(document).keydown(function (e) {
         if ($("#loadingDisplay").css("display") === "none") {
             if (e.key === "Escape") { // escape key maps to keycode `27`
-                let toggle = $(".dropdown-toggle");
-                if (toggle.attr("aria-expanded") === "true") {
+                let toggle = $(".dropdown-toggle[aria-expanded=true]");
+                if (toggle.length) {
                     toggle.trigger("click");
                     return;
                 }

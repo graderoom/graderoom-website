@@ -57,7 +57,7 @@
 - Weekly and monthly active users, and grades synced by day of the week, on the charts page
 
 ### Improved
-- <span class="changelog-inline-setoff">Everyone can sync as often as every 15 minutes, and set auto-sync that often, on any plan</span>
+- Everyone can sync as often as every 15 minutes, and set auto-sync that often, on any plan
 - The charts page<ul>
 - Unique Visits is now Active Users, in a chart titled Activity
 - Estimated days are dashed, or striped in Activity by day of the week, which now shows all-time totals
@@ -66,6 +66,7 @@
 - Bars animate smoothly when hidden and shown</ul>
 - Hiding every line or bar in a chart keeps its axis where it was
 - Non-academic classes with grades always show. Show Empty Non-Academic Classes controls the rest
+- The navbar's Settings menu opens any Settings tab directly, including Donate, and holds Log Out. In More, Analytics is now Graderoom Stats, and Changelog is What's New
 - Settings is reorganized, and the Advanced tab is gone<ul>
 - Grades: sync, class and chart settings
 - Appearance: all visual effects, including Reduce Motion

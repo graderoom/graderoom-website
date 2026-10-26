@@ -109,62 +109,33 @@
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         More
                     </a>
-                    <ul class="dropdown-menu blur" aria-labelledby="navbarDropdown">
-                        <% if (isAdmin) { %>
-                            <li id="toggleAdmin" class="nav-item toggle-admin dropdown-item">
-                                <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet"
-                                                                         aria-hidden="true"></i> Admin
-                                </a>
-                            </li>
-                            <div class="dropdown-divider"></div>
-                        <% } %>
-                        <% if (page === "home") { %>
-                            <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med"
-                                     onclick="showCard('#settingsCardDisplay'); openTab(4);">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i> Help
-                                </btn>
-                            </li>
-                            <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med" onclick="showCard('#shortcutsDisplay')"><i
-                                            class="fa fa-keyboard-o" aria-hidden="true"></i> Keyboard Shortcuts
-                                </btn>
-                            </li>
-                            <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med" onclick="showCard('#feedbackDisplay')"><i
-                                            class="fa fa-send" aria-hidden="true"></i> Send Feedback
-                                </btn>
-                            </li>
-                            <div class="dropdown-divider"></div>
-                            <% if (_alerts.lastUpdated && _alerts.lastUpdated.length) { %>
-                                <li id="recentChangesNavBtn" class="nav-item dropdown-item">
-                                    <btn class="btn btn-med" onclick="showCard('#gradeChangesCardDisplay')"><i
-                                                class="fa fa-clock-o" aria-hidden="true"></i> Sync Log
-                                    </btn>
-                                </li>
-                            <% } %>
-                            <li class="nav-item dropdown-item">
-                                <a class="btn btn-med" href="/charts"><i
-                                            class="fa fa-line-chart" aria-hidden="true"></i> Analytics
-                                </a>
-                            </li>
-                            <div class="dropdown-divider"></div>
-                            <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med" onclick="showChangelog()"><i
-                                            class="fa fa-book" aria-hidden="true"></i> Changelog
-                                </btn>
-                            </li>
-                            <li class="nav-item dropdown-item">
-                                <a class="btn btn-med" href="/finalgradecalculator"><i
-                                            class="fa fa-calculator" aria-hidden="true"></i> Calculator
-                                </a>
-                            </li>
-                            <div class="dropdown-divider"></div>
-                            <li class="nav-item dropdown-item">
-                                <btn class="btn btn-med donate-nav-item" onclick="showCard('#settingsCardDisplay'); openTab(0)"><span class="donate"><span class="inner-donate">Donate</span></span>
-                                </btn>
-                            </li>
-                        <% } %>
+                    <ul class="dropdown-menu dropdown-menu-right blur" aria-labelledby="navbarDropdown">
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med" onclick="showCard('#shortcutsDisplay')"><i
+                                        class="fa fa-keyboard-o" aria-hidden="true"></i> Keyboard Shortcuts
+                            </btn>
+                        </li>
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med" onclick="showCard('#feedbackDisplay')"><i
+                                        class="fa fa-send" aria-hidden="true"></i> Send Feedback
+                            </btn>
+                        </li>
+                        <div class="dropdown-divider"></div>
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med" onclick="showChangelog()"><i
+                                        class="fa fa-book" aria-hidden="true"></i> What's New
+                            </btn>
+                        </li>
+                        <li class="nav-item dropdown-item">
+                            <a class="btn btn-med" href="/charts"><i
+                                        class="fa fa-line-chart" aria-hidden="true"></i> Graderoom Stats
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown-item">
+                            <a class="btn btn-med" href="/finalgradecalculator"><i
+                                        class="fa fa-calculator" aria-hidden="true"></i> Calculator
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 <% if (school !== "bellarmine") { %>
@@ -182,17 +153,65 @@
                         </div>
                     </li>
                 <% } %>
-            <% } %>
-            <% if (page === "home") { %>
-                <li id="settings" class="nav-item popup">
-                    <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay')">
-                        <i class="fa fa-cog" aria-hidden="true"></i> Settings
-                    </btn>
+                <li id="settings" class="nav-item dropdown popup">
+                    <a class="nav-link dropdown-toggle popup" href="#" id="settingsDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Settings
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right blur" aria-labelledby="settingsDropdown">
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med donate-nav-item" onclick="showCard('#settingsCardDisplay'); openTab(0)"><i
+                                        class="fa fa-heart donate-icon" aria-hidden="true"></i> <span class="donate"><span class="inner-donate">Donate</span></span>
+                            </btn>
+                        </li>
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(1)"><i
+                                        class="fa fa-paint-brush" aria-hidden="true"></i> Appearance
+                            </btn>
+                        </li>
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(2)"><i
+                                        class="fa fa-graduation-cap" aria-hidden="true"></i> Grades
+                            </btn>
+                        </li>
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(3)"><i
+                                        class="fa fa-user" aria-hidden="true"></i> Account
+                            </btn>
+                        </li>
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(4)"><i
+                                        class="fa fa-life-ring" aria-hidden="true"></i> Help
+                            </btn>
+                        </li>
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(5)"><i
+                                        class="fa fa-info-circle" aria-hidden="true"></i> About
+                            </btn>
+                        </li>
+                        <li class="nav-item dropdown-item">
+                            <btn class="btn btn-med" onclick="showCard('#settingsCardDisplay'); openTab(6)"><i
+                                        class="fa fa-flask" aria-hidden="true"></i> Experiments
+                            </btn>
+                        </li>
+                        <div class="dropdown-divider"></div>
+                        <% if (isAdmin) { %>
+                            <li id="toggleAdmin" class="nav-item toggle-admin dropdown-item">
+                                <a class="btn btn-med" href="/admin"> <i class="fa fa-fighter-jet"
+                                                                         aria-hidden="true"></i> Admin
+                                </a>
+                            </li>
+                        <% } %>
+                        <li class="nav-item dropdown-item">
+                            <a onclick="window.sessionStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"><i
+                                        class="fa fa-sign-out" aria-hidden="true"></i> Log Out</a>
+                        </li>
+                    </ul>
                     <div class="popup-holder">
                         <span id="settingsPopup"
                               class="nav-popups popup-bottom-right tutorial-popup"
                               style="min-width: 8rem;">
-                            Click here to manage your preferences
+                            Hover here for any part of Settings, or to log out
                             <span class="gotIt"></span>
                         </span>
                     </div>
@@ -203,11 +222,11 @@
                         <i class="fa fa-home" aria-hidden="true"></i> Home
                     </a>
                 </li>
+                <li class="nav-item active">
+                    <a onclick="window.sessionStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
+                                class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
+                </li>
             <% } %>
-            <li class="nav-item active">
-                <a onclick="window.sessionStorage.setItem('currentPage','')" href="/logout" class="btn btn-med"> <i
-                            class="fa fa-sign-out" aria-hidden="true"></i> Logout </a>
-            </li>
         </ul>
     </div>
 </nav>

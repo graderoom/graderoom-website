@@ -86,6 +86,19 @@ nav .navbar-toggler:hover {
     border-color: var(--clr-donate-nav-bg) !important;
 }
 
+/* In the navbar, Donate is its gold gradient only: no shine, and no drop shadow, which made it sit lower than
+   the other items. Its icon gets the same gradient */
+.navbar .donate::before, .navbar .donate::after {
+    display: none;
+}
+
+.navbar .donate-icon {
+    background: linear-gradient(#F5C21B, #D17000);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 /* Secondary nav (tab-style) */
 
 .nav {
