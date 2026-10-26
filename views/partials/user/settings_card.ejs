@@ -74,13 +74,6 @@
                                     <td class="supported text">100</td>
                                 </tr>
                                 <tr>
-                                    <th><span>Sync Cooldown</span></th>
-                                    <td class="supported text">4 hr</td>
-                                    <td class="supported text">2 hr</td>
-                                    <td class="supported text">1 hr</td>
-                                    <td class="supported text">15 min</td>
-                                </tr>
-                                <tr>
                                     <th><span>Themes</span></th>
                                     <%
                                         const allLight = _themeConstants.names.light;
@@ -757,7 +750,6 @@
                                                 <span class="previous">Thanks for using Graderoom!</span>
                                                 <span class="previous">Access class average for latest assignment in each class</span>
                                                 <span>Make <span class="strikethrough">30</span>40 requests per minute to the Graderoom server</span>
-                                                <span>Sync once every <span class="strikethrough">4</span>2 hours</span>
                                                 <span>Get a Donor role on Discord</span>
                                             </span>
                                         </span>
@@ -770,8 +762,6 @@
                                                 <span class="previous">Access class average for latest assignment in each course</span>
                                                 <span class="previous">Get a Donor role on Discord</span>
                                                 <span>Make <span class="strikethrough">40</span>60 requests per minute to the Graderoom server</span>
-                                                <span>Sync once every <span
-                                                            class="strikethrough">2 hours</span>1 hour</span>
                                                 <span><span class="plus-label">PLUS</span> badge</span>
                                                 <span>Ability to set custom class colors</span>
                                                 <span>Bypass the sync queue</span>
@@ -790,7 +780,6 @@
                                                 <span class="previous">Bypass the sync queue</span>
                                                 <span class="previous">View what other teachers teach a course and how many Graderoom users are in those classes</span>
                                                 <span>Make <span class="strikethrough">60</span>100 requests per minute to the Graderoom server</span>
-                                                <span>Sync once every <span class="strikethrough">1 hour</span>15 minutes</span>
                                                 <span><span class="strikethrough"><span
                                                                 class="plus-label">PLUS</span></span> <span
                                                             class="premium-label">PREMIUM</span>&nbsp;&nbsp;badge</span>
@@ -1030,7 +1019,7 @@
                                 </select>
                             </label>
                             <small style="opacity: 0.5; display: block">Graderoom syncs on its own about every <span
-                                        id="syncPeriodHint"></span>. Your plan allows a sync as often as every
+                                        id="syncPeriodHint"></span>. It can sync as often as every
                                 <%= _syncPeriodOptions[0] < 3600000 ? (_syncPeriodOptions[0] / 60000) + " minutes"
                                     : _syncPeriodOptions[0] === 3600000 ? "hour"
                                         : (_syncPeriodOptions[0] / 3600000) + " hours" %>.</small>

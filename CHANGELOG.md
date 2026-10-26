@@ -61,6 +61,7 @@
 - The charts page fits on one screen on large displays, and stacks into one column on narrow ones
 - Drag across a chart on the charts page to zoom into that part
 - Hiding every line or bar in a chart keeps its axis where it was
+- Everyone can sync as often as every 15 minutes, and set auto-sync that often, on any plan
 
 ### Fixed
 - Fixed BISV students being unable to save a graduation year

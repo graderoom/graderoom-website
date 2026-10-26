@@ -166,13 +166,14 @@ Additional CSS: `blur.css`, `responsive_blur.css`, `theme_backgrounds.css`, `fad
 
 Users have tiers (free, donor, plus, premium) that affect:
 - Rate limits (30/40/60/100 req/min)
-- Minimum sync intervals (4h/2h/1h/15min), the only thing the server gates on
-  (`nextSyncAllowed()` / `nextSyncWhen()` in `dbHelpers.js`).
+- The minimum sync interval is 15 min for every tier (`minSyncPeriod()`), the only thing the server
+  gates on (`nextSyncAllowed()` / `nextSyncWhen()` in `dbHelpers.js`). It used to be 4h/2h/1h/15min
+  by tier; since unchanged checks stopped uploading, ~97% of uploads came 4h+ apart anyway.
 - `syncPeriod` (Settings > Advanced > PowerSchool Sync Settings, default 4h) is the user's
-  auto-sync preference. `effectiveSyncPeriod()` = `max(tier minimum, syncPeriod)`, rendered as
-  `syncInterval`; the tier minimum is rendered as `syncMinInterval`. The chip is clickable on
-  `syncMinInterval`; its sub-line reads `syncMinInterval` while waiting ("Auto in 2h" when an
-  auto-sync fires at the end of it, "Available in 2h" otherwise) and `syncInterval` once
+  auto-sync preference. `effectiveSyncPeriod()` = `max(minimum, syncPeriod)`, rendered as
+  `syncInterval`; the minimum is rendered as `syncMinInterval`. The chip is clickable on
+  `syncMinInterval`; its sub-line reads `syncMinInterval` while waiting ("Auto in 15m" when an
+  auto-sync fires at the end of it, "Available in 15m" otherwise) and `syncInterval` once
   clickable ("Auto in 4h").
 - `sync-limit` calls `syncBlocked(timestamp)`, pinning the chip to the server's deadline.
 - Bellarmine never uploads an unchanged scrape. `syncPresent()` compares it with `syncedGrades`,

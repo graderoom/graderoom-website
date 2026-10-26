@@ -36,10 +36,10 @@ exports.minUsersForAverageCalc = 9;
 const minDonoAmount = 3;
 const minPremiumAmount = 5;
 
-const freeSyncPeriod = 4 * 60 * 60 * 1000; // 4 hours
-const donorSyncPeriod = 2 * 60 * 60 * 1000; // 2 hours
-const plusSyncPeriod = 60 * 60 * 1000; // 1 hour
-const premiumSyncPeriod = 15 * 60 * 1000; // 15 minutes
+const defaultSyncPeriod = 4 * 60 * 60 * 1000; // 4 hours
+// The same for every plan: unchanged checks don't upload, so this only spaces out syncs that found changes
+// and caps how often auto-sync scrapes PowerSchool
+const syncFloor = 15 * 60 * 1000; // 15 minutes
 
 let _changelogArray = [];
 let _betaChangelogArray = [];
@@ -301,7 +301,7 @@ exports.makeUser = async (school, username, password, schoolUsername, isAdmin, b
                 loggedIn: [],
                 visitDays: [],
                 enableLogging: true,
-                syncPeriod: freeSyncPeriod,
+                syncPeriod: defaultSyncPeriod,
                 donoData: [],
                 discord: {},
                 nextAvailableFakePSAID: 1,
@@ -789,18 +789,8 @@ exports.donoAttributes = function (donos) {
     return exports.donoHelper(totalDonos);
 };
 
-exports.minSyncPeriod = function (donoData) {
-    let {donor, plus, premium} = exports.donoAttributes(donoData);
-    if (premium) {
-        return premiumSyncPeriod;
-    }
-    if (plus) {
-        return plusSyncPeriod;
-    }
-    if (donor) {
-        return donorSyncPeriod;
-    }
-    return freeSyncPeriod;
+exports.minSyncPeriod = function () {
+    return syncFloor;
 };
 
 exports.effectiveSyncPeriod = function (donoData, syncPeriod) {
@@ -809,7 +799,7 @@ exports.effectiveSyncPeriod = function (donoData, syncPeriod) {
 
 exports.syncPeriodOptions = [15, 30, 60, 120, 240, 480, 720, 1440].map(m => m * 60 * 1000);
 
-exports.defaultSyncPeriod = freeSyncPeriod;
+exports.defaultSyncPeriod = defaultSyncPeriod;
 
 exports.nextSyncAllowed = function (lastSyncTimestamp, donoData) {
     return Date.now() >= exports.nextSyncWhen(lastSyncTimestamp, donoData);
