@@ -1121,7 +1121,7 @@ module.exports = function (app, passport) {
 
     app.get("/charts", async (req, res) => {
 
-        let {success, data: {loginData, uniqueLoginData, syncData, uniqueSyncData, uniqueVisitData, visitsTrackedFrom, userData, activeUsersData, schoolData, lastUpdated}} = await dbClient.getChartData();
+        let {success, data: {uniqueVisitData, weeklyActiveData, monthlyActiveData, gradesPostedData, visitsTrackedFrom, userData, lastUpdated}} = await dbClient.getChartData();
         if (!success) {
             return renderWithConstants(res, "viewer/loading_charts.ejs", {page: "charts-logged-out",
                 _appearance: loggedOutAppearance(),
@@ -1138,40 +1138,30 @@ module.exports = function (app, passport) {
                 sessionTimeout: Date.parse(req.session.cookie._expires),
                 page: "charts",
                 _alerts: alerts,
-                _loginData: loginData,
-                _uniqueLoginData: uniqueLoginData,
-                _syncData: syncData,
-                _uniqueSyncData: uniqueSyncData ?? [],
                 _uniqueVisitData: uniqueVisitData ?? [],
+                _weeklyActiveData: weeklyActiveData ?? [],
+                _monthlyActiveData: monthlyActiveData ?? [],
+                _gradesPostedData: gradesPostedData ?? [],
                 visitsTrackedFrom: visitsTrackedFrom ?? null,
                 _userData: userData,
-                _activeUsersData: activeUsersData,
-                _schoolData: schoolData,
                 _loggedInData: await dbClient.getLoggedInData(true, req.user.username),
                 plus: plus,
                 premium: premium,
                 lastUpdated: lastUpdated.getTime(),
-                _SchoolAbbr: SchoolAbbr,
-                _PrettySchools: PrettySchools,
                 _: _
             });
         } else {
             renderWithConstants(res, "viewer/cool_charts.ejs", {
                 page: "charts-logged-out",
                 _appearance: loggedOutAppearance(),
-                _loginData: loginData,
-                _uniqueLoginData: uniqueLoginData,
-                _syncData: syncData,
-                _uniqueSyncData: uniqueSyncData ?? [],
                 _uniqueVisitData: uniqueVisitData ?? [],
+                _weeklyActiveData: weeklyActiveData ?? [],
+                _monthlyActiveData: monthlyActiveData ?? [],
+                _gradesPostedData: gradesPostedData ?? [],
                 visitsTrackedFrom: visitsTrackedFrom ?? null,
                 _userData: userData,
-                _activeUsersData: activeUsersData,
-                _schoolData: schoolData,
                 _loggedInData: await dbClient.getLoggedInData(false, null),
                 lastUpdated: lastUpdated.getTime(),
-                _SchoolAbbr: SchoolAbbr,
-                _PrettySchools: PrettySchools,
                 _: _
             });
         }

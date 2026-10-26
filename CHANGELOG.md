@@ -52,6 +52,22 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 8.4.1] - 2026-10-25
+### Added
+- Weekly and monthly active users on the charts page
+- Grades synced by day of the week on the charts page
+
+### Improved
+- The charts page fits on one screen on large displays, and stacks into one column on narrow ones
+- Drag across a chart on the charts page to zoom into that part
+- Hiding every line or bar in a chart keeps its axis where it was
+
+### Fixed
+- Fixed BISV students being unable to save a graduation year
+
+### Removed
+- Logins, syncs and the school breakdown from the charts page
+
 ## [Stable 8.4.0] - 2026-10-25
 ### Improved
 - The Firefox add-on has a new listing<ul>

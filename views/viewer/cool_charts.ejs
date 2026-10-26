@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
     <title>Usage Statistics | Graderoom</title>
-    <meta name="description" content="Graderoom usage over time: logins, syncs, users and schools.">
+    <meta name="description" content="Graderoom activity over time: active users, grades synced and users by graduation year.">
     <link rel="icon" href="/public/resources/common/icon-128.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -42,8 +42,68 @@
     >
     <link id="fade" rel="stylesheet" type="text/css" href="/public/css/fade.css" disabled>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding: 1rem 0 20px;
+        }
+
+        /* responsive.css hides .chart-container on narrow screens, which is meant for the grades page */
+        .charts-grid > .chart-container {
+            display: block;
+            width: auto;
+            min-width: 0;
+        }
+
+        .chart-box {
+            position: relative;
+            aspect-ratio: 2;
+        }
+
+        /* Not h4/h6: responsive.css shrinks headings on medium screens */
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin-bottom: 0.4rem;
+        }
+
+        .chart-subtitle {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        @media (min-width: 900px) {
+            .charts-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .charts-grid > .wide {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* Wide screens fit all four charts in one screen: two per row, each sized to half the viewport */
+        @media (min-width: 1400px) {
+            .container.charts-page {
+                max-width: min(1800px, 96vw);
+            }
+
+            .charts-grid > .wide {
+                grid-column: auto;
+            }
+
+            .chart-box {
+                aspect-ratio: auto;
+                height: max(200px, calc(50vh - 190px));
+            }
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script src="/public/js/chart_keep_range.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"
             integrity="sha512-NxlWEbNbTV6acWnTsWRLIiwzOw0IwHQOYUCKBiu/NqZ+5jSy7gjMbpYI+/4KvaNuZ1qolbw+Vnd76pbIUYEG8g=="
@@ -94,84 +154,61 @@
 <% } else { %>
     <%- include('../partials/viewer/viewer_navbar.ejs', {theme: theme, page: page}); %>
 <% } %>
-<div class="container">
-    <br>
-    <div class="chart-container chart" style="height: unset; width: unset; display: block">
-        <h1>
-            Usage
-        </h1>
-        <h6 id="user-desc"></h6>
-        <h6 id="curr-logins"></h6>
-        <div class="chart-tab tab" style="border-radius: 0.5rem">
-            <btn id="btn-0" class="tablinks" onclick="setBounds(0, chart)">5D</btn>
-            <btn id="btn-1" class="tablinks" onclick="setBounds(1, chart)">1M</btn>
-            <btn id="btn-2" class="tablinks active" onclick="setBounds(2, chart)">6M</btn>
-            <btn id="btn-3" class="tablinks" onclick="setBounds(3, chart)">YTD</btn>
-            <btn id="btn-4" class="tablinks" onclick="setBounds(4, chart)">1Y</btn>
-            <btn id="btn-4" class="tablinks" onclick="setBounds(5, chart)">2Y</btn>
-            <btn id="btn-4" class="tablinks" onclick="setBounds(6, chart)">MAX</btn>
+<div class="container charts-page">
+    <div class="charts-grid">
+        <div class="chart-container chart wide">
+            <div class="chart-title">Activity</div>
+            <div class="chart-subtitle" id="user-desc"></div>
+            <div class="chart-subtitle" id="curr-logins"></div>
+            <div class="chart-tab tab" style="border-radius: 0.5rem">
+                <btn id="btn-0" class="tablinks" onclick="setBounds(0, chart)">5D</btn>
+                <btn id="btn-1" class="tablinks" onclick="setBounds(1, chart)">1M</btn>
+                <btn id="btn-2" class="tablinks active" onclick="setBounds(2, chart)">6M</btn>
+                <btn id="btn-3" class="tablinks" onclick="setBounds(3, chart)">YTD</btn>
+                <btn id="btn-4" class="tablinks" onclick="setBounds(4, chart)">1Y</btn>
+                <btn id="btn-4" class="tablinks" onclick="setBounds(5, chart)">2Y</btn>
+                <btn id="btn-4" class="tablinks" onclick="setBounds(6, chart)">MAX</btn>
+            </div>
+            <button id="reset-zoom-1" style="display:none; position: absolute; right: 0"
+                    class="btn btn-sm" onclick="resetZoom(chart); $(this).hide()">Reset
+            </button>
+            <div class="chart-box"><canvas id="chart"></canvas></div>
         </div>
-        <button id="reset-zoom-1" style="display:none; position: absolute; right: 0"
-                class="btn btn-sm" onclick="resetZoom(chart); $(this).hide()">Reset
-        </button>
-        <canvas id="chart">
-        </canvas>
-    </div>
-    <br>
-    <div class="chart-container chart" style="height: unset; width: unset; display: block">
-        <h1>
-            Users by graduation year
-        </h1>
-        <h3>Users are graduated in June of each year</h3>
-        <div class="chart-tab tab" style="border-radius: 0.5rem">
-            <btn id="btn-0" class="tablinks" onclick="setBounds(0, gradYearChart)">5D</btn>
-            <btn id="btn-1" class="tablinks" onclick="setBounds(1, gradYearChart)">1M</btn>
-            <btn id="btn-2" class="tablinks" onclick="setBounds(2, gradYearChart)">6M</btn>
-            <btn id="btn-3" class="tablinks" onclick="setBounds(3, gradYearChart)">YTD</btn>
-            <btn id="btn-4" class="tablinks" onclick="setBounds(4, gradYearChart)">1Y</btn>
-            <btn id="btn-4" class="tablinks active" onclick="setBounds(5, gradYearChart)">2Y</btn>
-            <btn id="btn-4" class="tablinks" onclick="setBounds(6, gradYearChart)">MAX</btn>
+        <div class="chart-container chart wide">
+            <div class="chart-title">Users by graduation year</div>
+            <div class="chart-subtitle">Users are graduated in June of each year</div>
+            <div class="chart-tab tab" style="border-radius: 0.5rem">
+                <btn id="btn-0" class="tablinks" onclick="setBounds(0, gradYearChart)">5D</btn>
+                <btn id="btn-1" class="tablinks" onclick="setBounds(1, gradYearChart)">1M</btn>
+                <btn id="btn-2" class="tablinks" onclick="setBounds(2, gradYearChart)">6M</btn>
+                <btn id="btn-3" class="tablinks" onclick="setBounds(3, gradYearChart)">YTD</btn>
+                <btn id="btn-4" class="tablinks" onclick="setBounds(4, gradYearChart)">1Y</btn>
+                <btn id="btn-4" class="tablinks active" onclick="setBounds(5, gradYearChart)">2Y</btn>
+                <btn id="btn-4" class="tablinks" onclick="setBounds(6, gradYearChart)">MAX</btn>
+            </div>
+            <button id="reset-zoom0" style="display:none; position: absolute; right: 0"
+                    class="btn btn-sm" onclick="resetZoom(gradYearChart); $(this).hide()">Reset
+            </button>
+            <div class="chart-box"><canvas id="users"></canvas></div>
         </div>
-        <button id="reset-zoom0" style="display:none; position: absolute; right: 0"
-                class="btn btn-sm" onclick="resetZoom(gradYearChart); $(this).hide()">Reset
-        </button>
-        <canvas id="users">
-        </canvas>
-    </div>
-    <br>
-    <br>
-    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; padding-bottom: 20px">
-        <div class="chart-container chart" style="display: block; width: max(400px, calc(50% - 1rem))">
-            <h4>
-                Usage by day of the week
-            </h4>
-            <h6 id="weekday-desc"></h6>
-            <canvas id="chart-weekdays">
-            </canvas>
+        <div class="chart-container chart">
+            <div class="chart-title">Activity by day of the week</div>
+            <div class="chart-subtitle" id="weekday-desc"></div>
+            <div class="chart-box"><canvas id="chart-weekdays"></canvas></div>
         </div>
-        <div class="chart-container chart" style="display: block; width: max(400px, calc(50% - 1rem))">
-            <h4>Users breakdown by school</h4>
-            <canvas id="schools"></canvas>
+        <div class="chart-container chart">
+            <div class="chart-title">Grades synced by day of the week</div>
+            <div class="chart-subtitle">New assignments all time, dated by the first sync that picked them up</div>
+            <div class="chart-box"><canvas id="posted"></canvas></div>
         </div>
     </div>
 </div>
 
 <script>
+    Chart.defaults.font.size = 12;
     let colors = ["rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)", "rgba(255, 205, 86, 0.2)", "rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(153, 102, 255, 0.2)", "rgba(201, 203, 207, 0.2)"];
-    let schoolColors = {
-        "bellarmine": "rgba(54, 162, 235, 0.2)",
-        "basis": "rgba(255, 99, 132, 0.2)",
-        "ndsj": "rgba(153, 102, 255, 0.2)",
-    };
     let borders = ["rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(54, 162, 235)", "rgb(153, 102, 255)", "rgb(201, 203, 207)"];
-    let schoolBorders = {
-        "bellarmine": "rgb(54, 162, 235)",
-        "basis": "rgb(255, 99, 132)",
-        "ndsj": "rgb(153, 102, 255)",
-    };
 
-    let SchoolAbbr = <%- JSON.stringify(_SchoolAbbr); %>;
-    let PrettySchools = <%- JSON.stringify(_PrettySchools); %>;
 
     const THEME_CSS = <%- JSON.stringify(_themeConstants.css) %>;
     const LIGHT_THEME_NAMES = <%- JSON.stringify(_themeConstants.names.light) %>;
@@ -282,63 +319,51 @@
     }
     <% } %>
 
-    let loginData = <%- JSON.stringify(_loginData); %>;
-    let uniqueLoginData = <%- JSON.stringify(_uniqueLoginData); %>;
-    let syncData = <%- JSON.stringify(_syncData); %>;
-    let uniqueSyncData = <%- JSON.stringify(_uniqueSyncData); %>;
     let uniqueVisitData = <%- JSON.stringify(_uniqueVisitData); %>;
+    let weeklyActiveData = <%- JSON.stringify(_weeklyActiveData); %>;
+    let monthlyActiveData = <%- JSON.stringify(_monthlyActiveData); %>;
+    let gradesPostedData = <%- JSON.stringify(_gradesPostedData); %>;
     let userData = <%- JSON.stringify(_userData); %>;
 
-    let weekdayLoginData = Array(7).fill(0);
-    let weekdayUniqueLoginData = Array(7).fill(0);
-    let weekdaySyncData = Array(7).fill(0);
-    let weekdayUniqueSyncData = Array(7).fill(0);
-    let weekdayUniqueVisitData = Array(7).fill(0);
 
-    let schoolData = <%- JSON.stringify(_schoolData); %>;
-
-    // Fill in holes in loginData
-    let series = [loginData, uniqueLoginData, syncData, uniqueSyncData, uniqueVisitData].filter(d => d.length);
+    // Fill in holes
+    let series = [uniqueVisitData, weeklyActiveData, monthlyActiveData, userData].filter(d => d.length);
     let minDate = Math.min(...series.map(d => new Date(d[0].x).getTime()));
     let maxDate = Math.max(...series.map(d => new Date(d.slice(-1)[0].x).getTime()));
-    fillHoles(loginData);
-    fillHoles(uniqueLoginData);
-    fillHoles(syncData);
-    fillHoles(uniqueSyncData);
     fillHoles(uniqueVisitData);
-    for (let i = 0; i < uniqueVisitData.length; i++) {
-        weekdayUniqueVisitData[new Date(uniqueVisitData[i].x).getDay()] += uniqueVisitData[i].y;
-    }
-    let visitsTrackedFrom = <%= visitsTrackedFrom ?? 'null' %>;
-    let tracked = d => visitsTrackedFrom !== null && new Date(d.x).getTime() >= visitsTrackedFrom;
-    let estimatedVisitData = uniqueVisitData.map(d => ({x: d.x, y: tracked(d) && new Date(d.x).getTime() > visitsTrackedFrom ? null : d.y}));
-    uniqueVisitData = uniqueVisitData.map(d => ({x: d.x, y: tracked(d) ? d.y : null}));
+    fillHoles(weeklyActiveData);
+    fillHoles(monthlyActiveData);
     fillHoles(userData, true);
 
-    // calculate weekday stats
-    for (let i = 0; i < loginData.length; i++) {
-        weekdayLoginData[new Date(loginData[i].x).getDay()] += loginData[i].y;
-    }
-    for (let i = 0; i < uniqueLoginData.length; i++) {
-        weekdayUniqueLoginData[new Date(uniqueLoginData[i].x).getDay()] += uniqueLoginData[i].y;
-    }
-    for (let i = 0; i < syncData.length; i++) {
-        weekdaySyncData[new Date(syncData[i].x).getDay()] += syncData[i].y;
-    }
-    for (let i = 0; i < uniqueSyncData.length; i++) {
-        weekdayUniqueSyncData[new Date(uniqueSyncData[i].x).getDay()] += uniqueSyncData[i].y;
+    // Days before visits were tracked only have a lower bound, and so does the first tracked day, which
+    // tracking started partway through, and any rolling window that reaches back into them. Those parts are drawn dashed
+    let visitsTrackedFrom = <%= visitsTrackedFrom ?? 'null' %>;
+    let accurateFrom = days => visitsTrackedFrom === null ? Infinity : new Date(visitsTrackedFrom).setDate(new Date(visitsTrackedFrom).getDate() + days);
+    let tracked = (d, days = 1) => new Date(d.x).getTime() >= accurateFrom(days);
+    let estimated = (data, days) => data.map(d => ({x: d.x, y: new Date(d.x).getTime() > accurateFrom(days) ? null : d.y}));
+    let measured = (data, days) => data.map(d => ({x: d.x, y: tracked(d, days) ? d.y : null}));
+
+    // Active Users on each weekday, all time, split into tracked days and estimated ones
+    let weekdayActiveData = Array(7).fill(0);
+    let weekdayInferredData = Array(7).fill(0);
+    for (let d of uniqueVisitData) {
+        (tracked(d) ? weekdayActiveData : weekdayInferredData)[new Date(d.x).getDay()] += d.y;
     }
 
     let updated = new Date(<%= lastUpdated - 24 * 60 * 60 * 1000 %>);
     let count = <%- JSON.stringify(_loggedInData.data.value) %>;
     $("#user-desc").text(`${Object.values(userData.slice(-1)[0].y).reduce((a, b) => a + b, 0)} total real user(s) as of ${updated.toDateString()}.`);
-    $("#curr-logins").text(`${count.count} active session(s). ${count.uniqueCount} currently active user(s).`);
-    $("#weekday-desc").text(`${weekdayLoginData.reduce((a, b) => a + b, 0)} logins, ${weekdaySyncData.reduce((a, b) => a + b, 0)} syncs all time`)
+    $("#curr-logins").text(`${count.uniqueCount} user(s) online now, in ${count.count} tab(s).`);
+    let weekdayPostedData = Array(7).fill(0);
+    for (let d of gradesPostedData) {
+        weekdayPostedData[new Date(d.x).getDay()] += d.y;
+    }
+    $("#weekday-desc").text(visitsTrackedFrom !== null ? `Active users all time. Days through ${new Date(visitsTrackedFrom).toDateString()} are inferred from logins and syncs` : "Active users all time, inferred from logins and syncs");
 
     let chart;
+    let postedChart;
     let weekdayLoginChart;
     let gradYearChart;
-    let schoolChart;
 
     function fillHoles(data, fillWithPreviousValue=false) {
         if (!data.length) {
@@ -370,103 +395,50 @@
         _chart.resetZoom();
     }
 
-    let dataset = [];
-    let loginsDataset = {
-        label: "Logins",
+    let lineDataset = (label, color, data) => ({
+        label: label,
         backgroundColor: "transparent",
-        pointBackgroundColor: "green",
+        pointBackgroundColor: color,
         pointBorderColor: "transparent",
-        borderColor: "green",
-        data: loginData,
+        borderColor: color,
+        data: data,
         cubicInterpolationMode: "monotone",
         spanGaps: false,
         pointRadius: 1,
         borderWidth: 1,
         pointHoverRadius: 3,
-        pointHoverBackgroundColor: "green",
-        pointHoverBorderColor: "green",
+        pointHoverBackgroundColor: color,
+        pointHoverBorderColor: color,
         pointHoverBorderWidth: 2
-    };
-    let uniqueLoginDataset = {
-        label: "Unique Logins",
-        backgroundColor: "transparent",
-        pointBackgroundColor: "red",
-        pointBorderColor: "transparent",
-        borderColor: "red",
-        data: uniqueLoginData,
-        cubicInterpolationMode: "monotone",
-        spanGaps: false,
-        pointRadius: 1,
-        borderWidth: 1,
-        pointHoverRadius: 3,
-        pointHoverBackgroundColor: "red",
-        pointHoverBorderColor: "red",
-        pointHoverBorderWidth: 2
-    };
-    let syncsDataset = {
-        label: "Syncs",
-        backgroundColor: "transparent",
-        pointBackgroundColor: "orange",
-        pointBorderColor: "transparent",
-        borderColor: "orange",
-        data: syncData,
-        cubicInterpolationMode: "monotone",
-        spanGaps: false,
-        pointRadius: 1,
-        borderWidth: 1,
-        pointHoverRadius: 3,
-        pointHoverBackgroundColor: "orange",
-        pointHoverBorderColor: "orange",
-        pointHoverBorderWidth: 2
-    };
-    let uniqueSyncsDataset = {
-        ...syncsDataset,
-        label: "Unique Syncs",
-        pointBackgroundColor: "#1f4fd1",
-        borderColor: "#1f4fd1",
-        data: uniqueSyncData,
-        pointHoverBackgroundColor: "#1f4fd1",
-        pointHoverBorderColor: "#1f4fd1"
-    };
-    dataset.push(loginsDataset);
-    dataset.push(uniqueLoginDataset);
-    dataset.push(syncsDataset);
-    let uniqueVisitsDataset = {
-        ...syncsDataset,
-        label: "Unique Visits",
-        pointBackgroundColor: "#9b30d9",
-        borderColor: "#9b30d9",
-        data: uniqueVisitData,
-        pointHoverBackgroundColor: "#9b30d9",
-        pointHoverBorderColor: "#9b30d9"
-    };
-    dataset.push(uniqueSyncsDataset);
-    dataset.push(uniqueVisitsDataset);
-    dataset.push({
-        ...uniqueVisitsDataset,
-        data: estimatedVisitData,
-        borderDash: [4, 4]
     });
+    let dataset = [];
+    for (let [label, color, data, days] of [["Active Users", "#9b30d9", uniqueVisitData, 1], ["Weekly Active", "#1f4fd1", weeklyActiveData, 7], ["Monthly Active", "green", monthlyActiveData, 30]]) {
+        dataset.push(lineDataset(label, color, measured(data, days)));
+        dataset.push({...lineDataset(label, color, estimated(data, days)), borderDash: [4, 4]});
+    }
 
     function setupAllCharts() {
         setupChart();
+        setupPostedChart();
         setupWeekdayChart();
         setupGradYearChart();
-        setupSchoolChart();
     }
 
     setupChart();
     function setupChart() {
-        let ctx = document.getElementById("chart");
-        if (chart) {
-            chart.destroy();
-        }
+        chart = setupLineChart("chart", dataset);
+    }
+
+
+    function setupLineChart(id, datasets) {
+        let ctx = document.getElementById(id);
+        Chart.getChart(ctx)?.destroy();
         let now = Date.now();
         const dayLength = 24 * 60 * 60 * 1000;
         now = (now - (now % dayLength));
-        chart = new Chart(ctx, {
+        return new Chart(ctx, {
             type: "line", data: {
-                datasets: dataset
+                datasets: datasets
             }, options: {
                 hover: {
                     mode: "index", intersect: false
@@ -476,8 +448,6 @@
                             unit: "month"
                         }, ticks: {
                             color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "13"
                         }, grid: {
                             color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         },
@@ -486,8 +456,6 @@
                     }, yAxis: {
                         ticks: {
                             color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "12"
                         }, grid: {
                             color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC"),
                             drawBorder: false
@@ -496,14 +464,12 @@
                 }, animation: {
                     easing: "easeOutCubic",
                     duration: 250,
-                }, responsive: true, maintainAspectRatio: true, plugins: {
+                }, responsive: true, maintainAspectRatio: false, plugins: {
                     legend: {
                         display: true, position: "top", labels: {
                             usePointStyle: true,
                             color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
                             boxWidth: 20,
-                            fontSize: 13,
                             filter: function (item, data) {
                                 return !item.text.includes("undefined") && data.datasets.findIndex(d => d.label === item.text) === item.datasetIndex;
                             }
@@ -527,23 +493,16 @@
                                 enabled: true, speed: 0.05
                             }, pinch: {
                                 enabled: true, threshold: 100
+                            }, drag: {
+                                enabled: true,
+                                backgroundColor: "rgba(127, 127, 127, 0.25)"
                             }, mode: "xy", onZoom: ({chart}) => {
-                                $("#reset-zoom-1").show();
+                                $(ctx).closest(".chart-container").find("button").show();
 
                                 // Disable hovering to make animation smoother
                                 chart.options.hover.mode = null;
                             }, onZoomComplete: ({chart}) => {
-                                chart.options.hover.mode = "index";
-                            }
-                        },
-                        pan: {
-                            enabled: true,
-                            onPan: ({chart}) => {
-                                $("#reset-zoom-1").show();
-
-                                // Disable hovering to make animation smoother
-                                chart.options.hover.mode = null;
-                            }, onPanComplete: ({chart}) => {
+                                $(ctx).closest(".chart-container").find("button").show();
                                 chart.options.hover.mode = "index";
                             }
                         }
@@ -598,8 +557,6 @@
                             unit: "month"
                         }, ticks: {
                             color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "13"
                         }, grid: {
                             color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         },
@@ -609,8 +566,6 @@
                         stacked: true,
                         ticks: {
                             color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "12"
                         }, grid: {
                             color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC"),
                             drawBorder: false
@@ -619,14 +574,12 @@
                 }, animation: {
                     easing: "easeOutCubic",
                     duration: 250,
-                }, responsive: true, maintainAspectRatio: true, plugins: {
+                }, responsive: true, maintainAspectRatio: false, plugins: {
                     legend: {
                         display: true, position: "top", labels: {
                             usePointStyle: true,
                             color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
                             boxWidth: 20,
-                            fontSize: 13,
                             filter: function (item) {
                                 return !item.text.includes("undefined");
                             }
@@ -650,23 +603,16 @@
                                 enabled: true, speed: 0.05
                             }, pinch: {
                                 enabled: true, threshold: 100
+                            }, drag: {
+                                enabled: true,
+                                backgroundColor: "rgba(127, 127, 127, 0.25)"
                             }, mode: "xy", onZoom: ({chart}) => {
                                 $("#reset-zoom0").show();
 
                                 // Disable hovering to make animation smoother
                                 chart.options.hover.mode = null;
                             }, onZoomComplete: ({chart}) => {
-                                chart.options.hover.mode = "index";
-                            }
-                        },
-                        pan: {
-                            enabled: true,
-                            onPan: ({chart}) => {
                                 $("#reset-zoom0").show();
-
-                                // Disable hovering to make animation smoother
-                                chart.options.hover.mode = null;
-                            }, onPanComplete: ({chart}) => {
                                 chart.options.hover.mode = "index";
                             }
                         }
@@ -686,8 +632,7 @@
         // 6 is max
 
         // First activate the right buttons
-        let numBtns = 7;
-        let btns = $(".chart-container .tablinks").slice(_chart === chart ? 0 : numBtns, _chart === chart ? numBtns : 2 * numBtns);
+        let btns = $(_chart.canvas).closest(".chart-container").find(".tablinks");
         btns.removeClass("active");
         $(btns[index]).addClass("active");
 
@@ -737,67 +682,94 @@
         _chart.update(0);
 
         // Also hide the reset button
-        if (_chart === chart) {
-            $("#reset-zoom-1").hide();
-        } else if (_chart === gradYearChart) {
-            $("#reset-zoom0").hide();
-        }
+        $(_chart.canvas).closest(".chart-container").find("button").hide();
     }
+
+    let barDataset = (label, color, data) => ({
+        label: label,
+        backgroundColor: colors[color],
+        borderColor: borders[color],
+        borderWidth: 1,
+        data: data
+    });
+
+    // Diagonal lines, for bars that are estimated
+    let hatch = color => {
+        let canvas = document.createElement("canvas");
+        canvas.width = canvas.height = 8;
+        let ctx = canvas.getContext("2d");
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        // The corner strokes keep the lines continuous across tiles
+        ctx.moveTo(0, 8);
+        ctx.lineTo(8, 0);
+        ctx.moveTo(-2, 2);
+        ctx.lineTo(2, -2);
+        ctx.moveTo(6, 10);
+        ctx.lineTo(10, 6);
+        ctx.stroke();
+        return ctx.createPattern(canvas, "repeat");
+    };
+
+    // Chart.js 3 can't dash bar borders, so datasets marked dashed get their hatch and outline drawn here
+    let dashedBars = {
+        id: "dashedBars",
+        afterDatasetsDraw(chart) {
+            let ctx = chart.ctx;
+            let area = chart.chartArea;
+            chart.data.datasets.forEach((dataset, i) => {
+                let meta = chart.getDatasetMeta(i);
+                if (!dataset.dashed || !meta.visible) return;
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(area.left, area.top, area.right - area.left, area.bottom - area.top);
+                ctx.clip();
+                ctx.fillStyle = dataset.hatch;
+                ctx.strokeStyle = dataset.borderColor;
+                ctx.setLineDash([4, 4]);
+                for (let bar of meta.data) {
+                    let {x, y, base, width} = bar.getProps(["x", "y", "base", "width"]);
+                    if (base - y <= 0) continue;
+                    ctx.fillRect(x - width / 2, y, width, base - y);
+                    ctx.strokeRect(x - width / 2, y, width, base - y);
+                }
+                ctx.restore();
+            });
+        }
+    };
 
     setupWeekdayChart();
     function setupWeekdayChart() {
-        let ctx = document.getElementById("chart-weekdays");
-        if (weekdayLoginChart) {
-            weekdayLoginChart.destroy();
-        }
-        weekdayLoginChart = new Chart(ctx, {
+        weekdayLoginChart = setupWeekdayBarChart("chart-weekdays", [
+            {...barDataset("Active Users (inferred)", 5, weekdayInferredData), backgroundColor: "transparent", borderWidth: 0, dashed: true, hatch: hatch(borders[5])},
+            barDataset("Active Users", 5, weekdayActiveData)
+        ]);
+    }
+
+    setupPostedChart();
+    function setupPostedChart() {
+        postedChart = setupWeekdayBarChart("posted", [barDataset("Grades Synced", 1, weekdayPostedData)]);
+    }
+
+    function setupWeekdayBarChart(id, datasets) {
+        let ctx = document.getElementById(id);
+        Chart.getChart(ctx)?.destroy();
+        return new Chart(ctx, {
             type: "bar", data: {
-                labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], datasets: [{
-                    label: "Unique Logins",
-                    backgroundColor: colors[0],
-                    borderColor: borders[0],
-                    borderWidth: 1,
-                    data: weekdayUniqueLoginData
-                }, {
-                    label: "Logins",
-                    backgroundColor: colors[3],
-                    borderColor: borders[3],
-                    borderWidth: 1,
-                    data: weekdayLoginData
-                }, {
-                    label: "Syncs",
-                    backgroundColor: colors[2],
-                    borderColor: borders[2],
-                    borderWidth: 1,
-                    data: weekdaySyncData
-                }, {
-                    label: "Unique Syncs",
-                    backgroundColor: colors[4],
-                    borderColor: borders[4],
-                    borderWidth: 1,
-                    data: weekdayUniqueSyncData
-                }, {
-                    label: "Unique Visits",
-                    backgroundColor: colors[5],
-                    borderColor: borders[5],
-                    borderWidth: 1,
-                    data: weekdayUniqueVisitData
-                }]
-            }, options: {
+                labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], datasets: datasets
+            }, plugins: [dashedBars], options: {
+                maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: true, ticks: {
+                        stacked: true, beginAtZero: true, ticks: {
                             color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "13"
                         }, grid: {
                             color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         }
                     }, x: {
-                        ticks: {
+                        stacked: true, ticks: {
                             color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "12"
                         }, grid: {
                             color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
                         }
@@ -806,71 +778,27 @@
                     legend: {
                         display: true, position: "top", labels: {
                             color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
                             boxWidth: 20,
-                            fontSize: 13,
-                            filter: function (item) {
-                                return !item.text.includes("undefined");
+                            filter: (item, data) => !data.datasets[item.datasetIndex].dashed,
+                            generateLabels: chart => Chart.defaults.plugins.legend.labels.generateLabels(chart)
+                                .map(label => ({...label, hidden: !!chart.data.datasets[label.datasetIndex].off}))
+                        }, onClick: function (e, item, legend) {
+                            // Hiding a dataset only fades it in place while the axis jumps, so instead its bars
+                            // animate down to 0 and back. Active Users also toggles Active Users (inferred)
+                            let chart = legend.chart;
+                            let off = !chart.data.datasets[item.datasetIndex].off;
+                            for (let d of chart.data.datasets.filter(d => d.label.startsWith(item.text))) {
+                                d.full ??= d.data;
+                                d.off = off;
+                                d.data = off ? d.full.map(() => 0) : d.full;
                             }
+                            chart.update();
                         }
-                    }
-                }
-            }
-        });
-    }
-
-    setupSchoolChart();
-    function setupSchoolChart() {
-        let ctx = document.getElementById("schools");
-        let realSchoolData = schoolData.map((s, i) => {
-            return {
-                label: SchoolAbbr[s.x],
-                backgroundColor: schoolColors[s.x],
-                borderColor: schoolBorders[s.x],
-                borderWidth: 1,
-                data: [s.y],
-                stack: "schools"
-            };
-        });
-        schoolChart = new Chart(ctx, {
-            type: "bar", data: {
-                labels: [""], datasets: realSchoolData
-            }, options: {
-                indexAxis: "y", scales: {
-                    y: {
-                        beginAtZero: true, ticks: {
-                            color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "13"
-                        }, grid: {
-                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
-                        }
-                    }, x: {
-                        ticks: {
-                            color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            fontSize: "12"
-                        }, grid: {
-                            color: (isDarkThemeStylesheet() ? "#555555" : "#CCCCCC")
-                        }
-                    }
-                }, plugins: {
-                    legend: {
-                        display: true, position: "left", labels: {
-                            color: (isDarkThemeStylesheet() ? "white" : "black"),
-                            fontFamily: "Verdana",
-                            boxWidth: 20,
-                            fontSize: 13,
-                            filter: function (item) {
-                                return !item.text.includes("undefined");
-                            },
-                        }
-                    },
-                    tooltip: {
+                    }, tooltip: {
+                        mode: "index", intersect: false,
+                        filter: item => item.parsed.y !== 0,
                         callbacks: {
-                            label: function (tooltipItem) {
-                                return `${PrettySchools[tooltipItem.dataset.label]}: ${tooltipItem.parsed.x}`;
-                            }
+                            footer: items => items.length > 1 ? `Total: ${items.reduce((sum, item) => sum + item.parsed.y, 0)}` : ""
                         }
                     }
                 }

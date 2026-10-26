@@ -42,7 +42,7 @@ async function run() {
         await client.close();
         return;
     }
-    let {loginData, uniqueLoginData, syncData, uniqueSyncData, uniqueVisitData, visitsTrackedFrom, schoolData, lastUpdated: lastUpdatedCharts} = data;
+    let {loginData, uniqueLoginData, syncData, uniqueSyncData, uniqueVisitData, weeklyActiveData, monthlyActiveData, visitsTrackedFrom, schoolData, lastUpdated: lastUpdatedCharts} = data;
     let projection = {
         loggedIn: 1, "alerts.lastUpdated.timestamp": 1, "personalInfo.graduationYear": 1, school: 1, username: 1, visitDays: 1
     };
@@ -176,6 +176,74 @@ async function run() {
     console.log(`Calculated unique visit data in ${Date.now() - time}ms!`);
 
     time = Date.now();
+    let toDay = t => {
+        let date = new Date(t);
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    };
+    let toSeries = counts => [...counts].sort((a, b) => a[0] - b[0]).map(([x, y]) => ({x: new Date(x), y: y}));
+    // Users active in the 7 and 30 days up to each day, from the same signals as Active Users.
+    // Charts without these get them backfilled from all history once
+    let rollingFrom = weeklyActiveData && monthlyActiveData ? lastUpdatedCharts.getTime() : 0;
+    let rollingWindow = new Date(rollingFrom).setDate(new Date(rollingFrom).getDate() - 29);
+    let rollingQuery = {
+        $or: [
+            {"alerts.lastUpdated.timestamp": {$gte: rollingWindow, $lt: dayStart}},
+            {loggedIn: {$gte: rollingWindow, $lt: dayStart}},
+            {visitDays: {$gte: rollingWindow, $lt: dayStart}}
+        ]
+    };
+    let rollingUsers = (await _getAllUsers(db, projection, rollingQuery)).data.value
+        .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find(rollingQuery, {projection: projection}).toArray());
+    let weeklyCounts = new Map((rollingFrom ? weeklyActiveData : []).map(d => [d.x.getTime(), d.y]));
+    let monthlyCounts = new Map((rollingFrom ? monthlyActiveData : []).map(d => [d.x.getTime(), d.y]));
+    for (let user of rollingUsers) {
+        let days = new Set([...user.loggedIn ?? [], ...user.alerts?.lastUpdated?.map(d => d.timestamp) ?? [], ...user.visitDays ?? []]
+            .filter(t => t >= rollingWindow && t < dayStart).map(toDay));
+        let week = new Set();
+        let month = new Set();
+        for (let day of days) {
+            let date = new Date(day);
+            for (let i = 0; i < 30; i++) {
+                let d = new Date(date.getFullYear(), date.getMonth(), date.getDate() + i).getTime();
+                if (d < rollingFrom || d >= dayStart) continue;
+                month.add(d);
+                if (i < 7) week.add(d);
+            }
+        }
+        week.forEach(d => weeklyCounts.set(d, (weeklyCounts.get(d) ?? 0) + 1));
+        month.forEach(d => monthlyCounts.set(d, (monthlyCounts.get(d) ?? 0) + 1));
+    }
+    weeklyActiveData = toSeries(weeklyCounts);
+    monthlyActiveData = toSeries(monthlyCounts);
+    console.log(`Calculated weekly and monthly active data in ${Date.now() - time}ms!`);
+
+    time = Date.now();
+    // Each assignment counts on the first day any user's sync picked it up, so a class many users
+    // share counts once. A user's first sync is skipped, since it adds everything they already had
+    // ponytail: rebuilt from all sync history every day; keep the seen ids in the chart doc if this gets slow
+    let postedQuery = {"alerts.lastUpdated.1": {$exists: true}};
+    let postedProjection = {school: 1, "alerts.lastUpdated.timestamp": 1, "alerts.lastUpdated.changeData.added": 1};
+    let postedUsers = (await _getAllUsers(db, postedProjection, postedQuery)).data.value
+        .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find(postedQuery, {projection: postedProjection}).toArray());
+    let firstSeen = new Map();
+    for (let user of postedUsers) {
+        for (let {timestamp, changeData} of user.alerts.lastUpdated.slice(1)) {
+            if (!(timestamp < dayStart)) continue;
+            for (let psaids of Object.values(changeData?.added ?? {})) {
+                for (let psaid of Array.isArray(psaids) ? psaids : []) {
+                    if (typeof psaid !== "number" && typeof psaid !== "string") continue;
+                    let key = `${user.school}:${psaid}`;
+                    if (!(firstSeen.get(key) <= timestamp)) firstSeen.set(key, timestamp);
+                }
+            }
+        }
+    }
+    let postedCounts = new Map();
+    firstSeen.forEach(t => postedCounts.set(toDay(t), (postedCounts.get(toDay(t)) ?? 0) + 1));
+    let gradesPostedData = toSeries(postedCounts);
+    console.log(`Calculated grades posted data in ${Date.now() - time}ms!`);
+
+    time = Date.now();
     let actualAllUsers = (await _getAllUsers(db, {"loggedIn": 1, 'personalInfo.graduationYear': 1}, {"alerts.lastUpdated": {$not: {$size: 0}}})).data.value
         .concat(await db.collection(ARCHIVED_USERS_COLLECTION_NAME).find({"alerts.lastUpdated": {$not: {$size: 0}}}, {projection: {"loggedIn": 1, 'personalInfo.graduationYear': 1}}).toArray());
 
@@ -224,6 +292,9 @@ async function run() {
         syncData: syncData,
         uniqueSyncData: uniqueSyncData,
         uniqueVisitData: uniqueVisitData,
+        weeklyActiveData: weeklyActiveData,
+        monthlyActiveData: monthlyActiveData,
+        gradesPostedData: gradesPostedData,
         visitsTrackedFrom: visitsTrackedFrom ?? null,
         userData: userData,
         schoolData: schoolData,
