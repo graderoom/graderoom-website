@@ -83,7 +83,7 @@ const premiumRateLimit = setRateLimit({
 // narrow desktop window is not a phone and a tablet held sideways is not a desktop. Chromium
 // answers the question outright in Sec-CH-UA-Mobile and sends it unasked; everyone else is read
 // off the User-Agent.
-// ponytail: an iPad in its default desktop mode is indistinguishable from a Mac here and counts
+// An iPad in its default desktop mode is indistinguishable from a Mac here and counts
 // as one. `navigator.maxTouchPoints` is the only thing that tells them apart and it is client side
 const deviceOf = function (req) {
     const ua = req.get("user-agent") || "";

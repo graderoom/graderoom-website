@@ -1,7 +1,7 @@
 const dbClient = require('./dbClient');
 const socketManager = require('./socketManager');
 
-// ponytail: in-memory, so it only holds within one server process; move to Redis if the server is ever clustered
+// In-memory, so it only holds within one server process; move to Redis if the server is ever clustered
 const runningUploads = new Set();
 
 module.exports = {

@@ -220,7 +220,7 @@ async function run() {
     time = Date.now();
     // Each assignment counts on the first day any user's sync picked it up, so a class many users
     // share counts once. A user's first sync is skipped, since it adds everything they already had
-    // ponytail: rebuilt from all sync history every day; keep the seen ids in the chart doc if this gets slow
+    // Rebuilt from all sync history every day. If that gets slow, keep the seen ids in the chart doc
     let postedQuery = {"alerts.lastUpdated.1": {$exists: true}};
     let postedProjection = {school: 1, "alerts.lastUpdated.timestamp": 1, "alerts.lastUpdated.changeData.added": 1};
     let postedUsers = (await _getAllUsers(db, postedProjection, postedQuery)).data.value
