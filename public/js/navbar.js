@@ -30,20 +30,12 @@
         $(id).fadeIn(100);
     }
 
-    // Hides the page until the next click or key, which is swallowed so it can't also act on the page
+    // Deselects the overview and every class, so only the navbar and notifications sit over the background.
+    // Picking a class or Overview again (or a page shortcut) brings the page back through showPage()
     function showBackground() {
-        document.body.classList.add("show-background");
-        const back = e => {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            document.body.classList.remove("show-background");
-            window.removeEventListener("click", back, true);
-            window.removeEventListener("keydown", back, true);
-        };
-        setTimeout(() => {
-            window.addEventListener("click", back, true);
-            window.addEventListener("keydown", back, true);
-        });
+        $(".section").removeClass("show");
+        $("#classLinks .nav-item").removeClass("active");
+        $(".backToHome").hide();
     }
 
     function closeForm(id) {

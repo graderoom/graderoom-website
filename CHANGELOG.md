@@ -54,7 +54,8 @@
 
 ## [Beta 8.6.2] - 2026-11-01
 ### Added
-- Show Background in More hides the page so you can see the whole background
+- Show Background in More hides your grades so you can see the whole background<ul>
+- Pick Overview or a class to bring them back</ul>
 
 ### Improved
 - The Nebula and Hologlass backgrounds are smoother and easier on your battery
