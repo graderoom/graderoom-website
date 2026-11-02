@@ -70,11 +70,12 @@
     const sizeScale = 0.4 + 0.2 * timeMultiplier;
     const scaleFactor = 15;
     const inSeason = today.getMonth() >= winterStart || today.getMonth() < winterEnd;
-    // Server side, from the User-Agent, so a narrow desktop window still gets snow
-    const onMobile = <%= _mobile %>;
-    // Watchdog acts on frame jitter as a share of the frame gap, with hysteresis so it doesn't flap.
-    // deadFps catches a page that is steady but too slow to watch
-    const jitterOut = 0.5, jitterBack = 0.3, deadFps = 10;
+    // Server side from the User-Agent, plus a touch-first pointer for iPads and phones asking for the
+    // desktop site, so a narrow desktop window still gets snow
+    const onMobile = <%= _mobile %> || matchMedia("(pointer: coarse)").matches;
+    // Watchdog hides snow below deadFps, back above 1.5x so it doesn't flap. Jitter is shown, not
+    // acted on: on a VRR screen uneven frame gaps are normal
+    const deadFps = 10;
 
     let numFlakes;
     let snow = [];
@@ -85,7 +86,6 @@
     // Rects painted last frame as x/y/w/h runs, so the next frame clears only those, not the page
     const dirty = [];
     let dirtyN = 0;
-    let stepSmooth = 1;
     let frameGap = 0, frameJitter = 0, worstGap = 0, lastDelta = 0;
     const statsBox = document.getElementById("fps");
 
@@ -110,7 +110,7 @@
             row("FRAMETIME:", live ? Math.round(1000 / fps) + "MS" : "N/A"),
             row("INTERVAL:", live && frameGap > 0 ? (frameGap * 1000).toFixed(1) + "MS" : "N/A"),
             row("JITTER:", live && frameGap > 0
-                ? (100 * frameJitter / frameGap).toFixed(1) + "%" + (frameJitter / frameGap > jitterOut ? " !" : "") : "N/A"),
+                ? (100 * frameJitter / frameGap).toFixed(1) + "%" : "N/A"),
             row("WORST GAP:", live && worstGap > 0 ? (worstGap * 1000).toFixed(0) + "MS" : "N/A"),
             row("VIEWPORT:", screenWidth + "x" + screenHeight),
             row("FLAKES:", snow.length || "N/A"),
@@ -374,11 +374,10 @@
                 if (performance.now() - init < 4000 || !renderNextFrame || !snow.length) {
                     return;
                 } // Wait 4 seconds before judging anything
-                const ragged = frameGap > 0 ? frameJitter / frameGap : 0;
-                if (ragged > (snowEnabled ? jitterOut : jitterBack) || _10sAverage < deadFps) {
+                if (_10sAverage < (snowEnabled ? deadFps : deadFps * 1.5)) {
                     if (snowEnabled) {
                         $("#snow-fall").fadeOut("slow");
-                        $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow hidden: frames arriving unevenly</small>`));
+                        $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow hidden: frame rate too low</small>`));
                         snowEnabled = false;
                     }
                 } else if (!snowEnabled) {
@@ -420,10 +419,9 @@
                         fpsScale = fps / 60;
                     }
 
-                    // Elapsed time smoothed over ~50ms of wall clock; the clamp only stops a returning
-                    // tab teleporting every flake
-                    stepSmooth += (Math.min(4, 1 / fpsScale) - stepSmooth) * (1 - Math.exp(-1 / (fps * 0.05)));
-                    const step = stepSmooth;
+                    // Real elapsed time, not smoothed: the rAF stamp tracks when the frame is shown, so
+                    // uneven VRR frames still move evenly. The clamp stops a returning tab teleporting flakes
+                    const step = Math.min(4, 1 / fpsScale);
 
                     for (let d = 0; d < dirtyN; d += 4) {
                         $$.clearRect(dirty[d], dirty[d + 1], dirty[d + 2], dirty[d + 3]);

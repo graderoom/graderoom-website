@@ -143,10 +143,12 @@ No build pipeline. EJS templates in `views/` with inline JavaScript. Static asse
   these numbers, so moving a tab means updating them.
 
 **Site effects** (winter snow, Christmas lights) live in `views/partials/site_effects.ejs`. The snow
-loop clears only the rects it painted last frame (`smudge()`), times frames off the rAF stamp, and
-the watchdog hides it on frame jitter, not low FPS. Effects are disabled outright on mobile: `renderWithConstants()`
+loop clears only the rects it painted last frame (`smudge()`), moves flakes by the real rAF-stamp
+delta (unsmoothed, so VRR frames stay even), and the watchdog hides it only below 10 FPS; jitter is
+shown in the FPS box, not acted on. Effects are disabled outright on mobile: `renderWithConstants()`
 sets `_mobile` from `deviceOf(req)` (`server/middleware.js`), which reads the `Sec-CH-UA-Mobile`
-client hint or the User-Agent, never the viewport width.
+client hint or the User-Agent, never the viewport width. The page also treats a `(pointer: coarse)`
+device as mobile, which catches iPads and phones that ask for the desktop site.
 
 **CSS architecture:** Component-based files in `public/css/` with theme-specific variable overrides in `public/css/themes/<theme>/index.css`. Themes only contain CSS custom property definitions (`:root {}` variable blocks); all structural CSS lives in the component files.
 
