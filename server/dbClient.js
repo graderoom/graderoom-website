@@ -3048,30 +3048,6 @@ const _setEnableLogging = async (db, username, value) => {
     return {success: false, data: {message: "Invalid user"}};
 };
 
-const setAnimateWhenUnfocused = (username, value) => safe(_setAnimateWhenUnfocused, lower(username), value);
-const _setAnimateWhenUnfocused = async (db, username, value) => {
-    if (typeof value !== "boolean") {
-        return {
-            success: false, data: {
-                message: "Invalid value",
-                log: `Invalid animateWhenUnfocused value: ${value}`,
-                settings: {animateWhenUnfocused: value}
-            }
-        };
-    }
-    let res = await _users(db, username).updateOne({username: username}, {$set: {"appearance.animateWhenUnfocused": value}});
-    if (res.matchedCount === 1) {
-        return {
-            success: true, data: {
-                message: "Animation " + (value ? "enabled" : "disabled") + " when window is not in focus!",
-                settings: {animateWhenUnfocused: value},
-                refresh: true
-            }
-        };
-    }
-    return {success: false, data: {message: "Invalid user"}};
-};
-
 const setShowFps = (username, value) => safe(_setShowFps, lower(username), value);
 const _setShowFps = async (db, username, value) => {
     if (typeof value !== "boolean") {
@@ -6237,7 +6213,6 @@ module.exports = {
     setColorPalette: setColorPalette,
     updateCustomColor: updateCustomColor,
     setEnableLogging: setEnableLogging,
-    setAnimateWhenUnfocused: setAnimateWhenUnfocused,
     setShowFps: setShowFps,
     setShowUpdatePopup: setShowUpdatePopup,
     createNotification: createNotification,

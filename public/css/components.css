@@ -1437,21 +1437,6 @@ div.assignment-info > span > span:last-child {
     margin-left: 0.5rem;
 }
 
-/* Performance */
-
-#performance-issues-messages {
-    max-height: 10rem;
-    overflow: scroll;
-}
-
-.performance-issue {
-    border-radius: 1rem;
-    padding: 1rem;
-    display: block;
-    margin: 0.5rem 0;
-    width: fit-content;
-}
-
 /* Legend and Zoom Popups */
 
 #legendPopup {
@@ -1690,28 +1675,8 @@ button .label-background span {
     color: var(--clr-donate);
 }
 
-.donate::before, .premium-label::before {
-    -webkit-animation: flare 5s infinite;
-    -webkit-animation-timing-function: linear;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: #FFFFFF;
-    display: block;
-    position: absolute;
-    background-image: var(--clr-donation-flare);
-}
-
 .premium-label::after {
     content: "PREMIUM";
-}
-
-.donate::before {
-    content: "Donate";
-}
-
-.premium-label::before {
-    content: "PREMIUM";
-    text-align: center;
 }
 
 span.previous {
@@ -1761,10 +1726,6 @@ span.previous {
     top: 0;
     left: 0;
     font-size: unset;
-}
-
-#donationProgressOverlay .premium-label::before {
-    width: 100%;
 }
 
 #donationHoverOverlay {

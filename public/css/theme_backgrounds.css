@@ -304,12 +304,6 @@
     }
 }
 
-#theme-background.bg-paused,
-#theme-background.bg-paused::before,
-#theme-background.bg-paused::after {
-    animation-play-state: paused !important;
-}
-
 body:has(#notificationPanel.active) #theme-background,
 body:has(#notificationPanel.active) #theme-background::before,
 body:has(#notificationPanel.active) #theme-background::after {

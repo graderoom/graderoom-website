@@ -37,10 +37,6 @@
         animation: snow-sway ease-in-out infinite alternate;
     }
 
-    #theme-background.bg-paused #snow-fall * {
-        animation-play-state: paused;
-    }
-
     @keyframes snow-fall {
         to {
             transform: translateY(calc(100vh + 24px));
@@ -95,7 +91,6 @@
 <span style="z-index: 999; position: fixed; bottom: 10px; right: 10px;" id="build"><%= buildLabel %></span>
 <% } %> <% const winterStart = 10; %> <% const winterEnd = 2; %>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-dateFormat/1.0/jquery.dateFormat.min.js"></script>
 <script>
     const today = new Date();
     const winterStart = <%= winterStart %>; // 10 is November
@@ -134,22 +129,14 @@
         snowBox.innerHTML = html;
     }
 
-    // Main thread frame rate, which the snow no longer depends on
     if (statsBox) {
-        let frames = 0;
-        (function count() {
-            frames++;
-            requestAnimationFrame(count);
-        })();
         setInterval(() => {
             const row = (label, value) => label.padStart(10) + String(value).padStart(11);
             statsBox.textContent = [
-                row("PAGE FPS:", frames),
                 row("VIEWPORT:", screenWidth + "x" + screenHeight),
                 row("FLAKES:", snowBox.childElementCount || "N/A"),
                 row("LIGHTS:", typeof numLights === "undefined" ? "N/A" : numLights)
             ].join("\n");
-            frames = 0;
         }, 1000);
     }
 
@@ -346,21 +333,6 @@
         $("#snow-fall").hide();
         $(".lightrope").hide();
     }
-
-    <% if (!_appearance.animateWhenUnfocused) { %>
-    window.addEventListener("blur", () => {
-        document.getElementById("theme-background").classList.add("bg-paused");
-        if (inSeason) {
-            $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects paused by window unfocus</small>`));
-        }
-    });
-    window.addEventListener("focus", () => {
-        document.getElementById("theme-background").classList.remove("bg-paused");
-        if (inSeason) {
-            $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects resumed by window focus</small>`));
-        }
-    });
-    <% } %>
 
     let _resizeTimer;
     window.addEventListener("resize", function () {

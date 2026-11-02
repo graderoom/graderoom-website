@@ -641,30 +641,6 @@
                                         and disabled where possible.</span></i></span>
                         </label>
                     </label>
-                        <label class="slider-container">
-                            <label class="switch">
-                                <input id="animateWhenUnfocused" type="checkbox" name="animateWhenUnfocused"
-                                <% if (_appearance.animateWhenUnfocused) { %>
-                                       checked="checked"
-                                        <% } %>
-                                       onchange="confirmRefresh(this) && changeSetting('animateWhenUnfocused', !appearance.animateWhenUnfocused)"
-                                >
-                                <span class="slider"></span>
-                            </label>
-                            <label for="animateWhenUnfocused">
-                                Don't Pause Effects When Window is not in Focus <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-top-left">When enabled, certain animations and effects
-                                            that
-                                            are usually paused to conserve resources will continue to play even if
-                                            you
-                                            are on a different tab or window.
-                                        </span></i></span> <span class="popup hide-in-firefox"><i
-                                            class="fa fa-exclamation-triangle">
-                                        <span class="popup-right-bottom">This can cause issues such as the
-                                            horizontal snow line</span></i></span>
-                            </label>
-                        </label>
                     </div>
                 </div>
             </div>
@@ -1200,14 +1176,6 @@
                                         </span></i></span>
                             </label>
                         </label>
-                        <hr>
-                        <div>
-                            <h6>Performance Log <span class="popup"><i
-                                            class="fa fa-question-circle"><span
-                                                class="popup-right-bottom">Performance issues will be displayed here
-                                        </span></i></span></h6>
-                            <div id="performance-issues-messages"></div>
-                        </div>
                     </div>
                 </div>
             </div>

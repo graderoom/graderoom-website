@@ -122,10 +122,6 @@ $.get("/donationProgress", function (data) {
                                 setupSyncPeriodHint();
                                 if (school === "bellarmine") syncControl(null);
                                 break;
-                            case "animateWhenUnfocused":
-                                appearance.animateWhenUnfocused = settings[key];
-                                $("#animateWhenUnfocused").prop("checked", appearance.animateWhenUnfocused);
-                                break;
                             case "showFps":
                                 appearance.showFps = settings[key];
                                 $("#showFps").prop("checked", appearance.showFps);

@@ -50,7 +50,6 @@
     --clr-class-link-active-text: #FFFFFF;
     --clr-class-link-active-bg: #FF9940;
     --clr-class-color-label-bg: linear-gradient(to left, var(--clr-class-link-active-bg) 50%, var(--clr-surface) 50%);
-    --clr-donation-flare: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.35) 20%, rgba(255, 255, 255, 0.5) 27%, transparent 27%, transparent 100%);
 
     /* Form images */
     --img-user: url(/public/resources/light_mode/user.png);

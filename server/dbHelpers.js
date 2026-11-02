@@ -226,7 +226,6 @@ exports.appearanceDefaults = {
     showPlusMinusLines: false,
     reduceMotion: false,
     showMaxGPA: false,
-    animateWhenUnfocused: false,
     showFps: false
 };
 

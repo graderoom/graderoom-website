@@ -49,7 +49,6 @@
     --clr-class-link-active-text: #ECEFF4;
     --clr-class-link-active-bg: #2E3440;
     --clr-class-color-label-bg: var(--clr-class-link-active-bg);
-    --clr-donation-flare: linear-gradient(65deg, transparent 20%, rgba(136, 192, 208, 0.18) 20%, rgba(136, 192, 208, 0.28) 27%, transparent 27%, transparent 100%);
 
     /* Form images */
     --img-user: url(/public/resources/dark_mode/user.png);

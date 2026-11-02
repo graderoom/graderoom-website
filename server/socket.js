@@ -33,9 +33,6 @@ module.exports = {
                     case 'enableLogging':
                         resp = await dbClient.setEnableLogging(_socketUsernameHelper(socket), value);
                         break;
-                    case 'animateWhenUnfocused':
-                        resp = await dbClient.setAnimateWhenUnfocused(_socketUsernameHelper(socket), value);
-                        break;
                     case 'showFps':
                         resp = await dbClient.setShowFps(_socketUsernameHelper(socket), value);
                         break;
