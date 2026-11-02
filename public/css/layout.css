@@ -398,12 +398,3 @@ body.show-background::after {
     pointer-events: none;
 }
 
-/* Settings: the word opens the card on its last tab, the caret opens the tab menu */
-#settings {
-    display: flex;
-    align-items: center;
-}
-
-#settings .settings-open {
-    padding-right: 0;
-}

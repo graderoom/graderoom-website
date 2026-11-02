@@ -141,7 +141,7 @@ No build pipeline. EJS templates in `views/` with inline JavaScript. Static asse
   0 Donate, 1 Appearance, 2 Grades, 3 Account, 4 Help, 5 About, 6 Experiments. The navbar,
   keyboard shortcuts (`authorized_index.js`), `sync_grades_card.ejs` and links inside Settings use
   these numbers, so moving a tab means updating them. The navbar's Settings word and the S key call
-  `showCard()` alone, which reopens `currentSettingsTab`; the caret next to it is the tab menu.
+  `showCard()` alone, which reopens `currentSettingsTab`; the tab menu opens on hover.
 
 **Site effects** (winter snow, Christmas lights) live in `views/partials/site_effects.ejs`. Snow is
 CSS, not a canvas loop: `makeSnow()` builds one `<i>` per flake (fall, `translateY`) wrapping a `<b>`

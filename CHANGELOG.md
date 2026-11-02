@@ -58,8 +58,7 @@
 
 ### Improved
 - The Nebula and Hologlass backgrounds are smoother and easier on your battery
-- Clicking Settings in the navbar, or pressing S, opens the tab you were last on<ul>
-- The arrow next to Settings still opens the menu of tabs</ul>
+- Clicking Settings in the navbar, or pressing S, opens the tab you were last on
 
 ## [Stable 8.6.1] - 2026-11-01
 ### Improved
