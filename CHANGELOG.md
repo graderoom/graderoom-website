@@ -53,8 +53,13 @@
 - None
 
 ## [Beta 8.6.2] - 2026-11-01
+### Added
+- Show Background in More hides the page so you can see the whole background
+
 ### Improved
 - The Nebula and Hologlass backgrounds are smoother and easier on your battery
+- Clicking Settings in the navbar, or pressing S, opens the tab you were last on<ul>
+- The arrow next to Settings still opens the menu of tabs</ul>
 
 ## [Stable 8.6.1] - 2026-11-01
 ### Improved

@@ -4118,7 +4118,6 @@ $.get("/donationProgress", function (data) {
                     }
                 } else {
                     showCard("#settingsCardDisplay");
-                    openTab(1);
                 }
             } else if (["q", "Q"].includes(e.key)) {
                 if (cardsDisplayed.includes("changelogDisplay")) {

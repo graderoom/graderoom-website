@@ -369,3 +369,41 @@
     color: var(--clr-text-3);
     opacity: 0.6;
 }
+
+/* Show Background (More menu): everything but the background and its effects is hidden until the next click or key */
+body.show-background * {
+    visibility: hidden;
+}
+
+body.show-background #theme-background,
+body.show-background #theme-background *,
+body.show-background .lightrope,
+body.show-background .lightrope * {
+    visibility: visible;
+}
+
+body.show-background::after {
+    content: "Click or press any key to go back";
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    padding: 0.4rem 0.9rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    color: var(--clr-text);
+    background-color: var(--clr-surface);
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+/* Settings: the word opens the card on its last tab, the caret opens the tab menu */
+#settings {
+    display: flex;
+    align-items: center;
+}
+
+#settings .settings-open {
+    padding-right: 0;
+}

@@ -30,6 +30,22 @@
         $(id).fadeIn(100);
     }
 
+    // Hides the page until the next click or key, which is swallowed so it can't also act on the page
+    function showBackground() {
+        document.body.classList.add("show-background");
+        const back = e => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            document.body.classList.remove("show-background");
+            window.removeEventListener("click", back, true);
+            window.removeEventListener("keydown", back, true);
+        };
+        setTimeout(() => {
+            window.addEventListener("click", back, true);
+            window.addEventListener("keydown", back, true);
+        });
+    }
+
     function closeForm(id) {
         if (cardsDisplayed.length && cardsDisplayed.includes(id)) {
             for (let i = 0; i < cardsDisplayed.length; i++) {

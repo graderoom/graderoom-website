@@ -47,6 +47,14 @@
         display: none;
     }
 
+    #settings {
+        display: block;
+    }
+
+    #settings .settings-open {
+        display: none;
+    }
+
     .dropdown-divider {
         display: none;
     }
