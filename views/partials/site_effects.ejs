@@ -219,6 +219,9 @@
             } else if (background === "hologlass") {
                 setupHologlassBackgroundVariation(bg[0]);
             }
+            if (background !== "aurora") {
+                bg.append(`<div class="${layerClass} theme-background-tint" aria-hidden="true"></div>`);
+            }
             return;
         }
 
@@ -251,26 +254,17 @@
             return `${percent(x + randomBetween(-5, 5))} ${percent(y + randomBetween(-5, 5))}`;
         }).join(", ") + ", center";
 
-        element.style.setProperty("--bg-nebula-field-duration", seconds(randomBetween(28, 44)));
         element.style.setProperty("--bg-nebula-drift-duration", seconds(randomBetween(24, 38)));
-        element.style.setProperty("--bg-nebula-color-duration", seconds(randomBetween(14, 26)));
-        element.style.setProperty("--bg-nebula-field-delay", seconds(-randomBetween(0, 34)));
         element.style.setProperty("--bg-nebula-drift-delay", seconds(-randomBetween(0, 30)));
-        element.style.setProperty("--bg-nebula-color-delay", seconds(-randomBetween(0, 18)));
 
         element.style.setProperty("--bg-nebula-pos-start", positionSet([[0, 0], [100, 0], [50, 100], [45, 42], [60, 54], [50, 50]]));
-        element.style.setProperty("--bg-nebula-pos-end", positionSet([[8, 5], [92, 7], [45, 92], [52, 46], [54, 58], [56, 48]]));
 
-        element.style.setProperty("--bg-nebula-field-hue-start", degrees(randomBetween(-16, 4)));
-        element.style.setProperty("--bg-nebula-field-hue-end", degrees(randomBetween(8, 28)));
         element.style.setProperty("--bg-nebula-color-hue-start", degrees(randomBetween(-36, -10)));
-        element.style.setProperty("--bg-nebula-color-hue-mid", degrees(randomBetween(8, 30)));
-        element.style.setProperty("--bg-nebula-color-hue-end", degrees(randomBetween(30, 62)));
 
-        element.style.setProperty("--bg-nebula-field-saturation-start", decimal(randomBetween(0.95, 1.08)));
-        element.style.setProperty("--bg-nebula-field-saturation-end", decimal(randomBetween(1.12, 1.28)));
         element.style.setProperty("--bg-nebula-color-saturation-start", decimal(randomBetween(1.08, 1.34)));
-        element.style.setProperty("--bg-nebula-color-saturation-mid", decimal(randomBetween(1.62, 2.05)));
+        element.style.setProperty("--bg-nebula-color-duration", seconds(randomBetween(14, 26)));
+        element.style.setProperty("--bg-nebula-color-delay", seconds(-randomBetween(0, 18)));
+        element.style.setProperty("--bg-nebula-color-hue-end", degrees(randomBetween(30, 62)));
         element.style.setProperty("--bg-nebula-color-saturation-end", decimal(randomBetween(1.28, 1.58)));
     }
 
@@ -284,12 +278,8 @@
             return `${percent(x + randomBetween(-6, 6))} ${percent(y + randomBetween(-6, 6))}`;
         }).join(", ") + ", center";
 
-        element.style.setProperty("--bg-hologlass-field-duration", seconds(randomBetween(34, 54)));
         element.style.setProperty("--bg-hologlass-sheen-duration", seconds(randomBetween(28, 44)));
-        element.style.setProperty("--bg-hologlass-color-duration", seconds(randomBetween(18, 32)));
-        element.style.setProperty("--bg-hologlass-field-delay", seconds(-randomBetween(0, 38)));
         element.style.setProperty("--bg-hologlass-sheen-delay", seconds(-randomBetween(0, 32)));
-        element.style.setProperty("--bg-hologlass-color-delay", seconds(-randomBetween(0, 24)));
 
         element.style.setProperty("--bg-hologlass-angle-1", degrees(randomBetween(112, 138)));
         element.style.setProperty("--bg-hologlass-angle-2", degrees(randomBetween(46, 74)));
@@ -299,15 +289,12 @@
         element.style.setProperty("--bg-hologlass-sheen-angle-3", degrees(randomBetween(136, 162)));
 
         element.style.setProperty("--bg-hologlass-pos-start", positionSet([[0, 0], [100, 0], [55, 100], [46, 48], [52, 50], [50, 50]]));
-        element.style.setProperty("--bg-hologlass-pos-end", positionSet([[8, 5], [92, 6], [48, 94], [54, 44], [46, 58], [56, 48]]));
 
-        element.style.setProperty("--bg-hologlass-field-hue-start", degrees(randomBetween(-10, 2)));
-        element.style.setProperty("--bg-hologlass-field-hue-end", degrees(randomBetween(10, 30)));
         element.style.setProperty("--bg-hologlass-color-hue-start", degrees(randomBetween(-22, -4)));
-        element.style.setProperty("--bg-hologlass-color-hue-end", degrees(randomBetween(12, 38)));
-        element.style.setProperty("--bg-hologlass-field-saturation-start", decimal(randomBetween(0.98, 1.08)));
-        element.style.setProperty("--bg-hologlass-field-saturation-end", decimal(randomBetween(1.14, 1.34)));
         element.style.setProperty("--bg-hologlass-color-saturation-start", decimal(randomBetween(1.02, 1.16)));
+        element.style.setProperty("--bg-hologlass-color-duration", seconds(randomBetween(18, 32)));
+        element.style.setProperty("--bg-hologlass-color-delay", seconds(-randomBetween(0, 24)));
+        element.style.setProperty("--bg-hologlass-color-hue-end", degrees(randomBetween(12, 38)));
         element.style.setProperty("--bg-hologlass-color-saturation-end", decimal(randomBetween(1.20, 1.46)));
     }
 

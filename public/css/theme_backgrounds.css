@@ -122,10 +122,12 @@
     content: none;
 }
 
+/* Nebula and hologlass animate only transform and opacity, which the compositor runs without repainting.
+   Their color filters are static, and nothing filters #theme-background itself, which holds the snow.
+   The color shift is .theme-background-tint, a copy of the ::before layer filtered to the end hue and
+   cross-faded with it on the same drift, so the two stay lined up */
 #theme-background.background-hologlass {
-    will-change: background-position, filter;
-    animation: hologlass-field-shift var(--bg-hologlass-field-duration, 42s) ease-in-out infinite alternate;
-    animation-delay: var(--bg-hologlass-field-delay, 0s);
+    --bg-tint-opacity: var(--bg-hologlass-sheen-opacity, 0.42);
     background:
             radial-gradient(ellipse 78% 58% at 12% 18%, var(--bg-hologlass-glow-1, rgba(56, 189, 248, 0.34)), transparent 62%),
             radial-gradient(ellipse 70% 52% at 88% 16%, var(--bg-hologlass-glow-2, rgba(236, 72, 153, 0.28)), transparent 60%),
@@ -138,21 +140,27 @@
     background-position: var(--bg-hologlass-pos-start, 0% 0%, 100% 0%, 55% 100%, 46% 48%, 52% 50%, 50% 50%, center);
 }
 
-#theme-background.background-hologlass::before {
+#theme-background.background-hologlass::before,
+#theme-background.background-hologlass .theme-background-tint {
     content: "";
     position: absolute;
     inset: -16%;
     opacity: var(--bg-hologlass-sheen-opacity, 0.42);
-    filter: blur(18px) saturate(1.2);
-    will-change: transform, opacity, filter;
-    animation:
-            hologlass-sheen var(--bg-hologlass-sheen-duration, 36s) ease-in-out infinite alternate,
-            hologlass-color-shift var(--bg-hologlass-color-duration, 24s) ease-in-out infinite alternate;
+    filter: saturate(var(--bg-hologlass-color-saturation-start, 1.05)) hue-rotate(var(--bg-hologlass-color-hue-start, -12deg));
+    will-change: transform, opacity;
+    animation: hologlass-sheen var(--bg-hologlass-sheen-duration, 36s) ease-in-out infinite alternate,
+            bg-tint-out var(--bg-hologlass-color-duration, 24s) ease-in-out infinite alternate;
     animation-delay: var(--bg-hologlass-sheen-delay, 0s), var(--bg-hologlass-color-delay, 0s);
     background:
             linear-gradient(var(--bg-hologlass-sheen-angle-1, 112deg), transparent 10%, var(--bg-hologlass-sheen-1, rgba(255, 255, 255, 0.20)) 28%, transparent 44%),
             linear-gradient(var(--bg-hologlass-sheen-angle-2, 68deg), transparent 24%, var(--bg-hologlass-sheen-2, rgba(56, 189, 248, 0.18)) 52%, transparent 76%),
             linear-gradient(var(--bg-hologlass-sheen-angle-3, 150deg), transparent 18%, var(--bg-hologlass-sheen-3, rgba(236, 72, 153, 0.16)) 58%, transparent 86%);
+}
+
+#theme-background.background-hologlass .theme-background-tint {
+    opacity: 0;
+    filter: saturate(var(--bg-hologlass-color-saturation-end, 1.32)) hue-rotate(var(--bg-hologlass-color-hue-end, 24deg));
+    animation-name: hologlass-sheen, bg-tint-in;
 }
 
 #theme-background.background-hologlass::after {
@@ -169,9 +177,7 @@
 }
 
 #theme-background.background-nebula {
-    will-change: background-position, filter;
-    animation: nebula-field-shift var(--bg-nebula-field-duration, 34s) ease-in-out infinite alternate;
-    animation-delay: var(--bg-nebula-field-delay, 0s);
+    --bg-tint-opacity: var(--bg-nebula-cloud-opacity, 0.52);
     background:
             radial-gradient(ellipse 90% 55% at 18% 24%, var(--bg-nebula-core-1, rgba(244, 114, 182, 0.52)), transparent 58%),
             radial-gradient(ellipse 72% 48% at 82% 18%, var(--bg-nebula-core-2, rgba(45, 212, 191, 0.45)), transparent 56%),
@@ -184,16 +190,16 @@
     background-position: var(--bg-nebula-pos-start, 0% 0%, 100% 0%, 50% 100%, 45% 42%, 60% 54%, 50% 50%, center);
 }
 
-#theme-background.background-nebula::before {
+#theme-background.background-nebula::before,
+#theme-background.background-nebula .theme-background-tint {
     content: "";
     position: absolute;
     inset: -12%;
     opacity: var(--bg-nebula-cloud-opacity, 0.52);
-    filter: blur(46px) saturate(1.45) contrast(1.08) hue-rotate(-8deg);
-    will-change: transform, opacity, filter;
-    animation:
-            nebula-drift var(--bg-nebula-drift-duration, 30s) ease-in-out infinite alternate,
-            nebula-color-shift var(--bg-nebula-color-duration, 18s) ease-in-out infinite alternate;
+    filter: saturate(var(--bg-nebula-color-saturation-start, 1.18)) contrast(1.05) hue-rotate(var(--bg-nebula-color-hue-start, -22deg));
+    will-change: transform, opacity;
+    animation: nebula-drift var(--bg-nebula-drift-duration, 30s) ease-in-out infinite alternate,
+            bg-tint-out var(--bg-nebula-color-duration, 18s) ease-in-out infinite alternate;
     animation-delay: var(--bg-nebula-drift-delay, 0s), var(--bg-nebula-color-delay, 0s);
     background:
             radial-gradient(ellipse 68% 36% at 18% 54%, var(--bg-nebula-core-1, rgba(244, 114, 182, 0.52)), transparent 62%),
@@ -201,6 +207,12 @@
             radial-gradient(ellipse 52% 32% at 50% 70%, var(--bg-nebula-core-3, rgba(250, 204, 21, 0.28)), transparent 62%),
             linear-gradient(112deg, transparent 12%, var(--bg-nebula-veil-1, rgba(244, 114, 182, 0.22)) 34%, transparent 62%),
             linear-gradient(72deg, transparent 18%, var(--bg-nebula-veil-2, rgba(45, 212, 191, 0.2)) 48%, transparent 76%);
+}
+
+#theme-background.background-nebula .theme-background-tint {
+    opacity: 0;
+    filter: saturate(var(--bg-nebula-color-saturation-end, 1.42)) contrast(1.08) hue-rotate(var(--bg-nebula-color-hue-end, 42deg));
+    animation-name: nebula-drift, bg-tint-in;
 }
 
 #theme-background.background-nebula::after {
@@ -217,6 +229,25 @@
             linear-gradient(155deg, transparent 26%, var(--bg-nebula-vignette-soft, rgba(0, 0, 0, 0.14)) 100%);
 }
 
+/* Listed after the drift, so they set opacity while the drift keeps the transform */
+@keyframes bg-tint-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: var(--bg-tint-opacity);
+    }
+}
+
+@keyframes bg-tint-out {
+    from {
+        opacity: var(--bg-tint-opacity);
+    }
+    to {
+        opacity: 0;
+    }
+}
+
 @keyframes nebula-drift {
     from {
         transform: translate3d(-1.5%, -1%, 0) scale(1.02) rotate(-1deg);
@@ -225,17 +256,6 @@
     to {
         transform: translate3d(1.5%, 1%, 0) scale(1.06) rotate(1deg);
         opacity: var(--bg-nebula-cloud-opacity, 0.52);
-    }
-}
-
-@keyframes nebula-field-shift {
-    from {
-        background-position: var(--bg-nebula-pos-start, 0% 0%, 100% 0%, 50% 100%, 45% 42%, 60% 54%, 50% 50%, center);
-        filter: saturate(var(--bg-nebula-field-saturation-start, 1)) hue-rotate(var(--bg-nebula-field-hue-start, -6deg));
-    }
-    to {
-        background-position: var(--bg-nebula-pos-end, 8% 5%, 92% 7%, 45% 92%, 52% 46%, 54% 58%, 56% 48%, center);
-        filter: saturate(var(--bg-nebula-field-saturation-end, 1.18)) hue-rotate(var(--bg-nebula-field-hue-end, 14deg));
     }
 }
 
@@ -250,29 +270,6 @@
     }
 }
 
-@keyframes nebula-color-shift {
-    from {
-        filter: blur(46px) saturate(var(--bg-nebula-color-saturation-start, 1.18)) contrast(1.05) hue-rotate(var(--bg-nebula-color-hue-start, -22deg));
-    }
-    50% {
-        filter: blur(46px) saturate(var(--bg-nebula-color-saturation-mid, 1.85)) contrast(1.14) hue-rotate(var(--bg-nebula-color-hue-mid, 18deg));
-    }
-    to {
-        filter: blur(46px) saturate(var(--bg-nebula-color-saturation-end, 1.42)) contrast(1.08) hue-rotate(var(--bg-nebula-color-hue-end, 42deg));
-    }
-}
-
-@keyframes hologlass-field-shift {
-    from {
-        background-position: var(--bg-hologlass-pos-start, 0% 0%, 100% 0%, 55% 100%, 46% 48%, 52% 50%, 50% 50%, center);
-        filter: saturate(var(--bg-hologlass-field-saturation-start, 1.02)) hue-rotate(var(--bg-hologlass-field-hue-start, -4deg));
-    }
-    to {
-        background-position: var(--bg-hologlass-pos-end, 8% 5%, 92% 6%, 48% 94%, 54% 44%, 46% 58%, 56% 48%, center);
-        filter: saturate(var(--bg-hologlass-field-saturation-end, 1.22)) hue-rotate(var(--bg-hologlass-field-hue-end, 18deg));
-    }
-}
-
 @keyframes hologlass-sheen {
     from {
         transform: translate3d(-2%, -1%, 0) scale(1.03);
@@ -281,15 +278,6 @@
     to {
         transform: translate3d(2%, 1%, 0) scale(1.08);
         opacity: var(--bg-hologlass-sheen-opacity, 0.42);
-    }
-}
-
-@keyframes hologlass-color-shift {
-    from {
-        filter: blur(18px) saturate(var(--bg-hologlass-color-saturation-start, 1.05)) hue-rotate(var(--bg-hologlass-color-hue-start, -12deg));
-    }
-    to {
-        filter: blur(18px) saturate(var(--bg-hologlass-color-saturation-end, 1.32)) hue-rotate(var(--bg-hologlass-color-hue-end, 24deg));
     }
 }
 
@@ -306,7 +294,8 @@
 
 body:has(#notificationPanel.active) #theme-background,
 body:has(#notificationPanel.active) #theme-background::before,
-body:has(#notificationPanel.active) #theme-background::after {
+body:has(#notificationPanel.active) #theme-background::after,
+body:has(#notificationPanel.active) #theme-background .theme-background-tint {
     animation-play-state: paused !important;
 }
 
@@ -315,7 +304,8 @@ body:has(#notificationPanel.active) #theme-background::after {
     #theme-background.background-hologlass::before,
     #theme-background.background-hologlass::after,
     #theme-background.background-nebula::before,
-    #theme-background.background-nebula::after {
+    #theme-background.background-nebula::after,
+    #theme-background .theme-background-tint {
         animation: none;
         will-change: auto;
     }

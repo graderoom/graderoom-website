@@ -52,6 +52,10 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Beta 8.6.2] - 2026-11-01
+### Improved
+- The Nebula and Hologlass backgrounds are smoother and easier on your battery
+
 ## [Stable 8.6.1] - 2026-11-01
 ### Improved
 - Snow is smoother<ul>
