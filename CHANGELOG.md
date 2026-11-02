@@ -52,6 +52,18 @@
 ## [Known Issues] - <em>Send bug reports in More > Send Feedback</em><br><em>Only issues in the stable version will be listed here</em>
 - None
 
+## [Stable 8.6.1] - 2026-11-01
+### Improved
+- Snow is smoother<ul>
+- It no longer stutters while you scroll
+- It no longer disappears when frames arrive unevenly</ul>
+- Snow follows Reduce Motion and your device's reduced motion setting
+
+### Removed
+- The setting to keep effects playing when the window isn't focused, since they always play now
+- Frame rate details from Stats for Nerds, and the Performance Log
+- The shine on the PREMIUM label and Donate
+
 ## [Stable 8.6.0] - 2026-10-26
 ### Added
 - New charts on the Graderoom Stats page (More > Graderoom Stats)<ul>
