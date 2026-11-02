@@ -142,10 +142,12 @@ No build pipeline. EJS templates in `views/` with inline JavaScript. Static asse
   keyboard shortcuts (`authorized_index.js`), `sync_grades_card.ejs` and links inside Settings use
   these numbers, so moving a tab means updating them.
 
-**Site effects** (winter snow, Christmas lights) live in `views/partials/site_effects.ejs`. The snow
-loop clears only the rects it painted last frame (`smudge()`), moves flakes by the real rAF-stamp
-delta (unsmoothed, so VRR frames stay even), and the watchdog hides it only below 10 FPS; jitter is
-shown in the FPS box, not acted on. Effects are disabled outright on mobile: `renderWithConstants()`
+**Site effects** (winter snow, Christmas lights) live in `views/partials/site_effects.ejs`. Snow is
+CSS, not a canvas loop: `makeSnow()` builds one `<i>` per flake (fall, `translateY`) wrapping a `<b>`
+(sway, `translateX`), each with its own random duration and negative delay, so the compositor animates
+them and a busy main thread (scrolling) can't drop their frames. `bg-paused` pauses them, the reduce
+motion setting and `prefers-reduced-motion` hide them, and a resize rebuilds them. The FPS box
+(Show FPS setting) now reports the page's main-thread rate. Effects are disabled outright on mobile: `renderWithConstants()`
 sets `_mobile` from `deviceOf(req)` (`server/middleware.js`), which reads the `Sec-CH-UA-Mobile`
 client hint or the User-Agent, never the viewport width. The page also treats a `(pointer: coarse)`
 device as mobile, which catches iPads and phones that ask for the desktop site.

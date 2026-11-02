@@ -13,11 +13,50 @@
         height: 100%;
     }
 
+    /* Flakes are CSS animations so the compositor runs them, and a busy main thread (scrolling)
+       can't drop their frames. Fall and sway periods differ per flake so paths don't repeat */
     #snow-fall {
         position: fixed;
+        inset: 0;
         z-index: -1;
-        top: 0;
-        will-change: transform;
+        overflow: hidden;
+        pointer-events: none;
+        contain: strict;
+    }
+
+    #snow-fall i {
+        position: absolute;
+        top: -12px;
+        animation: snow-fall linear infinite;
+    }
+
+    #snow-fall b {
+        display: block;
+        border-radius: 50%;
+        background: rgba(220, 235, 255, 0.9);
+        animation: snow-sway ease-in-out infinite alternate;
+    }
+
+    #theme-background.bg-paused #snow-fall * {
+        animation-play-state: paused;
+    }
+
+    @keyframes snow-fall {
+        to {
+            transform: translateY(calc(100vh + 24px));
+        }
+    }
+
+    @keyframes snow-sway {
+        to {
+            transform: translateX(var(--drift));
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #snow-fall {
+            display: none;
+        }
     }
 
     #fps {
@@ -45,9 +84,7 @@
 <% } %>
 
 <div id="theme-background" class="theme-<%= activeThemeName %> background-<%= background %>">
-    <canvas id='snow-fall' <% if (!_appearance.seasonalEffects || _mobile) { %>style="display: none"
-            <% } %>
-    ></canvas>
+    <div id="snow-fall" aria-hidden="true" <% if (!_appearance.seasonalEffects || _mobile) { %>style="display: none"<% } %>></div>
 </div>
 <% const lightsMonth = 11; /* 11 is December */ %>
 <% const lights = new Date().getMonth() === lightsMonth && !_mobile; %>
@@ -65,7 +102,6 @@
     const winterEnd = <%= winterEnd %>; // 2 is March
     const timeMultiplier = Math.min((today.getMonth() - winterStart + 12) % 12, (winterEnd - today.getMonth() + 12) % 12) / ((winterEnd - winterStart + 24) % 12);
     const speedScale = 0.75 + 0.5 * timeMultiplier;
-    const buffer = 10;
     const minSpeed = 0.75 + 0.5 * timeMultiplier;
     const sizeScale = 0.4 + 0.2 * timeMultiplier;
     const scaleFactor = 15;
@@ -73,49 +109,48 @@
     // Server side from the User-Agent, plus a touch-first pointer for iPads and phones asking for the
     // desktop site, so a narrow desktop window still gets snow
     const onMobile = <%= _mobile %> || matchMedia("(pointer: coarse)").matches;
-    // Watchdog hides snow below deadFps, back above 1.5x so it doesn't flap. Jitter is shown, not
-    // acted on: on a VRR screen uneven frame gaps are normal
-    const deadFps = 10;
 
-    let numFlakes;
-    let snow = [];
-    let canvas = document.getElementById("snow-fall"), $$ = canvas.getContext("2d");
-    let screenWidth = canvas.width = window.innerWidth, screenHeight = canvas.height = window.innerHeight;
-    let renderNextFrame = true;
-
-    // Rects painted last frame as x/y/w/h runs, so the next frame clears only those, not the page
-    const dirty = [];
-    let dirtyN = 0;
-    let frameGap = 0, frameJitter = 0, worstGap = 0, lastDelta = 0;
+    let screenWidth = window.innerWidth, screenHeight = window.innerHeight;
+    const snowBox = document.getElementById("snow-fall");
     const statsBox = document.getElementById("fps");
 
-    let dynamicDisplayInterval;
-
-    let lightsMonth = <%= lightsMonth; %>;
-    let init;
-    let started = false;
-
-    function smudge(x, y, w, h) {
-        dirty[dirtyN++] = x - 2;
-        dirty[dirtyN++] = y - 2;
-        dirty[dirtyN++] = w + 4;
-        dirty[dirtyN++] = h + 4;
+    // Each flake keeps the old canvas sizes and speeds (px per 60th of a second), turned into a
+    // fall duration; negative delays start them mid-fall
+    function makeSnow() {
+        snowBox.textContent = "";
+        if (onMobile || !appearance.seasonalEffects || !inSeason) {
+            return;
+        }
+        const count = Math.round(screenWidth / scaleFactor * (1 + timeMultiplier));
+        let html = "";
+        for (let i = 0; i < count; i++) {
+            const radius = (150 / (20 + Math.random() * 55)) * sizeScale;
+            const speed = Math.max(minSpeed, Math.pow(radius * .8, 2) * .15 * speedScale) * 60;
+            const fall = (screenHeight + 24) / speed;
+            const sway = 8 + Math.random() * 12;
+            html += `<i style="left: ${(Math.random() * 100).toFixed(2)}%; animation-duration: ${fall.toFixed(2)}s; animation-delay: ${(-Math.random() * fall).toFixed(2)}s">`
+                + `<b style="width: ${(2 * radius).toFixed(2)}px; height: ${(2 * radius).toFixed(2)}px; --drift: ${((Math.random() - 0.5) * 200).toFixed(1)}px; animation-duration: ${sway.toFixed(2)}s; animation-delay: ${(-Math.random() * sway).toFixed(2)}s"></b></i>`;
+        }
+        snowBox.innerHTML = html;
     }
 
-    function showStats(fps, average) {
-        const live = renderNextFrame && snow.length;
-        const row = (label, value) => label.padStart(10) + String(value).padStart(11);
-        statsBox.textContent = [
-            row("10S AVG:", live ? Math.round(average) + "FPS" + (average < deadFps ? " !" : "") : "N/A"),
-            row("FRAMETIME:", live ? Math.round(1000 / fps) + "MS" : "N/A"),
-            row("INTERVAL:", live && frameGap > 0 ? (frameGap * 1000).toFixed(1) + "MS" : "N/A"),
-            row("JITTER:", live && frameGap > 0
-                ? (100 * frameJitter / frameGap).toFixed(1) + "%" : "N/A"),
-            row("WORST GAP:", live && worstGap > 0 ? (worstGap * 1000).toFixed(0) + "MS" : "N/A"),
-            row("VIEWPORT:", screenWidth + "x" + screenHeight),
-            row("FLAKES:", snow.length || "N/A"),
-            row("LIGHTS:", typeof numLights === "undefined" ? "N/A" : numLights)
-        ].join("\n");
+    // Main thread frame rate, which the snow no longer depends on
+    if (statsBox) {
+        let frames = 0;
+        (function count() {
+            frames++;
+            requestAnimationFrame(count);
+        })();
+        setInterval(() => {
+            const row = (label, value) => label.padStart(10) + String(value).padStart(11);
+            statsBox.textContent = [
+                row("PAGE FPS:", frames),
+                row("VIEWPORT:", screenWidth + "x" + screenHeight),
+                row("FLAKES:", snowBox.childElementCount || "N/A"),
+                row("LIGHTS:", typeof numLights === "undefined" ? "N/A" : numLights)
+            ].join("\n");
+            frames = 0;
+        }, 1000);
     }
 
     function activeThemeNameFor(isDark) {
@@ -295,15 +330,7 @@
         if (onMobile) {
             return;
         }
-        init = performance.now();
-        snow.forEach((flake, index) => delete snow[index]);
-        snow = [];
-        if (!started) {
-            Snowy(true);
-        } else {
-            started = false;
-            Snowy();
-        }
+        makeSnow();
         $("#snow-fall").show();
         if (typeof setupLights !== "undefined") {
             setupLights();
@@ -312,8 +339,7 @@
     }
 
     function disableSnow() {
-        snow.forEach((flake, index) => delete snow[index]);
-        snow = [];
+        snowBox.textContent = "";
         if (typeof numLights !== "undefined") {
             numLights = undefined;
         }
@@ -321,170 +347,31 @@
         $(".lightrope").hide();
     }
 
-    function initializeFlake(flake, initial = true) {
-        flake.size = (150 / (20 + Math.random() * 55)) * sizeScale;
-        if (initial) {
-            flake.yPos = 2 * Math.random() * (-screenHeight) * Math.log1p(flake.size);
-        } else {
-            flake.yPos = Math.random() * (-screenHeight);
+    <% if (!_appearance.animateWhenUnfocused) { %>
+    window.addEventListener("blur", () => {
+        document.getElementById("theme-background").classList.add("bg-paused");
+        if (inSeason) {
+            $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects paused by window unfocus</small>`));
         }
-        flake.xPos = Math.random() * screenWidth;
-        flake.speed = (Math.pow(flake.size * .8, 2) * .15) * speedScale;
-        flake.speed = flake.speed < minSpeed ? minSpeed : flake.speed;
-        flake.drift = (Math.random() - 0.5) * 0.3;
-
-        return flake;
-    }
-
-    function Snowy(start = false) {
-        if (onMobile || started) {
-            return;
+    });
+    window.addEventListener("focus", () => {
+        document.getElementById("theme-background").classList.remove("bg-paused");
+        if (inSeason) {
+            $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects resumed by window focus</small>`));
         }
-        started = true;
-        let snowEnabled = false;
-        if (appearance.seasonalEffects && inSeason) {
-            snowEnabled = true;
-            numFlakes = screenWidth / scaleFactor + screenWidth * timeMultiplier / scaleFactor;
-            for (let i = 0; i < numFlakes; ++i) {
-                snow.push(initializeFlake({}));
-            }
-        }
-
-        if (start) {
-
-            init = performance.now();
-            let lastCalledTime;
-            let fps = 60;
-            // Decayed ten second average, as a weighted sum over its own weight so it reads right from
-            // the first frame. Replaces an array of per-frame objects sorted every second
-            let _10sAverage = 0, fpsBlend = 0, fpsWeight = 0;
-            let fpsScale;
-
-            go();
-
-            // Off the frame loop, so watching the frame rate doesn't lower it
-            if (statsBox) {
-                setInterval(() => {
-                    showStats(fps, _10sAverage);
-                    worstGap = 0;
-                }, 500);
-            }
-
-            dynamicDisplayInterval = setInterval(() => {
-                if (performance.now() - init < 4000 || !renderNextFrame || !snow.length) {
-                    return;
-                } // Wait 4 seconds before judging anything
-                if (_10sAverage < (snowEnabled ? deadFps : deadFps * 1.5)) {
-                    if (snowEnabled) {
-                        $("#snow-fall").fadeOut("slow");
-                        $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-danger font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow hidden: frame rate too low</small>`));
-                        snowEnabled = false;
-                    }
-                } else if (!snowEnabled) {
-                    $("#snow-fall").fadeIn("slow");
-                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-success font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Snow reenabled</small>`));
-                    snowEnabled = true;
-                }
-            }, 1000);
-
-            // Timed off the rAF stamp, which is when the frame is shown, not performance.now() inside
-            // the callback, which carries the callback's own jitter
-            function go(at) {
-                if (renderNextFrame && snow.length) {
-                    const now = at || performance.now();
-                    if (!lastCalledTime) {
-                        lastCalledTime = now;
-                        fps = 1;
-                        fpsScale = 1;
-                    } else if (now - lastCalledTime > 1000) {
-                        // A backgrounded tab coming back is not a slow page
-                        lastCalledTime = now;
-                        lastDelta = 0;
-                    } else {
-                        const delta = (now - lastCalledTime) / 1000;
-                        lastCalledTime = now;
-                        fps = 1 / delta;
-                        const decay = 1 - Math.exp(-delta / 10);
-                        fpsBlend += (fps - fpsBlend) * decay;
-                        fpsWeight += (1 - fpsWeight) * decay;
-                        _10sAverage = fpsBlend / fpsWeight;
-                        frameGap += (delta - frameGap) * (1 - Math.exp(-delta / 0.5));
-                        if (lastDelta) {
-                            frameJitter += (Math.abs(delta - lastDelta) - frameJitter) * (1 - Math.exp(-delta / 2));
-                        }
-                        lastDelta = delta;
-                        if (delta > worstGap) {
-                            worstGap = delta;
-                        }
-                        fpsScale = fps / 60;
-                    }
-
-                    // Real elapsed time, not smoothed: the rAF stamp tracks when the frame is shown, so
-                    // uneven VRR frames still move evenly. The clamp stops a returning tab teleporting flakes
-                    const step = Math.min(4, 1 / fpsScale);
-
-                    for (let d = 0; d < dirtyN; d += 4) {
-                        $$.clearRect(dirty[d], dirty[d + 1], dirty[d + 2], dirty[d + 3]);
-                    }
-                    dirtyN = 0;
-
-                    let flake;
-                    $$.beginPath();
-                    $$.fillStyle = "rgba(220, 235, 255, 0.9)";
-                    for (let i = 0; i < snow.length; i++) {
-                        flake = snow[i];
-                        flake.yPos += flake.speed * step;
-                        flake.xPos += flake.drift * step;
-                        if (flake.xPos > screenWidth + buffer) flake.xPos = -buffer;
-                        if (flake.xPos < -buffer) flake.xPos = screenWidth + buffer;
-                        if (flake.yPos > screenHeight + 50) flake = initializeFlake(flake, false);
-                        smudge(flake.xPos - flake.size, flake.yPos - flake.size, flake.size * 2, flake.size * 2);
-                        $$.moveTo(flake.xPos + flake.size, flake.yPos);
-                        $$.arc(flake.xPos, flake.yPos, flake.size, 0, Math.PI * 2, true);
-                    }
-                    $$.fill();
-                } else {
-                    lastCalledTime = undefined;
-                }
-                window.requestAnimationFrame(go);
-            }
-
-            <% if (!_appearance.animateWhenUnfocused) { %>
-            window.addEventListener("blur", stop);
-            window.addEventListener("focus", play);
-            <% } %>
-
-            function stop() {
-                if (inSeason) {
-                    $("#snow-fall").hide();
-                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects disabled by window unfocus</small>`));
-                }
-                renderNextFrame = false;
-                document.getElementById("theme-background").classList.add("bg-paused");
-            }
-
-            function play() {
-                renderNextFrame = true;
-                document.getElementById("theme-background").classList.remove("bg-paused");
-                if (inSeason) {
-                    $("#snow-fall").show();
-                    $("#performance-issues-messages").prepend($(`<small class="performance-issue alert-info font-weight-bold">${$.format.date(Date.now(), "MM/dd/yy hh:mm:ss a")} | Effects enabled by window focus</small>`));
-                }
-            }
-        }
-    }
+    });
+    <% } %>
 
     let _resizeTimer;
     window.addEventListener("resize", function () {
         clearTimeout(_resizeTimer);
         _resizeTimer = setTimeout(() => {
-            canvas.width = screenWidth = window.innerWidth;
-            canvas.height = screenHeight = window.innerHeight;
-            snow.forEach((flake, index) => delete snow[index]);
-            snow = [];
-            started = false;
+            screenWidth = window.innerWidth;
+            screenHeight = window.innerHeight;
             setupThemeBackgroundDetails(typeof appearance !== "undefined" ? appearance.background : "<%= background %>");
-            Snowy();
+            if (snowBox.childElementCount) {
+                makeSnow();
+            }
             <% if (lights) { %>
             setupLights();
             <% } %>
