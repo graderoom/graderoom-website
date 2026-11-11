@@ -4016,7 +4016,8 @@ const _initAddedAssignments = async (db, username) => {
         let semesters = Object.keys(user.grades[years[i]]);
         temp[years[i]] = {};
         for (let j = 0; j < semesters.length; j++) {
-            temp[years[i]][semesters[j]] = current[years[i]]?.[semesters[j]] ?? [];
+            // Copy it: the loop below overwrites entries that later lookups in current still need
+            temp[years[i]][semesters[j]] = _.cloneDeep(current[years[i]]?.[semesters[j]] ?? []);
             let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
             for (let k = 0; k < classes.length; k++) {
                 if (k >= temp[years[i]][semesters[j]].length) {
@@ -4058,7 +4059,8 @@ const _initEditedAssignments = async (db, username) => {
         let semesters = Object.keys(user.grades[years[i]]);
         temp[years[i]] = {};
         for (let j = 0; j < semesters.length; j++) {
-            temp[years[i]][semesters[j]] = current[years[i]]?.[semesters[j]] ?? [];
+            // Copy it: the loop below overwrites entries that later lookups in current still need
+            temp[years[i]][semesters[j]] = _.cloneDeep(current[years[i]]?.[semesters[j]] ?? []);
             let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
             for (let k = 0; k < classes.length; k++) {
                 if (k >= temp[years[i]][semesters[j]].length) {
@@ -4100,7 +4102,8 @@ const _initWeights = async (db, username) => {
         let semesters = Object.keys(user.grades[years[i]]);
         temp[years[i]] = {};
         for (let j = 0; j < semesters.length; j++) {
-            temp[years[i]][semesters[j]] = current[years[i]]?.[semesters[j]] ?? [];
+            // Copy it: the loop below overwrites entries that later lookups in current still need
+            temp[years[i]][semesters[j]] = _.cloneDeep(current[years[i]]?.[semesters[j]] ?? []);
             let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
             for (let k = 0; k < classes.length; k++) {
                 if (k >= temp[years[i]][semesters[j]].length) {
@@ -4158,7 +4161,8 @@ const _initAddedWeights = async (db, username) => {
         let semesters = Object.keys(user.grades[years[i]]);
         temp[years[i]] = {};
         for (let j = 0; j < semesters.length; j++) {
-            temp[years[i]][semesters[j]] = current[years[i]]?.[semesters[j]] ?? [];
+            // Copy it: the loop below overwrites entries that later lookups in current still need
+            temp[years[i]][semesters[j]] = _.cloneDeep(current[years[i]]?.[semesters[j]] ?? []);
             let classes = user.grades[years[i]][semesters[j]].map(c => c.class_name);
             for (let k = 0; k < classes.length; k++) {
                 if (k >= temp[years[i]][semesters[j]].length) {
