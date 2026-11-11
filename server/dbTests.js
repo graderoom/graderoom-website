@@ -221,6 +221,37 @@ module.exports = {
         customAssert((await db.getUser(username, {personalInfo: 1})).data.value.personalInfo.graduationYear, 2027, "Stored as a number");
         customAssert((await db.setPersonalInfo(username, undefined, undefined, "20x7")).success, false, "Non-numeric string refused");
         await db.removeUser(username);
+    }, testClassListChangeKeepsAddedAssignments: async () => {
+        // A new class in front of the others must not wipe the assignments added to the rest
+        let username = randomString(16).toLowerCase();
+        await db.addUser("bellarmine", username, "123ThisIsAPassword", `${randomString(8)}.${randomString(8)}22@bcp.org`.toLowerCase(), false);
+        let course = (name, id) => ({
+            extension_version: "1.7.3", class_name: name, teacher_name: "Sally G", overall_percent: 95,
+            overall_letter: "A", student_id: "1", section_id: String(id), ps_locked: false, grades: [{
+                date: "10/01/2025", category: "Tests", assignment_name: "Test 1", exclude: false,
+                points_possible: 10, points_gotten: 9, grade_percent: 90, psaid: id, late: false, missing: false
+            }]
+        });
+        let added = (name) => ({className: name, data: [{
+            assignment_name: "Extra credit", date: "10/02/2025", category: "Tests", grade_percent: 100,
+            points_gotten: 5, points_possible: 5, exclude: false
+        }]});
+        customAssert((await db.updateGradesFromUser(username, {term: "25-26", semester: "S1", grades: [course("Math", 1), course("Art", 2)]})).success, true, "First sync");
+        customAssert((await db.updateAddedAssignments(username, [added("Math"), added("Art")], "25-26", "S1")).success, true, "Add assignments to both classes");
+        customAssert((await db.updateWeightsForClass(username, "25-26", "S1", "Art", true, {Tests: 100}, {})).success, true, "Set custom weights on Art");
+        // The sync limit would refuse a second upload straight away, so move the clock past it
+        let now = Date.now;
+        Date.now = () => now() + 20 * 60 * 1000;
+        try {
+            customAssert((await db.updateGradesFromUser(username, {term: "25-26", semester: "S1", grades: [course("Biology", 3), course("Math", 1), course("Art", 2)]})).success, true, "Second sync with a class in front");
+        } finally {
+            Date.now = now;
+        }
+        let kept = (await db.getUser(username, {addedAssignments: 1})).data.value.addedAssignments["25-26"].S1;
+        customAssert(kept.map(c => [c.className, c.data.length]), [["Biology", 0], ["Math", 1], ["Art", 1]], "Added assignments follow their classes");
+        let weights = (await db.getUser(username, {weights: 1})).data.value.weights["25-26"].S1;
+        customAssert(weights.find(c => c.className === "Art").weights, {Tests: 100}, "Custom weights follow their class");
+        await db.removeUser(username);
     }, testResetLink: async () => {
         // The link is built from which server this is, never from anything the requester sends
         const {resetLink} = require("./dbHelpers");
