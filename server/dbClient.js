@@ -4842,7 +4842,7 @@ const _addWeightsSuggestion = async (db, username, term, semester, className, te
             if (suggestions[i].usernames.length === 1) {
                 suggestions.splice(i, 1);
             } else {
-                suggestions[i].usernames.splice(suggestions.indexOf(username), 1);
+                suggestions[i].usernames.splice(suggestions[i].usernames.indexOf(username), 1);
             }
         }
     }

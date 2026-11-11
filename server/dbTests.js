@@ -221,6 +221,25 @@ module.exports = {
         customAssert((await db.getUser(username, {personalInfo: 1})).data.value.personalInfo.graduationYear, 2027, "Stored as a number");
         customAssert((await db.setPersonalInfo(username, undefined, undefined, "20x7")).success, false, "Non-numeric string refused");
         await db.removeUser(username);
+    }, testWeightsSuggestionRemovesOwnVote: async () => {
+        // Changing your vote must take your name off the old suggestion and nobody else's
+        let users = [0, 1, 2].map(() => randomString(16).toLowerCase());
+        for (let u of users) {
+            await db.addUser("bellarmine", u, "123ThisIsAPassword", `${randomString(8)}.${randomString(8)}22@bcp.org`.toLowerCase(), false);
+        }
+        let [term, className] = ["zz-" + randomString(6), "Class " + randomString(6)];
+        await db.addDbClass("bellarmine", term, "S1", className, "Alex Smith");
+        for (let u of users) {
+            await db.addWeightsSuggestion(u, term, "S1", className, "Alex Smith", true, {"Tests": 100});
+        }
+        await db.addWeightsSuggestion(users[0], term, "S1", className, "Alex Smith", true, {"Quizzes": 100});
+        let suggestions = (await db.getAllClassData("bellarmine", term, "S1")).data.classData[className]["Alex Smith"].suggestions;
+        let votes = (weight) => suggestions.find(x => x.weights[weight] === 100)?.usernames;
+        customAssert(votes("Tests"), [users[1], users[2]], "Old suggestion keeps the other voters");
+        customAssert(votes("Quizzes"), [users[0]], "New suggestion has the changed vote");
+        for (let u of users) {
+            await db.removeUser(u);
+        }
     }, testResetLink: async () => {
         // The link is built from which server this is, never from anything the requester sends
         const {resetLink} = require("./dbHelpers");
